@@ -21,6 +21,7 @@ import { useApp } from '../AppContext';
 import { getEntry, deleteEntry } from '../db/queries/entries';
 import { listPhotosByEntry, getProfilePhoto, setProfilePhoto, unsetAllProfilePhotos, deletePhoto, countPhotosByEntry } from '../db/queries/photos';
 import { listTagsByEntry, addEntryTag, removeEntryTag, upsertTag } from '../db/queries/tags';
+import { logEncounter, listEncountersByEntry, deleteEncounter, type Encounter } from '../db/queries/encounters';
 import { ingestImage } from '../services/ingestion';
 import { searchByEmbedding } from '../services/search';
 import { accentForEntry } from '../theme/accent';
@@ -72,6 +73,7 @@ export function EntryDetailScreen() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [ingesting, setIngesting] = useState(false);
   const [sampleResult, setSampleResult] = useState<string | null>(null);
+  const [encounters, setEncounters] = useState<Encounter[]>([]);
 
   const accent = entry ? accentForEntry(profilePhoto?.original_phash ?? 0) : '#7c3aed';
 
@@ -83,6 +85,7 @@ export function EntryDetailScreen() {
     setProfilePhotoState(getProfilePhoto(db, entryId));
     setPhotoCount(countPhotosByEntry(db, entryId));
     setTags(listTagsByEntry(db, entryId));
+    setEncounters(listEncountersByEntry(db, entryId));
   }, [db, entryId]);
 
   useEffect(() => { reload(); }, [reload]);
@@ -284,6 +287,45 @@ export function EntryDetailScreen() {
           </View>
         )}
 
+        {/* Encounters */}
+        <View style={styles.encountersSection}>
+          <View style={styles.encounterHeader}>
+            <Text style={styles.sectionLabel}>Encounters</Text>
+            <Pressable
+              style={[styles.logEncounterBtn, { borderColor: accent }]}
+              onPress={() => {
+                logEncounter(db, entryId, Date.now());
+                setEncounters(listEncountersByEntry(db, entryId));
+              }}
+            >
+              <MaterialIcons name="add" size={14} color={accent} />
+              <Text style={[styles.logEncounterText, { color: accent }]}>Log</Text>
+            </Pressable>
+          </View>
+          {encounters.length === 0 ? (
+            <Text style={styles.encounterEmpty}>No encounters logged yet.</Text>
+          ) : (
+            encounters.slice(0, 5).map(enc => (
+              <View key={enc.id} style={styles.encounterRow}>
+                <MaterialIcons name="radio-button-checked" size={8} color={accent} style={{ marginTop: 3 }} />
+                <Text style={styles.encounterDate}>{formatDate(enc.occurred_at)}</Text>
+                <Pressable
+                  onPress={() => {
+                    deleteEncounter(db, enc.id);
+                    setEncounters(listEncountersByEntry(db, entryId));
+                  }}
+                  hitSlop={8}
+                >
+                  <MaterialIcons name="close" size={14} color="#333" />
+                </Pressable>
+              </View>
+            ))
+          )}
+          {encounters.length > 5 && (
+            <Text style={styles.encounterMore}>+{encounters.length - 5} more</Text>
+          )}
+        </View>
+
         {/* Action bar */}
         <View style={styles.actionBar}>
           <Pressable style={styles.actionBtn} onPress={() => showSourcePicker(runSample)}>
@@ -429,4 +471,17 @@ const styles = StyleSheet.create({
   photoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 2 },
   photoCell: { width: THUMB_SIZE, aspectRatio: 1 },
   photoThumb: { width: '100%', height: '100%', backgroundColor: '#111' },
+  encountersSection: { gap: 6 },
+  encounterHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  sectionLabel: { fontSize: 11, fontFamily: Fonts.inter.medium, color: '#555', textTransform: 'uppercase', letterSpacing: 0.8 },
+  logEncounterBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    borderWidth: 1, borderRadius: 12,
+    paddingHorizontal: 10, paddingVertical: 4,
+  },
+  logEncounterText: { fontSize: 12, fontFamily: Fonts.inter.medium },
+  encounterEmpty: { fontSize: 12, fontFamily: Fonts.inter.regular, color: '#333' },
+  encounterRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  encounterDate: { flex: 1, fontSize: 12, fontFamily: Fonts.inter.regular, color: '#555' },
+  encounterMore: { fontSize: 11, fontFamily: Fonts.inter.regular, color: '#333', marginTop: 2 },
 });

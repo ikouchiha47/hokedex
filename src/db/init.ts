@@ -1,5 +1,7 @@
 import { open, type DB } from '@op-engineering/op-sqlite';
 import { runMigrations } from './migrations/runner';
+import { runDataMigrations } from './migrations/data-runner';
+import { backfillEncounters } from './data-migrations/001_backfill_encounters';
 import { updateCategoryThresholds } from './queries/categories';
 
 // Calibrated for MobileFaceNet/ArcFace 512-dim cosine similarity.
@@ -36,10 +38,14 @@ export async function initDatabase(collectionRoot: string): Promise<DB> {
     db.executeSync("PRAGMA journal_mode = WAL");
   }
 
+  // Schema migrations first — DDL only, sync, must finish before anything else
   runMigrations(db);
 
   // Always sync thresholds from code so we can tune without a schema migration.
   updateCategoryThresholds(db, 'people', THRESHOLDS.likely, THRESHOLDS.possible);
+
+  // Data migrations — run after schema is ready, process existing rows in batches
+  runDataMigrations(db, [backfillEncounters]);
 
   return db;
 }

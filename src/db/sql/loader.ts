@@ -10,22 +10,26 @@
 
 import migration000 from './migrations/000_migrations_table.sql';
 import migration001 from './migrations/001_initial_schema.sql';
+import migration002 from './migrations/002_encounters.sql';
 import queriesMigrations from './queries/migrations.sql';
 import queriesCategories from './queries/categories.sql';
 import queriesEntries from './queries/entries.sql';
 import queriesPhotos from './queries/photos.sql';
 import queriesEmbeddings from './queries/embeddings.sql';
 import queriesTags from './queries/tags.sql';
+import queriesEncounters from './queries/encounters.sql';
 
 export const SQL = {
   migration000,
   migration001,
+  migration002,
   queriesMigrations,
   queriesCategories,
   queriesEntries,
   queriesPhotos,
   queriesEmbeddings,
   queriesTags,
+  queriesEncounters,
 } as const;
 
 /**

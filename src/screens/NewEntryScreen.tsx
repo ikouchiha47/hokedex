@@ -20,6 +20,7 @@ import { useApp } from '../AppContext';
 import { insertEntry, deleteEntry } from '../db/queries/entries';
 import { setProfilePhoto, unsetAllProfilePhotos } from '../db/queries/photos';
 import { saveEntryTags } from '../db/queries/tags';
+import { logEncounter } from '../db/queries/encounters';
 import { ingestImage } from '../services/ingestion';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -140,6 +141,7 @@ export function NewEntryScreen() {
       unsetAllProfilePhotos(db, entryId);
       setProfilePhoto(db, outcome.photoId);
       if (selectedTags.length > 0) saveEntryTags(db, entryId, selectedTags);
+      logEncounter(db, entryId, now);
 
       if (outcome.status === 'reference_only') {
         ToastAndroid.show('No face detected — saved as reference photo.', ToastAndroid.SHORT);
