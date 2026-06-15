@@ -111,18 +111,24 @@ export function NewEntryScreen() {
     if (!valid) return;
 
     setSaving(true);
+    const entryId = generateId();
+    const now = Date.now();
+
     try {
-      const entryId = generateId();
-      const now = Date.now();
-      insertEntry(db, {
-        id: entryId,
-        category_id: category.id,
-        name: name.trim(),
-        notes: null,
-        is_public: 0,
-        created_at: now,
-        updated_at: now,
-      });
+      try {
+        insertEntry(db, {
+          id: entryId,
+          category_id: category.id,
+          name: name.trim(),
+          notes: null,
+          is_public: 0,
+          created_at: now,
+          updated_at: now,
+        });
+      } catch (insertErr) {
+        console.error('[NewEntry] insertEntry failed:', insertErr);
+        throw new Error('Failed to create entry. Please try again.');
+      }
 
       let outcome;
       try {
@@ -134,14 +140,23 @@ export function NewEntryScreen() {
           entryNameSlug: slugify(name.trim()),
         });
       } catch (ingestErr) {
-        try { deleteEntry(db, entryId); } catch (_) {}
+        console.error('[NewEntry] ingestImage failed, rolling back entry:', ingestErr);
+        try { deleteEntry(db, entryId); } catch (rollbackErr) {
+          console.error('[NewEntry] rollback deleteEntry also failed:', rollbackErr);
+        }
         throw ingestErr;
       }
 
-      unsetAllProfilePhotos(db, entryId);
-      setProfilePhoto(db, outcome.photoId);
-      if (selectedTags.length > 0) saveEntryTags(db, entryId, selectedTags);
-      logEncounter(db, entryId, now);
+      try {
+        unsetAllProfilePhotos(db, entryId);
+        setProfilePhoto(db, outcome.photoId);
+        if (selectedTags.length > 0) saveEntryTags(db, entryId, selectedTags);
+        logEncounter(db, entryId, now);
+      } catch (postErr) {
+        console.error('[NewEntry] post-ingest DB writes failed:', postErr);
+        // Entry and photo are saved — don't rollback, just warn
+        ToastAndroid.show('Saved, but some details failed to write.', ToastAndroid.SHORT);
+      }
 
       if (outcome.status === 'reference_only') {
         ToastAndroid.show('No face detected — saved as reference photo.', ToastAndroid.SHORT);
@@ -153,6 +168,7 @@ export function NewEntryScreen() {
 
       navigation.goBack();
     } catch (e) {
+      console.error('[NewEntry] save failed:', e);
       Alert.alert('Error', e instanceof Error ? e.message : String(e));
     } finally {
       setSaving(false);

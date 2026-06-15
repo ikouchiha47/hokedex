@@ -17,8 +17,8 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import { useApp } from '../AppContext';
 import { getEntry, listEntriesByCategory } from '../db/queries/entries';
-
 import { getProfilePhoto, setProfilePhoto, unsetAllProfilePhotos } from '../db/queries/photos';
+import { logEncounter } from '../db/queries/encounters';
 import { searchByEmbedding, type SearchResult } from '../services/search';
 import { searchEmbeddingsByVector } from '../db/queries/embeddings';
 import { ingestImage } from '../services/ingestion';
@@ -49,6 +49,8 @@ export function SearchResultScreen() {
   const [showDebug, setShowDebug] = useState(false);
   const [showEntryPicker, setShowEntryPicker] = useState(false);
   const [nameQuery, setNameQuery] = useState('');
+  // encounter confirmation: entryId pending confirmation, with toggle state
+  const [pendingEncounter, setPendingEncounter] = useState<{ entryId: string; logIt: boolean } | null>(null);
 
   const nameResults = nameQuery.trim().length > 0
     ? listEntriesByCategory(db, category.id).filter(e =>
@@ -115,7 +117,7 @@ export function SearchResultScreen() {
     }
   }
 
-  async function attachPhoto(entryId: string) {
+  async function attachPhoto(entryId: string, withEncounter = false) {
     if (!searchedUri || attaching) return;
     const entry = getEntry(db, entryId);
     if (!entry) return;
@@ -128,11 +130,17 @@ export function SearchResultScreen() {
         categoryId: category.id,
         entryNameSlug: slugify(entry.name),
       });
-      // Set as profile if entry has no profile photo yet
       const existing = getProfilePhoto(db, entryId);
       if (!existing) {
         unsetAllProfilePhotos(db, entryId);
         setProfilePhoto(db, outcome.photoId);
+      }
+      if (withEncounter) {
+        try {
+          logEncounter(db, entryId, Date.now());
+        } catch (encErr) {
+          console.error('[Search] logEncounter failed:', encErr);
+        }
       }
       if (outcome.status === 'reference_only') {
         ToastAndroid.show('No face — saved as reference photo.', ToastAndroid.SHORT);
@@ -141,9 +149,11 @@ export function SearchResultScreen() {
       }
       navigation.navigate('EntryDetail', { entryId });
     } catch (e) {
+      console.error('[Search] attachPhoto failed:', e);
       Alert.alert('Error', e instanceof Error ? e.message : String(e));
     } finally {
       setAttaching(null);
+      setPendingEncounter(null);
     }
   }
 
@@ -255,7 +265,7 @@ export function SearchResultScreen() {
           </View>
         )}
 
-        {showEntryPicker && searchedUri && (
+        {showEntryPicker && searchedUri && !pendingEncounter && (
           <View style={styles.section}>
             <Text style={styles.sectionLabel}>Pick entry to attach to</Text>
             {listEntriesByCategory(db, category.id).map(e => {
@@ -264,7 +274,10 @@ export function SearchResultScreen() {
                 <Pressable
                   key={e.id}
                   style={styles.possibleCard}
-                  onPress={() => { setShowEntryPicker(false); attachPhoto(e.id); }}
+                  onPress={() => {
+                    setShowEntryPicker(false);
+                    setPendingEncounter({ entryId: e.id, logIt: false });
+                  }}
                 >
                   {uri
                     ? <Image source={{ uri }} style={styles.possibleAvatar} />
@@ -277,6 +290,39 @@ export function SearchResultScreen() {
             <Pressable onPress={() => setShowEntryPicker(false)}>
               <Text style={[styles.sectionLabel, { color: '#444', marginTop: 4 }]}>Cancel</Text>
             </Pressable>
+          </View>
+        )}
+
+        {pendingEncounter && !attaching && (
+          <View style={styles.encounterConfirm}>
+            <Text style={styles.encounterConfirmLabel}>
+              Also log an encounter with {entryName(pendingEncounter.entryId)}?
+            </Text>
+            <Pressable
+              style={styles.encounterToggleRow}
+              onPress={() => setPendingEncounter(p => p ? { ...p, logIt: !p.logIt } : p)}
+            >
+              <View style={[styles.toggle, pendingEncounter.logIt && styles.toggleOn]}>
+                <View style={[styles.toggleThumb, pendingEncounter.logIt && styles.toggleThumbOn]} />
+              </View>
+              <Text style={styles.encounterToggleText}>
+                {pendingEncounter.logIt ? 'Yes, log encounter' : 'No, just attach photo'}
+              </Text>
+            </Pressable>
+            <View style={styles.encounterConfirmBtns}>
+              <Pressable
+                style={styles.confirmCancelBtn}
+                onPress={() => setPendingEncounter(null)}
+              >
+                <Text style={styles.confirmCancelText}>Cancel</Text>
+              </Pressable>
+              <Pressable
+                style={styles.confirmGoBtn}
+                onPress={() => attachPhoto(pendingEncounter.entryId, pendingEncounter.logIt)}
+              >
+                <Text style={styles.confirmGoText}>Confirm</Text>
+              </Pressable>
+            </View>
           </View>
         )}
 
@@ -537,4 +583,68 @@ const styles = StyleSheet.create({
   possibleAvatar: { width: AVATAR_SMALL, height: AVATAR_SMALL, borderRadius: AVATAR_SMALL / 2 },
   possibleName: { flex: 1, fontSize: 15, ...Fonts.grotesk.medium, color: '#ddd' },
   possiblePct: { fontSize: 13, fontFamily: Fonts.inter.regular, color: '#666' },
+  encounterConfirm: {
+    backgroundColor: '#0f0f14',
+    borderWidth: 1,
+    borderColor: '#1e1e2a',
+    borderRadius: 12,
+    padding: 16,
+    gap: 14,
+  },
+  encounterConfirmLabel: {
+    fontSize: 14,
+    fontFamily: Fonts.inter.medium,
+    color: '#aaa',
+  },
+  encounterToggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  toggle: {
+    width: 40,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#222',
+    padding: 2,
+    justifyContent: 'center',
+  },
+  toggleOn: { backgroundColor: '#7c3aed' },
+  toggleThumb: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: '#555',
+  },
+  toggleThumbOn: {
+    backgroundColor: '#fff',
+    alignSelf: 'flex-end',
+  },
+  encounterToggleText: {
+    fontSize: 13,
+    fontFamily: Fonts.inter.regular,
+    color: '#666',
+  },
+  encounterConfirmBtns: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  confirmCancelBtn: {
+    flex: 1,
+    backgroundColor: '#1a1a1a',
+    borderWidth: 1,
+    borderColor: '#2a2a2a',
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  confirmCancelText: { fontSize: 14, fontFamily: Fonts.inter.medium, color: '#555' },
+  confirmGoBtn: {
+    flex: 1,
+    backgroundColor: '#7c3aed',
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  confirmGoText: { fontSize: 14, fontFamily: Fonts.inter.medium, color: '#fff' },
 });

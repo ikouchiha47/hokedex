@@ -289,34 +289,49 @@ export function EntryDetailScreen() {
 
         {/* Encounters */}
         <View style={styles.encountersSection}>
-          <View style={styles.encounterHeader}>
-            <Text style={styles.sectionLabel}>Encounters</Text>
+          {/* Counter row */}
+          <View style={styles.encounterCounterRow}>
+            <View>
+              <Text style={styles.encounterCount}>{encounters.length}</Text>
+              <Text style={styles.encounterCountLabel}>encounter{encounters.length !== 1 ? 's' : ''}</Text>
+            </View>
             <Pressable
               style={[styles.logEncounterBtn, { borderColor: accent }]}
               onPress={() => {
-                logEncounter(db, entryId, Date.now());
-                setEncounters(listEncountersByEntry(db, entryId));
+                try {
+                  logEncounter(db, entryId, Date.now());
+                  setEncounters(listEncountersByEntry(db, entryId));
+                } catch (e) {
+                  console.error('[EntryDetail] logEncounter failed:', e);
+                  Alert.alert('Error', 'Failed to log encounter.');
+                }
               }}
             >
-              <MaterialIcons name="add" size={14} color={accent} />
+              <MaterialIcons name="add" size={18} color={accent} />
               <Text style={[styles.logEncounterText, { color: accent }]}>Log</Text>
             </Pressable>
           </View>
+
+          {/* History */}
           {encounters.length === 0 ? (
             <Text style={styles.encounterEmpty}>No encounters logged yet.</Text>
           ) : (
             encounters.slice(0, 5).map(enc => (
               <View key={enc.id} style={styles.encounterRow}>
-                <MaterialIcons name="radio-button-checked" size={8} color={accent} style={{ marginTop: 3 }} />
+                <MaterialIcons name="circle" size={6} color={accent} style={{ marginTop: 1 }} />
                 <Text style={styles.encounterDate}>{formatDate(enc.occurred_at)}</Text>
                 <Pressable
                   onPress={() => {
-                    deleteEncounter(db, enc.id);
-                    setEncounters(listEncountersByEntry(db, entryId));
+                    try {
+                      deleteEncounter(db, enc.id);
+                      setEncounters(listEncountersByEntry(db, entryId));
+                    } catch (e) {
+                      console.error('[EntryDetail] deleteEncounter failed:', e);
+                    }
                   }}
                   hitSlop={8}
                 >
-                  <MaterialIcons name="close" size={14} color="#333" />
+                  <MaterialIcons name="close" size={14} color="#2a2a2a" />
                 </Pressable>
               </View>
             ))
@@ -471,15 +486,27 @@ const styles = StyleSheet.create({
   photoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 2 },
   photoCell: { width: THUMB_SIZE, aspectRatio: 1 },
   photoThumb: { width: '100%', height: '100%', backgroundColor: '#111' },
-  encountersSection: { gap: 6 },
-  encounterHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  encountersSection: { gap: 8 },
+  encounterCounterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#0d0d12',
+    borderWidth: 1,
+    borderColor: '#1a1a22',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  encounterCount: { fontSize: 28, ...Fonts.grotesk.bold, color: '#fff' },
+  encounterCountLabel: { fontSize: 11, fontFamily: Fonts.inter.regular, color: '#444', marginTop: 1 },
   sectionLabel: { fontSize: 11, fontFamily: Fonts.inter.medium, color: '#555', textTransform: 'uppercase', letterSpacing: 0.8 },
   logEncounterBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    borderWidth: 1, borderRadius: 12,
-    paddingHorizontal: 10, paddingVertical: 4,
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    borderWidth: 1, borderRadius: 10,
+    paddingHorizontal: 14, paddingVertical: 8,
   },
-  logEncounterText: { fontSize: 12, fontFamily: Fonts.inter.medium },
+  logEncounterText: { fontSize: 14, fontFamily: Fonts.inter.medium },
   encounterEmpty: { fontSize: 12, fontFamily: Fonts.inter.regular, color: '#333' },
   encounterRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   encounterDate: { flex: 1, fontSize: 12, fontFamily: Fonts.inter.regular, color: '#555' },
