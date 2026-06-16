@@ -42,15 +42,15 @@ LIMIT ?;
 
 -- name: TagPatternAmongRegulars :many
 SELECT
-  t.name,
+  et.value AS name,
   COUNT(DISTINCT et.entry_id) AS people_count
 FROM entry_tags et
-JOIN tags t ON t.id = et.tag_id
-WHERE et.entry_id IN (
-  SELECT entry_id FROM encounters
-  WHERE occurred_at >= ?
-  GROUP BY entry_id
-)
-GROUP BY t.id
+WHERE et.key = 'character'
+  AND et.entry_id IN (
+    SELECT entry_id FROM encounters
+    WHERE occurred_at >= ?
+    GROUP BY entry_id
+  )
+GROUP BY et.value
 ORDER BY people_count DESC
 LIMIT ?;

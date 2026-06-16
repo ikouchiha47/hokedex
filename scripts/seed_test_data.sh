@@ -89,12 +89,6 @@ seed() {
   # Tag names to distribute
   TAGS=("red flag" "ghost type" "situationship" "recurring" "mid")
 
-  # Seed tags
-  for TAG in "${TAGS[@]}"; do
-    TAG_ID="tag_$(echo "$TAG" | tr ' ' '_')_test"
-    sql "INSERT OR IGNORE INTO tags (id, name) VALUES ('$TAG_ID', '$TAG');" 2>/dev/null || true
-  done
-
   # 15 test entries
   NAMES=(
     "test_Alice" "test_Bob" "test_Carol" "test_Dave" "test_Eve"
@@ -112,10 +106,11 @@ seed() {
     sql "INSERT OR IGNORE INTO entries (id, category_id, name, created_at, updated_at)
          VALUES ('$ENTRY_ID', '$CAT_ID', '$NAME', $CREATED, $CREATED);"
 
-    # Assign 1-2 tags (round-robin)
+    # Assign character tag (round-robin from TAGS list) using flat entry_tags schema
     TAG_NAME="${TAGS[$((i % ${#TAGS[@]}))]}"
-    TAG_ID="tag_$(echo "$TAG_NAME" | tr ' ' '_')_test"
-    sql "INSERT OR IGNORE INTO entry_tags (entry_id, tag_id) VALUES ('$ENTRY_ID', '$TAG_ID');"
+    TAG_ROW_ID="test_etag_${i}_$$"
+    sql "INSERT OR IGNORE INTO entry_tags (id, entry_id, key, value)
+         VALUES ('$TAG_ROW_ID', '$ENTRY_ID', 'character', '$TAG_NAME');"
 
     # 1–5 encounters spread over last 90 days
     ENCOUNTER_COUNT=$(( (i % 5) + 1 ))
