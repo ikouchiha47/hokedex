@@ -29,9 +29,8 @@ export type PossibleMatch = {
   profilePhotoPath: string | null;
 };
 
-/** At most one LIKELY; zero or more POSSIBLE also returned for context. */
 export type SearchResult =
-  | { tier: 'likely';    match: LikelyMatch;         alternatives: PossibleMatch[] }
+  | { tier: 'likely';    match: LikelyMatch; moreLikely: LikelyMatch[]; alternatives: PossibleMatch[] }
   | { tier: 'possible';  candidates: PossibleMatch[] }
   | { tier: 'no_match' };
 
@@ -45,19 +44,17 @@ export function classifyRows(
 ): SearchResult {
   const { similarity_threshold_likely, similarity_threshold_possible } = thresholds;
 
+  const likelyAll: LikelyMatch[] = [];
   const possible: PossibleMatch[] = [];
-  let likely: LikelyMatch | null = null;
 
   for (const row of rows) {
     if (row.best_score >= similarity_threshold_likely) {
-      if (!likely || row.best_score > likely.similarity) {
-        likely = {
-          type: 'LIKELY',
-          entryId: row.entry_id,
-          similarity: row.best_score,
-          profilePhotoPath: row.profile_photo_path,
-        };
-      }
+      likelyAll.push({
+        type: 'LIKELY',
+        entryId: row.entry_id,
+        similarity: row.best_score,
+        profilePhotoPath: row.profile_photo_path,
+      });
     } else if (row.best_score >= similarity_threshold_possible) {
       possible.push({
         type: 'POSSIBLE',
@@ -68,8 +65,11 @@ export function classifyRows(
     }
   }
 
-  if (likely) {
-    return { tier: 'likely', match: likely, alternatives: possible };
+  likelyAll.sort((a, b) => b.similarity - a.similarity);
+
+  if (likelyAll.length > 0) {
+    const [match, ...moreLikely] = likelyAll;
+    return { tier: 'likely', match, moreLikely, alternatives: possible };
   }
   if (possible.length > 0) {
     return { tier: 'possible', candidates: possible };

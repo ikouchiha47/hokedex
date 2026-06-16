@@ -55,8 +55,25 @@ describe('classifyRows', () => {
     ], THRESHOLDS);
     expect(result.tier).toBe('likely');
     if (result.tier === 'likely') {
+      expect(result.moreLikely).toHaveLength(0);
       expect(result.alternatives).toHaveLength(1);
       expect(result.alternatives[0].entryId).toBe('bob');
+    }
+  });
+
+  test('multiple entries above likely threshold — extras in moreLikely', () => {
+    const result = classifyRows([
+      row('alice', 0.97),
+      row('bob', 0.96),
+      row('carol', 0.88),
+    ], THRESHOLDS);
+    expect(result.tier).toBe('likely');
+    if (result.tier === 'likely') {
+      expect(result.match.entryId).toBe('alice');
+      expect(result.moreLikely).toHaveLength(1);
+      expect(result.moreLikely[0].entryId).toBe('bob');
+      expect(result.alternatives).toHaveLength(1);
+      expect(result.alternatives[0].entryId).toBe('carol');
     }
   });
 

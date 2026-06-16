@@ -11,6 +11,7 @@ import {
   NativeModules,
   ToastAndroid,
   StyleSheet,
+  Dimensions,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -30,6 +31,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Fonts } from '../theme/fonts';
 
 const { HokedexML, HokedexIngest } = NativeModules;
+
+const { width: SCREEN_W } = Dimensions.get('screen');
+const CROP_W = Math.round(SCREEN_W * 0.8);
+const CROP_H = Math.round(CROP_W * 1.25);
+
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -72,6 +78,12 @@ export function SearchResultScreen() {
         mediaType: 'photo',
         freeStyleCropEnabled: true,
         includeBase64: false,
+        width: CROP_W,
+        height: CROP_H,
+        cropperToolbarColor: '#1a1a1a',
+        cropperStatusBarColor: '#1a1a1a',
+        cropperActiveWidgetColor: '#7c3aed',
+        cropperToolbarWidgetColor: '#ffffff',
       });
 
       const fullFrame =
@@ -358,6 +370,40 @@ export function SearchResultScreen() {
                 </Pressable>
               )}
             </Pressable>
+
+            {result.moreLikely.length > 0 && (
+              <View style={[styles.section, { marginTop: 8 }]}>
+                <Text style={styles.sectionLabel}>More</Text>
+                {result.moreLikely.map(m => (
+                  <Pressable
+                    key={m.entryId}
+                    style={styles.possibleCard}
+                    onPress={() => navigation.navigate('EntryDetail', { entryId: m.entryId })}
+                  >
+                    {profileUri(m.entryId) ? (
+                      <Image source={{ uri: profileUri(m.entryId)! }} style={styles.possibleAvatar} />
+                    ) : (
+                      <View style={[styles.possibleAvatar, styles.avatarPlaceholder]} />
+                    )}
+                    <Text style={styles.possibleName}>{entryName(m.entryId)}</Text>
+                    <Text style={styles.possiblePct}>{Math.round(m.similarity * 100)}%</Text>
+                    {searchedUri && (
+                      <Pressable
+                        style={styles.attachBtnSmall}
+                        onPress={() => attachPhoto(m.entryId)}
+                        disabled={!!attaching}
+                      >
+                        {attaching === m.entryId ? (
+                          <ActivityIndicator size="small" color="#7c3aed" />
+                        ) : (
+                          <MaterialIcons name="add-a-photo" size={18} color="#7c3aed" />
+                        )}
+                      </Pressable>
+                    )}
+                  </Pressable>
+                ))}
+              </View>
+            )}
 
             {result.alternatives.length > 0 && (
               <View style={[styles.section, { marginTop: 8 }]}>

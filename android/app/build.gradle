@@ -88,6 +88,9 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 2
         versionName "1.1"
+        ndk {
+            abiFilters "arm64-v8a"
+        }
     }
     signingConfigs {
         debug {
@@ -114,10 +117,13 @@ android {
         }
     }
     packagingOptions {
-        pickFirst 'lib/x86/libc++_shared.so'
-        pickFirst 'lib/x86_64/libc++_shared.so'
-        pickFirst 'lib/armeabi-v7a/libc++_shared.so'
         pickFirst 'lib/arm64-v8a/libc++_shared.so'
+        // Drop emulator-only and 32-bit ARM libs — all real devices are arm64
+        excludes += [
+            'lib/x86/**',
+            'lib/x86_64/**',
+            'lib/armeabi-v7a/**',
+        ]
     }
     aaptOptions {
         // Prevent AAPT from compressing .tflite model files — they must remain byte-addressable
