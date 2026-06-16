@@ -14,15 +14,26 @@ Gradle caches the Metro JS bundle aggressively. Always pre-bundle manually:
 # 1. Build APK — always use --no-build-cache or Gradle reuses a stale JS bundle
 cd android && ./gradlew assembleRelease --no-build-cache
 
-# 3. Install
+# 2. Install
 adb install -r app/build/outputs/apk/release/app-release.apk
 
-# 4. Force-restart (install -r does NOT restart a running app)
+# 3. Force-restart (install -r does NOT restart a running app)
 adb shell "am force-stop com.hokedex"
 adb shell "am start -n com.hokedex/.MainActivity"
 ```
 
-If you skip step 1, Gradle uses a cached bundle and your JS changes won't appear.
+One-liner (build + install + restart):
+```bash
+cd android && ./gradlew assembleRelease --no-build-cache && adb install -r app/build/outputs/apk/release/app-release.apk && adb shell "am force-stop com.hokedex" && adb shell "am start -n com.hokedex/.MainActivity"
+```
+
+If you skip `--no-build-cache`, Gradle uses a cached bundle and your JS changes won't appear.
+
+## ADB Wireless
+
+```bash
+adb connect 192.168.0.170:34381
+```
 
 ## Pulling the DB
 
