@@ -29,13 +29,17 @@ type Props = {
 };
 
 export function RootNavigator({ onReset, navigationRef, initialSharedImageUri }: Props = {}) {
-  const initialRoute: keyof RootStackParamList = initialSharedImageUri ? 'ShareIntake' : 'CollectionList';
+  function handleReady() {
+    if (initialSharedImageUri) {
+      navigationRef?.current?.navigate('ShareIntake', { imageUri: initialSharedImageUri });
+    }
+  }
 
   return (
     <SafeAreaProvider>
-      <NavigationContainer ref={navigationRef}>
+      <NavigationContainer ref={navigationRef} onReady={handleReady}>
         <Stack.Navigator
-          initialRouteName={initialRoute}
+          initialRouteName="CollectionList"
           screenOptions={{
             headerShown: false,
             contentStyle: { backgroundColor: '#0a0a0a' },
@@ -50,11 +54,7 @@ export function RootNavigator({ onReset, navigationRef, initialSharedImageUri }:
           <Stack.Screen name="SearchResult" component={SearchResultScreen} />
           <Stack.Screen name="Insights" component={InsightsScreen} />
           <Stack.Screen name="Settings" component={SettingsScreen} />
-          <Stack.Screen
-            name="ShareIntake"
-            component={ShareIntakeScreen}
-            initialParams={initialSharedImageUri ? { imageUri: initialSharedImageUri } : undefined}
-          />
+          <Stack.Screen name="ShareIntake" component={ShareIntakeScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
