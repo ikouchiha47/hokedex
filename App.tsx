@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import { getCategory } from './src/db/queries/categories';
 import { AppProvider } from './src/AppContext';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { Fonts } from './src/theme/fonts';
+import { getInitialSharedImage, onSharedImage } from './src/services/share';
 import type { DB } from '@op-engineering/op-sqlite';
 import type { Category } from './src/db/types';
 
@@ -24,6 +25,10 @@ type BootState =
 
 export default function App() {
   const [boot, setBoot] = useState<BootState>({ status: 'booting' });
+  // Shared image URI waiting to be handled (cold or hot launch)
+  const [pendingSharedUri, setPendingSharedUri] = useState<string | null>(null);
+  // Navigation container ref used for imperative navigation (hot-launch share intents)
+  const navigationRef = useRef<import('@react-navigation/native').NavigationContainerRef<import('./src/navigation/RootNavigator').RootStackParamList>>(null);
 
   useEffect(() => {
     async function bootstrap() {
@@ -32,6 +37,11 @@ export default function App() {
         const db = await initDatabase(root);
         const category = getCategory(db, 'people');
         if (!category) throw new Error('People category not seeded — run migrations.');
+
+        // Check for a shared image from cold launch
+        const sharedUri = await getInitialSharedImage();
+        if (sharedUri) setPendingSharedUri(sharedUri);
+
         setBoot({ status: 'ready', db, collectionRoot: root, category });
       } catch (e: unknown) {
         setBoot({ status: 'error', message: e instanceof Error ? e.message : String(e) });
@@ -40,10 +50,23 @@ export default function App() {
     bootstrap();
   }, []);
 
+  // Subscribe to hot-launch shared image events (app already running)
+  useEffect(() => {
+    if (boot.status !== 'ready') return;
+    const unsubscribe = onSharedImage((path) => {
+      // Navigate directly if the navigator is ready
+      navigationRef.current?.navigate('ShareIntake', { imageUri: path });
+    });
+    return unsubscribe;
+  }, [boot.status]);
+
   if (boot.status === 'ready') {
     return (
       <AppProvider value={{ db: boot.db, collectionRoot: boot.collectionRoot, category: boot.category }}>
-        <RootNavigator />
+        <RootNavigator
+          navigationRef={navigationRef}
+          initialSharedImageUri={pendingSharedUri ?? undefined}
+        />
       </AppProvider>
     );
   }
