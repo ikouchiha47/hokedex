@@ -129,6 +129,58 @@ git worktree remove .claude/worktrees/<name>
 - No magic strings. Constants live at the top of the file or in a dedicated `constants.ts`.
 - No hardcoded device-specific values (IPs, ports, paths) anywhere in source. Use `.env` or config files.
 
+## Debugging
+
+Follow this sequence — do not skip steps or jump to code changes without evidence.
+
+**1. Understand the error first**
+- Read the full error message. Do not guess. If it says "undefined is not an object" find what is undefined and why.
+- Identify whether it is a JS/TS error, a native crash (Kotlin), a SQLite error, or an Android system error.
+
+**2. Collect logs before touching code**
+
+```bash
+# JS/RN errors — Metro + Hermes stack trace
+adb logcat -s ReactNativeJS:V ReactNative:V
+
+# Native crashes — Kotlin exceptions, JNI errors
+adb logcat -s AndroidRuntime:E DEBUG:V
+
+# SQLite / op-sqlite errors
+adb logcat | grep -i "sqlite\|op-sqlite\|hokedex"
+
+# All app logs filtered to hokedex process
+adb logcat --pid=$(adb shell pidof com.hokedex)
+```
+
+**3. Check for stack trace**
+- A stack trace is required before any fix attempt. If there is no stack trace, add logging to narrow down the location.
+- For native crashes: check `adb logcat -s DEBUG:V` for tombstone output.
+- For JS errors: Hermes prints a symbolicated stack trace to logcat. If it is minified, use a debug build.
+
+**4. Use a debug build when needed**
+- Release builds have minified JS and no remote debugger. If the stack trace is unreadable, build debug:
+
+```bash
+cd android && ./gradlew assembleDebug
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+```
+
+- Debug builds enable Flipper, React DevTools, and readable stack traces.
+- Never diagnose a crash from a release build if the stack trace is minified.
+
+**5. Reproduce the error deterministically**
+- Identify the exact steps to trigger the error before writing a fix.
+- If it is intermittent, add logs and reproduce at least 3 times before concluding the cause.
+
+**6. Fix with evidence**
+- The fix must address the root cause identified from the stack trace and logs — not a symptom.
+- After the fix, reproduce the original steps and confirm the error is gone.
+- Check logcat for any new errors introduced by the fix.
+
+**7. Do not ask the user to "try it and see"**
+- All verification happens in logs and stack traces, not user reports. If you cannot reproduce it, say so.
+
 ## Human in Loop — Mandatory
 
 **Never write, edit, or delete code before the user has confirmed the plan.**

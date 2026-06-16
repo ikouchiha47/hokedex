@@ -14,6 +14,7 @@ import com.google.mediapipe.tasks.core.BaseOptions
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.facedetector.FaceDetector as MediaPipeFaceDetector
 import org.tensorflow.lite.Interpreter
+import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
 import java.nio.ByteBuffer
@@ -63,9 +64,18 @@ class FaceEmbedder(context: Context) {
      *
      * If no face is detected, the whole image is letterbox-padded (fallback).
      */
-    fun embed(context: Context, imageUri: String): FloatArray {
+    private fun openImageStream(context: Context, imageUri: String): InputStream? {
+        if (!imageUri.startsWith("content://") && !imageUri.startsWith("file://")) {
+            val file = File(imageUri)
+            return if (file.exists()) FileInputStream(file) else null
+        }
         val uri = Uri.parse(imageUri)
-        val stream: InputStream = context.contentResolver.openInputStream(uri)!!
+        return context.contentResolver.openInputStream(uri)
+    }
+
+    fun embed(context: Context, imageUri: String): FloatArray {
+        val stream: InputStream = openImageStream(context, imageUri)
+            ?: throw IllegalArgumentException("Cannot open image: $imageUri")
         val full = BitmapFactory.decodeStream(stream)
         stream.close()
 
