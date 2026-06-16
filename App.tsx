@@ -7,6 +7,8 @@ import {
   StyleSheet,
   StatusBar,
   AppState,
+  Linking,
+  Pressable,
 } from 'react-native';
 import { initDatabase } from './src/db/init';
 import { getCategory } from './src/db/queries/categories';
@@ -18,6 +20,8 @@ import { onBackground, onForeground, resetTimer } from './src/services/AppLockMa
 import { getInitialSharedImage, onSharedImage } from './src/services/share';
 import { PinSetupScreen } from './src/screens/PinSetupScreen';
 import { LockScreen } from './src/screens/LockScreen';
+import { checkForUpdate } from './src/services/updateCheck';
+import { APK_DOWNLOAD_URL } from './src/config';
 import type { DB } from '@op-engineering/op-sqlite';
 import type { Category } from './src/db/types';
 
@@ -32,6 +36,7 @@ type BootState =
 export default function App() {
   const [boot, setBoot] = useState<BootState>({ status: 'booting' });
   const [pendingSharedUri, setPendingSharedUri] = useState<string | null>(null);
+  const [updateAvailable, setUpdateAvailable] = useState<string | null>(null);
   const navigationRef = useRef<import('@react-navigation/native').NavigationContainerRef<import('./src/navigation/RootNavigator').RootStackParamList>>(null);
 
   useEffect(() => {
@@ -74,6 +79,14 @@ export default function App() {
     });
     return () => sub.remove();
   }, []);
+
+  // Update check — runs once when app becomes ready
+  useEffect(() => {
+    if (boot.status !== 'ready') return;
+    checkForUpdate()
+      .then(info => { if (info.available) setUpdateAvailable(info.latestVersion); })
+      .catch(() => {});
+  }, [boot.status]);
 
   // Hot-launch share intent: navigate directly when app already running
   useEffect(() => {
@@ -122,6 +135,17 @@ export default function App() {
           navigationRef={navigationRef}
           initialSharedImageUri={pendingSharedUri ?? undefined}
         />
+        {updateAvailable && (
+          <Pressable
+            style={styles.updateBanner}
+            onPress={() => Linking.openURL(APK_DOWNLOAD_URL)}
+          >
+            <Text style={styles.updateText}>↑ {updateAvailable} available — tap to download</Text>
+            <Pressable onPress={() => setUpdateAvailable(null)} hitSlop={12}>
+              <Text style={styles.updateDismiss}>✕</Text>
+            </Pressable>
+          </Pressable>
+        )}
       </AppProvider>
     );
   }
@@ -169,4 +193,18 @@ const styles = StyleSheet.create({
   errorBox: { backgroundColor: '#1a0a0a', borderLeftWidth: 3, borderLeftColor: '#dc2626', paddingVertical: 12, paddingHorizontal: 16, gap: 6 },
   errorTitle: { fontSize: 13, color: '#dc2626', ...Fonts.grotesk.semiBold },
   errorMessage: { fontSize: 12, color: '#888', fontFamily: Fonts.inter.regular },
+  updateBanner: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#00bfff',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  updateText: { fontSize: 13, color: '#000', fontFamily: Fonts.inter.medium, flex: 1 },
+  updateDismiss: { fontSize: 14, color: '#000', paddingLeft: 12 },
 });

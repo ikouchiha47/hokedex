@@ -8,6 +8,7 @@ import {
   TextInput,
   Alert,
   ScrollView,
+  Linking,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -15,6 +16,8 @@ import RNFS from 'react-native-fs';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useApp } from '../AppContext';
 import { clearPin, verifyPin, setPin } from '../services/pin';
+import { checkForUpdate } from '../services/updateCheck';
+import { APP_VERSION, APK_DOWNLOAD_URL } from '../config';
 import { Fonts } from '../theme/fonts';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 
@@ -39,6 +42,11 @@ export function SettingsScreen() {
   // Reset state
   const [showReset, setShowReset] = useState(false);
   const [resetPhrase, setResetPhrase] = useState('');
+
+  // Update check state
+  const [checkingUpdate, setCheckingUpdate] = useState(false);
+  const [updateStatus, setUpdateStatus] = useState<'idle' | 'latest' | 'available'>('idle');
+  const [latestVersion, setLatestVersion] = useState('');
 
 
   const handleChangePIN = useCallback(async () => {
@@ -206,6 +214,41 @@ export function SettingsScreen() {
           )}
         </View>
 
+        {/* Version */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Version</Text>
+          <View style={styles.versionRow}>
+            <Text style={styles.versionText}>hokédex v{APP_VERSION}</Text>
+            {updateStatus === 'available' && (
+              <Pressable onPress={() => Linking.openURL(APK_DOWNLOAD_URL)}>
+                <Text style={styles.updateLink}>↑ {latestVersion} — download</Text>
+              </Pressable>
+            )}
+            {updateStatus === 'latest' && (
+              <Text style={styles.upToDate}>up to date</Text>
+            )}
+          </View>
+          <Pressable
+            style={({ pressed }) => [styles.actionBtn, pressed && styles.actionBtnPressed]}
+            onPress={async () => {
+              setCheckingUpdate(true);
+              setUpdateStatus('idle');
+              try {
+                const info = await checkForUpdate();
+                setLatestVersion(info.latestVersion);
+                setUpdateStatus(info.available ? 'available' : 'latest');
+              } catch {
+                Alert.alert('Check failed', 'Could not check for updates. Try again later.');
+              } finally {
+                setCheckingUpdate(false);
+              }
+            }}
+            disabled={checkingUpdate}
+          >
+            <Text style={styles.actionBtnText}>{checkingUpdate ? 'Checking…' : 'Check for updates'}</Text>
+          </Pressable>
+        </View>
+
       </ScrollView>
     </View>
   );
@@ -313,4 +356,8 @@ const styles = StyleSheet.create({
   },
   resetPhraseBold: { color: '#dc2626', fontFamily: Fonts.inter.semiBold },
   errorText: { fontSize: 13, color: '#dc2626', fontFamily: Fonts.inter.regular },
+  versionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
+  versionText: { fontSize: 14, color: '#888', fontFamily: Fonts.inter.regular },
+  updateLink: { fontSize: 13, color: '#00bfff', fontFamily: Fonts.inter.medium },
+  upToDate: { fontSize: 13, color: '#22c55e', fontFamily: Fonts.inter.regular },
 });

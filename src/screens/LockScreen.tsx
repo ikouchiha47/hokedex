@@ -136,15 +136,17 @@ export function LockScreen({ onUnlocked, onBiometric, biometricAvailable = false
         <NumpadKey label="⌫" onPress={handleDelete} disabled={isLocked} />
       </View>
 
-      {pin.length >= 4 && (
-        <Pressable
-          style={({ pressed }) => [styles.unlockBtn, pressed && styles.unlockBtnPressed]}
-          onPress={handleSubmit}
-          disabled={isLocked}
-        >
-          <Text style={styles.unlockBtnText}>Unlock</Text>
-        </Pressable>
-      )}
+      <View style={styles.unlockSlot}>
+        {pin.length >= 4 && (
+          <Pressable
+            style={({ pressed }) => [styles.unlockBtn, pressed && styles.unlockBtnPressed]}
+            onPress={handleSubmit}
+            disabled={isLocked}
+          >
+            <Text style={styles.unlockBtnText}>Unlock</Text>
+          </Pressable>
+        )}
+      </View>
 
     </View>
   );
@@ -231,14 +233,19 @@ const styles = StyleSheet.create({
     ...Fonts.grotesk.medium,
   },
   numpadKeyDisabled: { color: '#444' },
+  unlockSlot: {
+    height: 56,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 12,
+  },
   unlockBtn: {
     backgroundColor: '#7c3aed',
     paddingVertical: 14,
     paddingHorizontal: 48,
     borderRadius: 10,
     alignItems: 'center',
-    marginTop: 8,
-    marginBottom: 12,
   },
   unlockBtnPressed: { opacity: 0.7 },
   unlockBtnText: {
