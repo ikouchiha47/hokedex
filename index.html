@@ -119,25 +119,49 @@
     .dl-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(124,58,237,.5); background: var(--purple-dark); }
     .dl-small { margin-top: 10px; font-size: 11px; color: var(--muted); }
 
-    /* SCREENSHOT */
-    .screenshot-wrap {
+    /* CAROUSEL */
+    .carousel-outer {
       margin-top: 60px;
+      width: 100%;
+      max-width: 860px;
       position: relative;
-      display: inline-block;
     }
-    .screenshot-wrap::before {
-      content: '';
-      position: absolute; inset: -20px;
+    .carousel-track-wrap {
+      overflow: hidden;
+      border-radius: 28px;
       background: linear-gradient(135deg, #ede9fe 0%, #fce7f3 100%);
-      border-radius: 40px;
-      z-index: 0;
+      padding: 24px 0;
     }
-    .screenshot-wrap img {
-      position: relative; z-index: 1;
-      width: 240px;
-      border-radius: 24px;
-      box-shadow: 0 24px 64px rgba(0,0,0,.18), 0 4px 16px rgba(0,0,0,.1);
+    .carousel-track {
+      display: flex;
+      gap: 20px;
+      padding: 0 32px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .carousel-track::-webkit-scrollbar { display: none; }
+    .carousel-track img {
+      scroll-snap-align: center;
+      flex-shrink: 0;
+      width: 200px;
+      border-radius: 20px;
+      box-shadow: 0 16px 48px rgba(0,0,0,.18), 0 4px 12px rgba(0,0,0,.1);
       display: block;
+    }
+    .carousel-dots {
+      display: flex; justify-content: center; gap: 6px;
+      margin-top: 16px;
+    }
+    .carousel-dots button {
+      width: 8px; height: 8px; border-radius: 50%;
+      border: none; cursor: pointer; padding: 0;
+      background: #d8b4fe;
+      transition: background .2s, transform .2s;
+    }
+    .carousel-dots button.active {
+      background: var(--purple); transform: scale(1.3);
     }
 
     /* SECTION */
@@ -287,10 +311,44 @@
   </a>
   <p class="dl-small">Android 9+ · sideload · ~35 MB · v1.1</p>
 
-  <div class="screenshot-wrap">
-    <img src="hokedex_landing.png" alt="hokédex app screenshot" />
+  <div class="carousel-outer">
+    <div class="carousel-track-wrap">
+      <div class="carousel-track" id="carousel">
+        <img src="hokedex_landing.png" alt="hokédex home screen" />
+        <img src="hokedex_seed_landing.png" alt="hokédex roster with entries" />
+        <img src="hokedex_insights.png" alt="hokédex insights screen" />
+        <img src="hokedex_insights2.png" alt="hokédex insights charts" />
+      </div>
+    </div>
+    <div class="carousel-dots" id="dots">
+      <button class="active" data-i="0"></button>
+      <button data-i="1"></button>
+      <button data-i="2"></button>
+      <button data-i="3"></button>
+    </div>
   </div>
 </section>
+
+<script>
+  const track = document.getElementById('carousel');
+  const dots = document.querySelectorAll('#dots button');
+  track.addEventListener('scroll', () => {
+    const imgs = track.querySelectorAll('img');
+    let closest = 0, minDist = Infinity;
+    imgs.forEach((img, i) => {
+      const dist = Math.abs(img.getBoundingClientRect().left - track.getBoundingClientRect().left - track.clientWidth / 2 + img.clientWidth / 2);
+      if (dist < minDist) { minDist = dist; closest = i; }
+    });
+    dots.forEach((d, i) => d.classList.toggle('active', i === closest));
+  });
+  dots.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const imgs = track.querySelectorAll('img');
+      const img = imgs[+btn.dataset.i];
+      img.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    });
+  });
+</script>
 
 <!-- TYPES -->
 <section class="section types-bg">
