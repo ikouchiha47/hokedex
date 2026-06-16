@@ -1,4 +1,4 @@
-export const APP_VERSION = '1.4.3';
+export const APP_VERSION = '1.4.4';
 
 export const UPDATE_CHECK_URL = 'https://api.github.com/repos/ikouchiha47/hokedex/releases/latest';
 
