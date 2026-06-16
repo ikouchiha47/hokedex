@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,12 +6,17 @@ import {
   NativeModules,
   StyleSheet,
   StatusBar,
+  AppState,
 } from 'react-native';
 import { initDatabase } from './src/db/init';
 import { getCategory } from './src/db/queries/categories';
 import { AppProvider } from './src/AppContext';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { Fonts } from './src/theme/fonts';
+import { hasPin } from './src/services/pin';
+import { onBackground, onForeground, resetTimer } from './src/services/AppLockManager';
+import { PinSetupScreen } from './src/screens/PinSetupScreen';
+import { LockScreen } from './src/screens/LockScreen';
 import type { DB } from '@op-engineering/op-sqlite';
 import type { Category } from './src/db/types';
 
@@ -19,31 +24,84 @@ const { HokedexIngest } = NativeModules;
 
 type BootState =
   | { status: 'booting' }
+  | { status: 'locked'; db: DB; collectionRoot: string; category: Category; needsSetup: boolean }
   | { status: 'ready'; db: DB; collectionRoot: string; category: Category }
   | { status: 'error'; message: string };
 
 export default function App() {
   const [boot, setBoot] = useState<BootState>({ status: 'booting' });
-
   useEffect(() => {
-    async function bootstrap() {
-      try {
-        const root: string = await HokedexIngest.getCollectionRoot();
-        const db = await initDatabase(root);
-        const category = getCategory(db, 'people');
-        if (!category) throw new Error('People category not seeded — run migrations.');
-        setBoot({ status: 'ready', db, collectionRoot: root, category });
-      } catch (e: unknown) {
-        setBoot({ status: 'error', message: e instanceof Error ? e.message : String(e) });
-      }
+    bootstrap();
+  }, []);
+
+  async function bootstrap() {
+    setBoot({ status: 'booting' });
+    try {
+      const root: string = await HokedexIngest.getCollectionRoot();
+      const db = await initDatabase(root);
+      const category = getCategory(db, 'people');
+      if (!category) throw new Error('People category not seeded — run migrations.');
+      const pinExists = await hasPin();
+      setBoot({ status: 'locked', db, collectionRoot: root, category, needsSetup: !pinExists });
+    } catch (e: unknown) {
+      setBoot({ status: 'error', message: e instanceof Error ? e.message : String(e) });
     }
+  }
+
+  // AppState listener: background → foreground lock check
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', state => {
+      if (state === 'background' || state === 'inactive') {
+        onBackground();
+      } else if (state === 'active') {
+        setBoot(prev => {
+          if (prev.status !== 'ready') return prev;
+          const shouldLock = onForeground();
+          if (shouldLock) {
+            return { ...prev, status: 'locked', needsSetup: false };
+          }
+          return prev;
+        });
+      }
+    });
+    return () => sub.remove();
+  }, []);
+
+  const handlePinSet = useCallback(() => {
+    setBoot(prev => {
+      if (prev.status !== 'locked') return prev;
+      resetTimer();
+      return { status: 'ready', db: prev.db, collectionRoot: prev.collectionRoot, category: prev.category };
+    });
+  }, []);
+
+  const handleUnlocked = useCallback(() => {
+    setBoot(prev => {
+      if (prev.status !== 'locked') return prev;
+      resetTimer();
+      return { status: 'ready', db: prev.db, collectionRoot: prev.collectionRoot, category: prev.category };
+    });
+  }, []);
+
+  const handleReset = useCallback(() => {
     bootstrap();
   }, []);
 
   if (boot.status === 'ready') {
     return (
       <AppProvider value={{ db: boot.db, collectionRoot: boot.collectionRoot, category: boot.category }}>
-        <RootNavigator />
+        <RootNavigator onReset={handleReset} />
+      </AppProvider>
+    );
+  }
+
+  if (boot.status === 'locked') {
+    if (boot.needsSetup) {
+      return <PinSetupScreen onPinSet={handlePinSet} />;
+    }
+    return (
+      <AppProvider value={{ db: boot.db, collectionRoot: boot.collectionRoot, category: boot.category }}>
+        <LockScreen onUnlocked={handleUnlocked} />
       </AppProvider>
     );
   }

@@ -7,6 +7,7 @@ import { NewEntryScreen } from '../screens/NewEntryScreen';
 import { EntryDetailScreen } from '../screens/EntryDetailScreen';
 import { SearchResultScreen } from '../screens/SearchResultScreen';
 import { InsightsScreen } from '../screens/InsightsScreen';
+import { SettingsScreen } from '../screens/SettingsScreen';
 
 export type RootStackParamList = {
   CollectionList: undefined;
@@ -14,11 +15,12 @@ export type RootStackParamList = {
   EntryDetail: { entryId: string; prefillImageUri?: string };
   SearchResult: undefined;
   Insights: undefined;
+  Settings: { onReset?: () => void };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-export function RootNavigator() {
+export function RootNavigator({ onReset }: { onReset?: () => void } = {}) {
   return (
     <SafeAreaProvider>
     <NavigationContainer>
@@ -30,11 +32,14 @@ export function RootNavigator() {
           animation: 'slide_from_right',
         }}
       >
-        <Stack.Screen name="CollectionList" component={CollectionListScreen} />
+        <Stack.Screen name="CollectionList">
+          {props => <CollectionListScreen {...props} onReset={onReset} />}
+        </Stack.Screen>
         <Stack.Screen name="NewEntry" component={NewEntryScreen} />
         <Stack.Screen name="EntryDetail" component={EntryDetailScreen} />
         <Stack.Screen name="SearchResult" component={SearchResultScreen} />
         <Stack.Screen name="Insights" component={InsightsScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
     </SafeAreaProvider>

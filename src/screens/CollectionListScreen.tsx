@@ -67,7 +67,7 @@ function getRoast(stats: EncounterStats, entries: EntryWithPhoto[]): string {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function CollectionListScreen() {
+export function CollectionListScreen({ onReset }: { onReset?: () => void } = {}) {
   const { db, collectionRoot, category } = useApp();
   const navigation = useNavigation<Nav>();
   const { width: screenWidth } = useWindowDimensions();
@@ -155,6 +155,9 @@ export function CollectionListScreen() {
           <Pressable onPress={() => navigation.navigate('SearchResult')} style={styles.iconBtn}>
             <MaterialIcons name="search" size={24} color="#aaa" />
           </Pressable>
+          <Pressable onPress={() => navigation.navigate('Settings', { onReset })} style={styles.iconBtn}>
+            <MaterialIcons name="settings" size={22} color="#aaa" />
+          </Pressable>
         </View>
         <FlatList
           key={numColumns}
@@ -215,6 +218,9 @@ export function CollectionListScreen() {
           </Pressable>
           <Pressable onPress={() => navigation.navigate('SearchResult')} style={styles.iconBtn}>
             <MaterialIcons name="search" size={24} color="#aaa" />
+          </Pressable>
+          <Pressable onPress={() => navigation.navigate('Settings', { onReset })} style={styles.iconBtn}>
+            <MaterialIcons name="settings" size={22} color="#aaa" />
           </Pressable>
         </View>
 
