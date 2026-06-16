@@ -37,7 +37,7 @@ export class NewEntryController {
     this.nativeModules = nativeModules;
   }
 
-  async save(name: string, tags: string[], photoUri: string): Promise<SaveResult> {
+  async save(name: string, tags: string[], photoUri: string, originalPhotoPath?: string | null): Promise<SaveResult> {
     const entryId = generateId();
     const now = Date.now();
 
@@ -65,6 +65,7 @@ export class NewEntryController {
         this.nativeModules as Parameters<typeof ingestImage>[1],
         {
           imageUri: photoUri,
+          originalPath: originalPhotoPath ?? null,
           collectionRoot: this.collectionRoot,
           entryId,
           categoryId: this.categoryId,

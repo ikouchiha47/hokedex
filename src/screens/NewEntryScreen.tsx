@@ -15,13 +15,13 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import type { RootStackParamList } from '../navigation/RootNavigator';
-import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
+import ImageCropPicker from 'react-native-image-crop-picker';
 import { useApp } from '../AppContext';
 import { NewEntryController } from '../services/NewEntryController';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Fonts } from '../theme/fonts';
-import { requestCameraPermission, requestGalleryPermission } from '../utils/permissions';
+import { requestCameraPermission } from '../utils/permissions';
 
 const { HokedexIngest, HokedexML } = NativeModules;
 
@@ -51,6 +51,7 @@ export function NewEntryScreen() {
 
   const [name, setName] = useState('');
   const [photoUri, setPhotoUri] = useState<string | null>(route.params?.prefillImageUri ?? null);
+  const [originalPhotoPath, setOriginalPhotoPath] = useState<string | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [customTag, setCustomTag] = useState('');
   const [nameError, setNameError] = useState('');
@@ -61,16 +62,32 @@ export function NewEntryScreen() {
     Alert.alert('Add photo', undefined, [
       {
         text: 'Gallery', onPress: async () => {
-          const ok = await requestGalleryPermission();
-          if (!ok) { Alert.alert('Permission denied'); return; }
-          launchImageLibrary({ mediaType: 'photo', quality: 1 }, r => { if (r.assets?.[0]?.uri) setPhotoUri(r.assets[0].uri!); });
+          try {
+            const result = await NativeModules.HokedexMedia.pickImageFromGallery();
+            setPhotoUri(result.tempPath);
+            setOriginalPhotoPath(result.contentUri);
+          } catch (e: any) {
+            if (e?.code !== 'PICKER_CANCELLED') {
+              console.error('[NewEntry] gallery pick failed:', e);
+              Alert.alert('Error', 'Could not open gallery.');
+            }
+          }
         },
       },
       {
         text: 'Camera', onPress: async () => {
           const ok = await requestCameraPermission();
           if (!ok) { Alert.alert('Permission denied'); return; }
-          launchCamera({ mediaType: 'photo', quality: 1 }, r => { if (r.assets?.[0]?.uri) setPhotoUri(r.assets[0].uri!); });
+          try {
+            const result = await NativeModules.HokedexMedia.capturePhoto();
+            setPhotoUri(result.tempPath);
+            setOriginalPhotoPath(result.contentUri);
+          } catch (e: any) {
+            if (e?.code !== 'CAMERA_CANCELLED') {
+              console.error('[NewEntry] camera capture failed:', e);
+              Alert.alert('Error', 'Could not open camera.');
+            }
+          }
         },
       },
       { text: 'Cancel', style: 'cancel' },
@@ -101,7 +118,7 @@ export function NewEntryScreen() {
     setSaving(true);
     const ctrl = new NewEntryController(db, collectionRoot, category.id, { HokedexIngest, HokedexML });
     try {
-      const result = await ctrl.save(name, selectedTags, photoUri!);
+      const result = await ctrl.save(name, selectedTags, photoUri!, originalPhotoPath);
       if (result.status === 'reference_only') ToastAndroid.show('No face detected — saved as reference photo.', ToastAndroid.SHORT);
       else if (result.status === 'low_confidence_warning') ToastAndroid.show('Low confidence face — saved with warning.', ToastAndroid.SHORT);
       else if (result.status === 'needs_face_selection') ToastAndroid.show('Multiple faces detected — only the first was used.', ToastAndroid.SHORT);
@@ -111,6 +128,7 @@ export function NewEntryScreen() {
       Alert.alert('Error', e instanceof Error ? e.message : String(e));
     } finally {
       setSaving(false);
+      ImageCropPicker.clean().catch(err => console.warn('[NewEntry] clean failed:', err));
     }
   }
 

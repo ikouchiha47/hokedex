@@ -15,7 +15,6 @@ import kotlin.math.sqrt
 data class IngestResult(
     val sha256: String,
     val phash: Long,
-    val relativePath: String,
     val thumbnailRelativePath: String
 )
 
@@ -38,28 +37,22 @@ class ImageProcessor {
 
         val year = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR).toString()
         val prefix = "${sha256.take(8)}_${entryNameSlug}"
-        val originalFilename = uri.lastPathSegment ?: "photo.jpg"
 
-        // Copy original into collection
-        val imgDir = File(collectionRoot, "images/$year").also { it.mkdirs() }
-        val destFile = File(imgDir, "${prefix}_$originalFilename")
-        destFile.writeBytes(bytes)
-
-        // Thumbnail: 200x200, EXIF UserComment = hokedex:original_sha256={hash}
+        // Thumbnail only — 200x200, EXIF UserComment = hokedex:original_sha256={hash}
         val thumbDir = File(collectionRoot, "thumbnails/$year").also { it.mkdirs() }
         val thumbFile = File(thumbDir, "${prefix}_thumb.jpg")
-        val thumb = Bitmap.createScaledBitmap(bitmap, 200, 200, true)
+        val thumbWidth = 200
+        val thumbHeight = (bitmap.height * thumbWidth.toFloat() / bitmap.width).toInt()
+        val thumb = Bitmap.createScaledBitmap(bitmap, thumbWidth, thumbHeight, true)
         FileOutputStream(thumbFile).use { thumb.compress(Bitmap.CompressFormat.JPEG, 85, it) }
 
-        // Strip all EXIF from thumbnail then write only our tag
         val exif = ExifInterface(thumbFile.absolutePath)
         exif.setAttribute(ExifInterface.TAG_USER_COMMENT, "hokedex:original_sha256=$sha256")
         exif.saveAttributes()
 
-        val relPath = "images/$year/${prefix}_$originalFilename"
         val thumbRelPath = "thumbnails/$year/${prefix}_thumb.jpg"
 
-        return IngestResult(sha256, phash, relPath, thumbRelPath)
+        return IngestResult(sha256, phash, thumbRelPath)
     }
 
     private fun sha256Hex(bytes: ByteArray): String {

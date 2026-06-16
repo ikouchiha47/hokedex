@@ -19,6 +19,7 @@ import { type Photo, type Embedding } from '../db/types';
 
 export type IngestInput = {
   imageUri: string;
+  originalPath: string | null;
   collectionRoot: string;
   entryId: string;
   categoryId: string;
@@ -38,7 +39,7 @@ export type IngestNativeModules = {
       imageUri: string,
       collectionRoot: string,
       entryNameSlug: string
-    ): Promise<{ sha256: string; phash: string; relativePath: string; thumbnailRelativePath: string }>;
+    ): Promise<{ sha256: string; phash: string; thumbnailRelativePath: string }>;
   };
   HokedexML: {
     detect(imageUri: string, categoryId: string): Promise<DetectionResult>;
@@ -71,13 +72,13 @@ export async function ingestImage(
   modules: IngestNativeModules,
   input: IngestInput
 ): Promise<IngestOutcome> {
-  const { imageUri, collectionRoot, entryId, categoryId, entryNameSlug } = input;
+  const { imageUri, originalPath, collectionRoot, entryId, categoryId, entryNameSlug } = input;
   const { HokedexIngest, HokedexML } = modules;
 
   // Step 1: SHA-256, pHash, file copy, thumbnail — one bridge call, background thread.
   // phash arrives as a decimal string from Kotlin (64-bit Long can't cross the RN bridge as a
   // JS number without losing precision). Parse once here; SQLite stores the full integer.
-  const { sha256, phash: phashStr, relativePath } =
+  const { sha256, phash: phashStr, thumbnailRelativePath } =
     await HokedexIngest.processImage(imageUri, collectionRoot, entryNameSlug);
   const phash = parseLongFromBridge(phashStr, 'phash');
 
@@ -90,7 +91,7 @@ export async function ingestImage(
   // MULTI_SUBJECT — caller must let the user pick a crop, then call again with a crop URI
   if (detection.type === 'MULTI_SUBJECT') {
     const photo: Photo = {
-      id: photoId, entry_id: entryId, local_path: relativePath,
+      id: photoId, entry_id: entryId, local_path: thumbnailRelativePath, original_path: originalPath,
       original_sha256: sha256, original_phash: phash,
       is_profile_photo: 0, embedding_id: null, created_at: now,
     };
@@ -101,7 +102,7 @@ export async function ingestImage(
   // NO_SUBJECT — store photo as reference only, no embedding
   if (detection.type === 'NO_SUBJECT') {
     const photo: Photo = {
-      id: photoId, entry_id: entryId, local_path: relativePath,
+      id: photoId, entry_id: entryId, local_path: thumbnailRelativePath, original_path: originalPath,
       original_sha256: sha256, original_phash: phash,
       is_profile_photo: 0, embedding_id: null, created_at: now,
     };
@@ -115,7 +116,7 @@ export async function ingestImage(
   const vectorBuffer = float32ToBuffer(rawEmbedding);
 
   const photo: Photo = {
-    id: photoId, entry_id: entryId, local_path: relativePath,
+    id: photoId, entry_id: entryId, local_path: thumbnailRelativePath, original_path: originalPath,
     original_sha256: sha256, original_phash: phash,
     is_profile_photo: 0, embedding_id: embeddingId, created_at: now,
   };

@@ -29,7 +29,6 @@ class HokedexIngestModule(private val reactContext: ReactApplicationContext) :
                     // so we transmit as decimal string and let SQLite store it as INTEGER.
                     // Hamming distance comparisons happen in SQL (bitwise ops), never in JS.
                     putString("phash", result.phash.toString())
-                    putString("relativePath", result.relativePath)
                     putString("thumbnailRelativePath", result.thumbnailRelativePath)
                 }
                 promise.resolve(map)

@@ -17,7 +17,6 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
-import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useApp } from '../AppContext';
 import { ingestImage } from '../services/ingestion';
@@ -29,7 +28,7 @@ import { ColorPickerSection } from './entry-detail/ColorPickerSection';
 import { NotesTimelineSection } from './entry-detail/NotesTimelineSection';
 import { InfoSection } from './entry-detail/InfoSection';
 import { PhotoLightboxModal } from './PhotoLightboxModal';
-import { requestCameraPermission, requestGalleryPermission } from '../utils/permissions';
+import { requestCameraPermission } from '../utils/permissions';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import type { Photo, Note } from '../db/types';
@@ -106,32 +105,40 @@ export function EntryDetailScreen() {
     ]).start();
   }
 
-  async function showSourcePicker(onPick: (uri: string) => void) {
+  function showSourcePicker() {
     Alert.alert('Add photo', undefined, [
       {
         text: 'Gallery', onPress: async () => {
-          const ok = await requestGalleryPermission();
-          if (!ok) { Alert.alert('Permission denied'); return; }
-          launchImageLibrary({ mediaType: 'photo', quality: 1 }, r => { if (r.assets?.[0]?.uri) onPick(r.assets[0].uri!); });
+          try {
+            const result = await NativeModules.HokedexMedia.pickImageFromGallery();
+            await addPhoto(result.tempPath, result.contentUri);
+          } catch (e: any) {
+            if (e?.code !== 'PICKER_CANCELLED') Alert.alert('Error', 'Could not open gallery.');
+          }
         },
       },
       {
         text: 'Camera', onPress: async () => {
           const ok = await requestCameraPermission();
           if (!ok) { Alert.alert('Permission denied'); return; }
-          launchCamera({ mediaType: 'photo', quality: 1 }, r => { if (r.assets?.[0]?.uri) onPick(r.assets[0].uri!); });
+          try {
+            const result = await NativeModules.HokedexMedia.capturePhoto();
+            await addPhoto(result.tempPath, result.contentUri);
+          } catch (e: any) {
+            if (e?.code !== 'CAMERA_CANCELLED') Alert.alert('Error', 'Could not open camera.');
+          }
         },
       },
       { text: 'Cancel', style: 'cancel' },
     ]);
   }
 
-  async function addPhoto(uri: string) {
+  async function addPhoto(uri: string, originalPath: string | null = null) {
     if (ingesting) return;
     setIngesting(true);
     try {
       const outcome = await ingestImage(db, { HokedexIngest, HokedexML }, {
-        imageUri: uri, collectionRoot, entryId, categoryId: category.id,
+        imageUri: uri, originalPath, collectionRoot, entryId, categoryId: category.id,
         entryNameSlug: slugify(entry.name),
       });
       if (outcome.status === 'reference_only') ToastAndroid.show('No face detected — saved as reference photo.', ToastAndroid.SHORT);
@@ -347,7 +354,7 @@ export function EntryDetailScreen() {
             ))}
             <Pressable
               style={styles.stripAddBtn}
-              onPress={() => !ingesting && showSourcePicker(addPhoto)}
+              onPress={() => !ingesting && showSourcePicker()}
               disabled={ingesting}
             >
               {ingesting

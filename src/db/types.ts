@@ -24,8 +24,10 @@ export type Entry = {
 export type Photo = {
   id: string;
   entry_id: string;
-  /** Always relative to collection_root — never an absolute path. */
+  /** Thumbnail path, relative to collection_root. */
   local_path: string;
+  /** Original URI from picker/camera — not owned by the app, may go stale. */
+  original_path: string | null;
   original_sha256: string;
   /** 64-bit DCT pHash stored as SQLite INTEGER. JS never does arithmetic on this value —
    *  Hamming distance comparisons happen in SQL via bitwise ops. */

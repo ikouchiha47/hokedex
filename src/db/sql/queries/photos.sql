@@ -1,6 +1,6 @@
 -- name: InsertPhoto :exec
-INSERT INTO photos (id, entry_id, local_path, original_sha256, original_phash, is_profile_photo, embedding_id, created_at)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+INSERT INTO photos (id, entry_id, local_path, original_path, original_sha256, original_phash, is_profile_photo, embedding_id, created_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 -- name: GetPhoto :one
 SELECT * FROM photos WHERE id = ?;

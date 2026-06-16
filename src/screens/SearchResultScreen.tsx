@@ -97,7 +97,10 @@ export function SearchResultScreen() {
 
       runSearch(fullFrame ? original.path : cropped.path);
     } catch (e: any) {
-      if (e?.code !== 'E_PICKER_CANCELLED') Alert.alert('Error', String(e?.message ?? e));
+      if (e?.code !== 'E_PICKER_CANCELLED') {
+        console.error('[SearchResult] pickAndSearch failed:', e);
+        Alert.alert('Error', String(e?.message ?? e));
+      }
     }
   }
 
@@ -127,9 +130,11 @@ export function SearchResultScreen() {
       const r = await searchByEmbedding(db, embedding, category);
       setResult(r);
     } catch (e) {
+      console.error('[SearchResult] runSearch failed:', e);
       Alert.alert('Error', e instanceof Error ? e.message : String(e));
     } finally {
       setSearching(false);
+      ImageCropPicker.clean().catch(err => console.warn('[SearchResult] clean failed:', err));
     }
   }
 

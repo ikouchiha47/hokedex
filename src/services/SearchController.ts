@@ -53,6 +53,7 @@ export class SearchController {
       this.nativeModules as Parameters<typeof ingestImage>[1],
       {
         imageUri,
+        originalPath: null,
         collectionRoot: this.collectionRoot,
         entryId,
         categoryId: this.categoryId,

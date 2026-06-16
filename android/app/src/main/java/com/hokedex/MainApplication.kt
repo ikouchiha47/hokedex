@@ -7,6 +7,7 @@ import com.facebook.react.ReactHost
 import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.hokedex.ingest.HokedexIngestPackage
+import com.hokedex.media.HokedexMediaPackage
 import com.hokedex.ml.HokedexMLPackage
 import com.hokedex.pin.PinPackage
 import com.hokedex.share.SharePackage
@@ -20,6 +21,7 @@ class MainApplication : Application(), ReactApplication {
         PackageList(this).packages.apply {
           add(HokedexMLPackage())
           add(HokedexIngestPackage())
+          add(HokedexMediaPackage())
           add(PinPackage())
           add(SharePackage())
         },
