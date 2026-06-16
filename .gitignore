@@ -93,3 +93,4 @@ android/build/
 
 # Python bench venv
 /tmp/faceenv*
+keystore.properties
