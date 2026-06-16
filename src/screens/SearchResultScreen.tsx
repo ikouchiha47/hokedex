@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,8 @@ import {
   StyleSheet,
   Dimensions,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import { useApp } from '../AppContext';
@@ -38,6 +39,7 @@ const CROP_H = Math.round(CROP_W * 1.25);
 
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
+type RouteT = RouteProp<RootStackParamList, 'SearchResult'>;
 
 function slugify(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'entry';
@@ -46,6 +48,7 @@ function slugify(name: string): string {
 export function SearchResultScreen() {
   const { db, collectionRoot, category } = useApp();
   const navigation = useNavigation<Nav>();
+  const route = useRoute<RouteT>();
   const insets = useSafeAreaInsets();
 
   const [searching, setSearching] = useState(false);
@@ -58,6 +61,13 @@ export function SearchResultScreen() {
   const [nameQuery, setNameQuery] = useState('');
   // encounter confirmation: entryId pending confirmation, with toggle state
   const [pendingEncounter, setPendingEncounter] = useState<{ entryId: string; logIt: boolean } | null>(null);
+
+  // Auto-run search if a preloaded URI was passed from the Share Sheet flow
+  useEffect(() => {
+    const uri = route.params?.preloadedImageUri;
+    if (uri) runSearch(uri);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const nameResults = nameQuery.trim().length > 0
     ? listEntriesByCategory(db, category.id).filter(e =>

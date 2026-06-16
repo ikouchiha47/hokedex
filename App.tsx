@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import { RootNavigator } from './src/navigation/RootNavigator';
 import { Fonts } from './src/theme/fonts';
 import { hasPin } from './src/services/pin';
 import { onBackground, onForeground, resetTimer } from './src/services/AppLockManager';
+import { getInitialSharedImage, onSharedImage } from './src/services/share';
 import { PinSetupScreen } from './src/screens/PinSetupScreen';
 import { LockScreen } from './src/screens/LockScreen';
 import type { DB } from '@op-engineering/op-sqlite';
@@ -30,6 +31,9 @@ type BootState =
 
 export default function App() {
   const [boot, setBoot] = useState<BootState>({ status: 'booting' });
+  const [pendingSharedUri, setPendingSharedUri] = useState<string | null>(null);
+  const navigationRef = useRef<import('@react-navigation/native').NavigationContainerRef<import('./src/navigation/RootNavigator').RootStackParamList>>(null);
+
   useEffect(() => {
     bootstrap();
   }, []);
@@ -41,14 +45,21 @@ export default function App() {
       const db = await initDatabase(root);
       const category = getCategory(db, 'people');
       if (!category) throw new Error('People category not seeded — run migrations.');
-      const pinExists = await hasPin();
+
+      const [pinExists, sharedUri] = await Promise.all([
+        hasPin(),
+        getInitialSharedImage(),
+      ]);
+
+      if (sharedUri) setPendingSharedUri(sharedUri);
+
       setBoot({ status: 'locked', db, collectionRoot: root, category, needsSetup: !pinExists });
     } catch (e: unknown) {
       setBoot({ status: 'error', message: e instanceof Error ? e.message : String(e) });
     }
   }
 
-  // AppState listener: background → foreground lock check
+  // Background → foreground lock check
   useEffect(() => {
     const sub = AppState.addEventListener('change', state => {
       if (state === 'background' || state === 'inactive') {
@@ -56,16 +67,21 @@ export default function App() {
       } else if (state === 'active') {
         setBoot(prev => {
           if (prev.status !== 'ready') return prev;
-          const shouldLock = onForeground();
-          if (shouldLock) {
-            return { ...prev, status: 'locked', needsSetup: false };
-          }
+          if (onForeground()) return { ...prev, status: 'locked', needsSetup: false };
           return prev;
         });
       }
     });
     return () => sub.remove();
   }, []);
+
+  // Hot-launch share intent: navigate directly when app already running
+  useEffect(() => {
+    if (boot.status !== 'ready') return;
+    return onSharedImage(path => {
+      navigationRef.current?.navigate('ShareIntake', { imageUri: path });
+    });
+  }, [boot.status]);
 
   const handlePinSet = useCallback(() => {
     setBoot(prev => {
@@ -87,14 +103,6 @@ export default function App() {
     bootstrap();
   }, []);
 
-  if (boot.status === 'ready') {
-    return (
-      <AppProvider value={{ db: boot.db, collectionRoot: boot.collectionRoot, category: boot.category }}>
-        <RootNavigator onReset={handleReset} />
-      </AppProvider>
-    );
-  }
-
   if (boot.status === 'locked') {
     if (boot.needsSetup) {
       return <PinSetupScreen onPinSet={handlePinSet} />;
@@ -102,6 +110,18 @@ export default function App() {
     return (
       <AppProvider value={{ db: boot.db, collectionRoot: boot.collectionRoot, category: boot.category }}>
         <LockScreen onUnlocked={handleUnlocked} />
+      </AppProvider>
+    );
+  }
+
+  if (boot.status === 'ready') {
+    return (
+      <AppProvider value={{ db: boot.db, collectionRoot: boot.collectionRoot, category: boot.category }}>
+        <RootNavigator
+          onReset={handleReset}
+          navigationRef={navigationRef}
+          initialSharedImageUri={pendingSharedUri ?? undefined}
+        />
       </AppProvider>
     );
   }

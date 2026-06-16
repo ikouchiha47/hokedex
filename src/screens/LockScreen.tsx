@@ -98,12 +98,6 @@ export function LockScreen({ onUnlocked, onBiometric, biometricAvailable = false
     }
   }, [isLocked, pin, attempts, lockoutBlock, onUnlocked, shake]);
 
-  // Auto-submit at 4 digits (minimum), or let user press Unlock for 5–6
-  useEffect(() => {
-    if (pin.length === 4 && !isLocked) {
-      handleSubmit();
-    }
-  }, [pin, isLocked, handleSubmit]);
 
   return (
     <View style={styles.root}>
@@ -142,7 +136,7 @@ export function LockScreen({ onUnlocked, onBiometric, biometricAvailable = false
         <NumpadKey label="⌫" onPress={handleDelete} disabled={isLocked} />
       </View>
 
-      {pin.length >= 5 && (
+      {pin.length >= 4 && (
         <Pressable
           style={({ pressed }) => [styles.unlockBtn, pressed && styles.unlockBtnPressed]}
           onPress={handleSubmit}
@@ -173,7 +167,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0a0a0a',
     paddingHorizontal: 28,
-    paddingTop: 100,
+    justifyContent: 'center',
     paddingBottom: 40,
     alignItems: 'center',
   },

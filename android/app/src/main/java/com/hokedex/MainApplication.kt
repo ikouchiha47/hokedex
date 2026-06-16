@@ -9,6 +9,7 @@ import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.hokedex.ingest.HokedexIngestPackage
 import com.hokedex.ml.HokedexMLPackage
 import com.hokedex.pin.PinPackage
+import com.hokedex.share.SharePackage
 
 class MainApplication : Application(), ReactApplication {
 
@@ -20,6 +21,7 @@ class MainApplication : Application(), ReactApplication {
           add(HokedexMLPackage())
           add(HokedexIngestPackage())
           add(PinPackage())
+          add(SharePackage())
         },
     )
   }
