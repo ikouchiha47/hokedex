@@ -27,22 +27,22 @@ function generateId(): string {
 // Reads — accept plain DB
 export function listEncountersByEntry(db: DB, entryId: string): Encounter[] {
   const r = db.executeSync(Q.LIST_ENCOUNTERS_BY_ENTRY, [entryId]);
-  return (r.rows?._array ?? r.rows ?? []) as Encounter[];
+  return (r.rows ?? []) as Encounter[];
 }
 
 export function listEncountersInRange(db: DB, fromMs: number, toMs: number): EncounterWithName[] {
   const r = db.executeSync(Q.LIST_ENCOUNTERS_IN_RANGE, [fromMs, toMs]);
-  return (r.rows?._array ?? r.rows ?? []) as EncounterWithName[];
+  return (r.rows ?? []) as EncounterWithName[];
 }
 
 export function getEncounterStats(db: DB): EncounterStats {
   const r = db.executeSync(Q.ENCOUNTER_STATS, []);
-  const row = (r.rows?._array ?? r.rows ?? [])[0];
+  const row = (r.rows ?? [])[0];
   return {
-    total:         row?.total         ?? 0,
-    unique_people: row?.unique_people ?? 0,
-    last_at:       row?.last_at       ?? null,
-    first_at:      row?.first_at      ?? null,
+    total:         (row?.total         as number) ?? 0,
+    unique_people: (row?.unique_people as number) ?? 0,
+    last_at:       (row?.last_at       as number | null) ?? null,
+    first_at:      (row?.first_at      as number | null) ?? null,
   };
 }
 
@@ -71,10 +71,10 @@ export type TagPattern = {
 
 export function getRegularEncounters(db: DB, sinceMs: number, limit: number): RegularEncounter[] {
   const r = db.executeSync(Q.REGULAR_ENCOUNTERS, [sinceMs, limit]);
-  return (r.rows?._array ?? r.rows ?? []) as RegularEncounter[];
+  return (r.rows ?? []) as RegularEncounter[];
 }
 
 export function getTagPatternAmongRegulars(db: DB, sinceMs: number, limit: number): TagPattern[] {
   const r = db.executeSync(Q.TAG_PATTERN_AMONG_REGULARS, [sinceMs, limit]);
-  return (r.rows?._array ?? r.rows ?? []) as TagPattern[];
+  return (r.rows ?? []) as TagPattern[];
 }

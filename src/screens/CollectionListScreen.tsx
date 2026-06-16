@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,8 @@ import {
   ScrollView,
   Pressable,
   Alert,
+  Animated,
+  Vibration,
   useWindowDimensions,
   StyleSheet,
   StatusBar,
@@ -16,12 +18,10 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../AppContext';
-import { listEntriesByCategory, deleteEntry } from '../db/queries/entries';
-import { withTransaction } from '../db/tx';
-import { getProfilePhoto } from '../db/queries/photos';
-import { listEncountersInRange, getEncounterStats, type EncounterWithName, type EncounterStats } from '../db/queries/encounters';
+import { CollectionController, type EntryWithPhoto } from '../services/CollectionController';
+import type { EncounterStats } from '../db/queries/encounters';
+import { accentForEntry } from '../theme/accent';
 import { ActivityCalendar, colorFromId } from '../components/ActivityCalendar';
-import type { Entry } from '../db/types';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { Fonts } from '../theme/fonts';
 
@@ -31,8 +31,6 @@ const ACCENT = '#7c3aed';
 const MIN_TILE_WIDTH = 72;
 const GRID_PADDING = 16;
 const CELL_PADDING = 6;
-
-type EntryWithPhoto = Entry & { profilePhotoPath: string | null };
 
 // ── Roast engine ──────────────────────────────────────────────────────────────
 
@@ -67,33 +65,106 @@ function getRoast(stats: EncounterStats, entries: EntryWithPhoto[]): string {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
+const SMASH_TAPS = 5;
+const SMASH_WINDOW_MS = 1500;
+const SMASH_COOLDOWN_MS = 5 * 60 * 1000;
+
+type SmashablePhotoProps = {
+  entryId: string;
+  photoPath: string | null;
+  name: string;
+  diameter: number;
+  accentColor: string;
+  onPress: () => void;
+  onSmash: (entryId: string) => void;
+};
+
+function SmashablePhoto({ entryId, photoPath, name, diameter, accentColor, onPress, onSmash }: SmashablePhotoProps): React.JSX.Element {
+  const tapTimestamps = useRef<number[]>([]);
+  const lastSmashedAt = useRef<number>(0);
+  const navTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const chargeAnim = useRef(new Animated.Value(0)).current;
+
+  function handleTap(): void {
+    const now = Date.now();
+
+    if (navTimer.current) clearTimeout(navTimer.current);
+
+    if (now - lastSmashedAt.current < SMASH_COOLDOWN_MS) {
+      onPress();
+      return;
+    }
+
+    const recent = tapTimestamps.current.filter(t => now - t < SMASH_WINDOW_MS);
+    recent.push(now);
+    tapTimestamps.current = recent;
+
+    const progress = Math.min(recent.length / SMASH_TAPS, 1);
+    Animated.timing(chargeAnim, { toValue: progress, duration: 80, useNativeDriver: false }).start();
+
+    if (recent.length >= SMASH_TAPS) {
+      tapTimestamps.current = [];
+      lastSmashedAt.current = now;
+      Animated.sequence([
+        Animated.timing(chargeAnim, { toValue: 1, duration: 60, useNativeDriver: false }),
+        Animated.timing(chargeAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
+      ]).start();
+      Vibration.vibrate(80);
+      onSmash(entryId);
+      return;
+    }
+
+    // No combo yet — navigate if no further tap arrives within 250ms
+    navTimer.current = setTimeout(() => {
+      tapTimestamps.current = [];
+      Animated.timing(chargeAnim, { toValue: 0, duration: 150, useNativeDriver: false }).start();
+      onPress();
+    }, 250);
+  }
+
+  const ringColor = chargeAnim.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: ['rgba(234,179,8,0)', 'rgba(234,179,8,0.7)', 'rgba(234,179,8,1)'],
+  });
+
+  return (
+    <Pressable onPress={handleTap}>
+      {/* Static accent border — always visible */}
+      <View style={{ width: diameter, height: diameter, borderRadius: diameter / 2, borderWidth: 2, borderColor: accentColor + '80', alignItems: 'center', justifyContent: 'center' }}>
+        {/* Animated charge ring overlaid via absolute */}
+        <Animated.View style={{ position: 'absolute', top: -2, left: -2, width: diameter, height: diameter, borderRadius: diameter / 2, borderWidth: 2, borderColor: ringColor }} />
+        <View style={{ width: diameter - 4, height: diameter - 4, borderRadius: (diameter - 4) / 2, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
+          {photoPath
+            ? <Image source={{ uri: `file://${photoPath}` }} style={{ width: diameter - 4, height: diameter - 4, borderRadius: (diameter - 4) / 2 }} />
+            : <Text style={{ fontSize: Math.round(diameter * 0.38), color: '#fff', fontFamily: 'SpaceGrotesk' }}>{(name.trim()[0] ?? '?').toUpperCase()}</Text>}
+        </View>
+      </View>
+    </Pressable>
+  );
+}
+
 export function CollectionListScreen({ onReset }: { onReset?: () => void } = {}) {
   const { db, collectionRoot, category } = useApp();
   const navigation = useNavigation<Nav>();
   const { width: screenWidth } = useWindowDimensions();
   const insets = useSafeAreaInsets();
 
+  const controller = new CollectionController(db, collectionRoot, category.id);
+
   const numColumns = Math.max(1, Math.floor((screenWidth - GRID_PADDING * 2) / MIN_TILE_WIDTH));
   const cellWidth = (screenWidth - GRID_PADDING * 2) / numColumns;
   const circleDiameter = cellWidth - CELL_PADDING * 2;
 
   const [entries, setEntries] = useState<EntryWithPhoto[]>([]);
-  const [encounters, setEncounters] = useState<EncounterWithName[]>([]);
-  const [stats, setStats] = useState<EncounterStats>({ total: 0, unique_people: 0, last_at: null, first_at: null });
+  const [encounters, setEncounters] = useState([] as ReturnType<CollectionController['load']>['encounters']);
+  const [stats, setStats] = useState<ReturnType<CollectionController['load']>['stats']>({ total: 0, unique_people: 0, last_at: null, first_at: null });
   const [showAll, setShowAll] = useState(false);
 
   const loadAll = useCallback(() => {
-    const rows = listEntriesByCategory(db, category.id);
-    const sorted = [...rows].sort((a, b) => a.name.localeCompare(b.name));
-    const withPhotos: EntryWithPhoto[] = sorted.map(e => {
-      const photo = getProfilePhoto(db, e.id);
-      return { ...e, profilePhotoPath: photo ? `${collectionRoot}/${photo.local_path}` : null };
-    });
-    setEntries(withPhotos);
-
-    // All encounters — calendar handles per-year filtering internally
-    setEncounters(listEncountersInRange(db, 0, Date.now() + 86400000));
-    setStats(getEncounterStats(db));
+    const state = controller.load();
+    setEntries(state.entries);
+    setEncounters(state.encounters);
+    setStats(state.stats);
   }, [db, collectionRoot, category.id]);
 
   useEffect(() => {
@@ -101,6 +172,11 @@ export function CollectionListScreen({ onReset }: { onReset?: () => void } = {})
     const unsubscribe = navigation.addListener('focus', loadAll);
     return unsubscribe;
   }, [loadAll, navigation]);
+
+  function handleSmash(entryId: string): void {
+    controller.logEncounter(entryId);
+    loadAll();
+  }
 
   function purgeAll() {
     Alert.alert(
@@ -110,9 +186,7 @@ export function CollectionListScreen({ onReset }: { onReset?: () => void } = {})
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Purge', style: 'destructive', onPress: () => {
-            withTransaction(db, tx => {
-              entries.forEach(e => deleteEntry(tx, e.id));
-            });
+            controller.purgeAll(entries);
             loadAll();
           },
         },
@@ -179,12 +253,16 @@ export function CollectionListScreen({ onReset }: { onReset?: () => void } = {})
             }
             const { data } = item;
             return (
-              <Pressable style={[styles.cell, { width: cellWidth }]} onPress={() => navigation.navigate('EntryDetail', { entryId: data.id })}>
-                <View style={[styles.circle, { width: circleDiameter, height: circleDiameter, borderRadius: circleDiameter / 2 }, styles.personCircle]}>
-                  {data.profilePhotoPath
-                    ? <Image source={{ uri: `file://${data.profilePhotoPath}` }} style={{ width: circleDiameter, height: circleDiameter, borderRadius: circleDiameter / 2 }} />
-                    : <Text style={{ fontSize: Math.round(circleDiameter * 0.38), color: '#fff', fontFamily: 'SpaceGrotesk' }}>{(data.name.trim()[0] ?? '?').toUpperCase()}</Text>}
-                </View>
+              <Pressable style={[styles.cell, { width: cellWidth }]}>
+                <SmashablePhoto
+                  entryId={data.id}
+                  photoPath={data.profilePhotoPath}
+                  name={data.name}
+                  diameter={circleDiameter}
+                  accentColor={accentForEntry(0, data.colorTag)}
+                  onPress={() => navigation.navigate('EntryDetail', { entryId: data.id })}
+                  onSmash={handleSmash}
+                />
                 <Text style={[styles.label, { maxWidth: cellWidth }]} numberOfLines={1}>{data.name}</Text>
               </Pressable>
             );
@@ -238,12 +316,16 @@ export function CollectionListScreen({ onReset }: { onReset?: () => void } = {})
 
             {/* Preview entries */}
             {previewEntries.map(e => (
-              <Pressable key={e.id} style={[styles.peopleCell, { width: cellWidth }]} onPress={() => navigation.navigate('EntryDetail', { entryId: e.id })}>
-                <View style={[styles.peopleCircle, { width: circleDiameter, height: circleDiameter, borderRadius: circleDiameter / 2, borderColor: colorFromId(e.id) + '60', borderWidth: 1.5 }]}>
-                  {e.profilePhotoPath
-                    ? <Image source={{ uri: `file://${e.profilePhotoPath}` }} style={{ width: circleDiameter, height: circleDiameter, borderRadius: circleDiameter / 2 }} />
-                    : <Text style={{ fontSize: Math.round(circleDiameter * 0.38), color: '#fff', fontFamily: 'SpaceGrotesk' }}>{(e.name.trim()[0] ?? '?').toUpperCase()}</Text>}
-                </View>
+              <Pressable key={e.id} style={[styles.peopleCell, { width: cellWidth }]}>
+                <SmashablePhoto
+                  entryId={e.id}
+                  photoPath={e.profilePhotoPath}
+                  name={e.name}
+                  diameter={circleDiameter}
+                  accentColor={accentForEntry(0, e.colorTag)}
+                  onPress={() => navigation.navigate('EntryDetail', { entryId: e.id })}
+                  onSmash={handleSmash}
+                />
                 <Text style={[styles.peopleLabel, { maxWidth: cellWidth }]} numberOfLines={1}>{e.name}</Text>
               </Pressable>
             ))}

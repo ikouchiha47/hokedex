@@ -9,6 +9,9 @@ import { SQL, parseNamedQueries } from '../sql/loader';
 const MIGRATIONS: ReadonlyArray<{ version: number; sql: string }> = [
   { version: 1, sql: SQL.migration001 },
   { version: 2, sql: SQL.migration002 },
+  { version: 3, sql: SQL.migration003 },
+  { version: 4, sql: SQL.migration004 },
+  { version: 5, sql: SQL.migration005 },
 ];
 
 // Parsed once at module load — these queries are always needed.

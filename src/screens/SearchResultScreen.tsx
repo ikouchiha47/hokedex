@@ -18,13 +18,9 @@ import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import { useApp } from '../AppContext';
-import { getEntry, listEntriesByCategory } from '../db/queries/entries';
-import { getProfilePhoto, setProfilePhoto, unsetAllProfilePhotos } from '../db/queries/photos';
-import { logEncounter } from '../db/queries/encounters';
-import { withTransaction } from '../db/tx';
+import { SearchController } from '../services/SearchController';
 import { searchByEmbedding, type SearchResult } from '../services/search';
 import { searchEmbeddingsByVector } from '../db/queries/embeddings';
-import { ingestImage } from '../services/ingestion';
 import { requestCameraPermission, requestGalleryPermission } from '../utils/permissions';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -37,13 +33,9 @@ const { width: SCREEN_W } = Dimensions.get('screen');
 const CROP_W = Math.round(SCREEN_W * 0.8);
 const CROP_H = Math.round(CROP_W * 1.25);
 
-
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type RouteT = RouteProp<RootStackParamList, 'SearchResult'>;
 
-function slugify(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'entry';
-}
 
 export function SearchResultScreen() {
   const { db, collectionRoot, category } = useApp();
@@ -51,16 +43,16 @@ export function SearchResultScreen() {
   const route = useRoute<RouteT>();
   const insets = useSafeAreaInsets();
 
+  const controller = new SearchController(db, collectionRoot, category.id, { HokedexIngest, HokedexML });
+
   const [searching, setSearching] = useState(false);
-  const [attaching, setAttaching] = useState<string | null>(null); // entryId being attached
+  const [attaching, setAttaching] = useState<string | null>(null);
   const [searchedUri, setSearchedUri] = useState<string | null>(null);
   const [result, setResult] = useState<SearchResult | null>(null);
   const [rawScores, setRawScores] = useState<Array<{ entryId: string; score: number }>>([]);
   const [showDebug, setShowDebug] = useState(false);
   const [showEntryPicker, setShowEntryPicker] = useState(false);
   const [nameQuery, setNameQuery] = useState('');
-  // encounter confirmation: entryId pending confirmation, with toggle state
-  const [pendingEncounter, setPendingEncounter] = useState<{ entryId: string; logIt: boolean } | null>(null);
 
   // Auto-run search if a preloaded URI was passed from the Share Sheet flow
   useEffect(() => {
@@ -70,7 +62,7 @@ export function SearchResultScreen() {
   }, []);
 
   const nameResults = nameQuery.trim().length > 0
-    ? listEntriesByCategory(db, category.id).filter(e =>
+    ? controller.listEntries().filter(e =>
         e.name.toLowerCase().includes(nameQuery.toLowerCase())
       )
     : [];
@@ -91,7 +83,7 @@ export function SearchResultScreen() {
         width: CROP_W,
         height: CROP_H,
         cropperToolbarColor: '#1a1a1a',
-        cropperStatusBarColor: '#1a1a1a',
+        cropperStatusBarLight: false,
         cropperActiveWidgetColor: '#7c3aed',
         cropperToolbarWidgetColor: '#ffffff',
       });
@@ -141,35 +133,15 @@ export function SearchResultScreen() {
     }
   }
 
-  async function attachPhoto(entryId: string, withEncounter = false) {
+  async function attachPhoto(entryId: string) {
     if (!searchedUri || attaching) return;
-    const entry = getEntry(db, entryId);
-    if (!entry) return;
     setAttaching(entryId);
     try {
-      const outcome = await ingestImage(db, { HokedexIngest, HokedexML }, {
-        imageUri: searchedUri,
-        collectionRoot,
-        entryId,
-        categoryId: category.id,
-        entryNameSlug: slugify(entry.name),
-      });
-      const existing = getProfilePhoto(db, entryId);
-      try {
-        withTransaction(db, tx => {
-          if (!existing) {
-            unsetAllProfilePhotos(tx, entryId);
-            setProfilePhoto(tx, outcome.photoId);
-          }
-          if (withEncounter) logEncounter(tx, entryId, Date.now());
-        });
-      } catch (postErr) {
-        console.error('[Search] post-attach writes failed:', postErr);
-      }
-      if (outcome.status === 'reference_only') {
+      const result = await controller.attachPhoto(entryId, searchedUri);
+      if (result.status === 'reference_only') {
         ToastAndroid.show('No face — saved as reference photo.', ToastAndroid.SHORT);
       } else {
-        ToastAndroid.show(`Photo attached to ${entry.name}.`, ToastAndroid.SHORT);
+        ToastAndroid.show(`Photo attached.`, ToastAndroid.SHORT);
       }
       navigation.navigate('EntryDetail', { entryId });
     } catch (e) {
@@ -177,17 +149,15 @@ export function SearchResultScreen() {
       Alert.alert('Error', e instanceof Error ? e.message : String(e));
     } finally {
       setAttaching(null);
-      setPendingEncounter(null);
     }
   }
 
   function profileUri(entryId: string): string | null {
-    const p = getProfilePhoto(db, entryId);
-    return p ? `file://${collectionRoot}/${p.local_path}` : null;
+    return controller.profilePhotoPath(entryId);
   }
 
   function entryName(entryId: string): string {
-    return getEntry(db, entryId)?.name ?? '(unknown)';
+    return controller.getEntry(entryId)?.name ?? '(unknown)';
   }
 
   return (
@@ -289,19 +259,16 @@ export function SearchResultScreen() {
           </View>
         )}
 
-        {showEntryPicker && searchedUri && !pendingEncounter && (
+        {showEntryPicker && searchedUri && (
           <View style={styles.section}>
             <Text style={styles.sectionLabel}>Pick entry to attach to</Text>
-            {listEntriesByCategory(db, category.id).map(e => {
+            {controller.listEntries().map(e => {
               const uri = profileUri(e.id);
               return (
                 <Pressable
                   key={e.id}
                   style={styles.possibleCard}
-                  onPress={() => {
-                    setShowEntryPicker(false);
-                    setPendingEncounter({ entryId: e.id, logIt: false });
-                  }}
+                  onPress={() => { setShowEntryPicker(false); attachPhoto(e.id); }}
                 >
                   {uri
                     ? <Image source={{ uri }} style={styles.possibleAvatar} />
@@ -314,39 +281,6 @@ export function SearchResultScreen() {
             <Pressable onPress={() => setShowEntryPicker(false)}>
               <Text style={[styles.sectionLabel, { color: '#444', marginTop: 4 }]}>Cancel</Text>
             </Pressable>
-          </View>
-        )}
-
-        {pendingEncounter && !attaching && (
-          <View style={styles.encounterConfirm}>
-            <Text style={styles.encounterConfirmLabel}>
-              Also log an encounter with {entryName(pendingEncounter.entryId)}?
-            </Text>
-            <Pressable
-              style={styles.encounterToggleRow}
-              onPress={() => setPendingEncounter(p => p ? { ...p, logIt: !p.logIt } : p)}
-            >
-              <View style={[styles.toggle, pendingEncounter.logIt && styles.toggleOn]}>
-                <View style={[styles.toggleThumb, pendingEncounter.logIt && styles.toggleThumbOn]} />
-              </View>
-              <Text style={styles.encounterToggleText}>
-                {pendingEncounter.logIt ? 'Yes, log encounter' : 'No, just attach photo'}
-              </Text>
-            </Pressable>
-            <View style={styles.encounterConfirmBtns}>
-              <Pressable
-                style={styles.confirmCancelBtn}
-                onPress={() => setPendingEncounter(null)}
-              >
-                <Text style={styles.confirmCancelText}>Cancel</Text>
-              </Pressable>
-              <Pressable
-                style={styles.confirmGoBtn}
-                onPress={() => attachPhoto(pendingEncounter.entryId, pendingEncounter.logIt)}
-              >
-                <Text style={styles.confirmGoText}>Confirm</Text>
-              </Pressable>
-            </View>
           </View>
         )}
 
@@ -641,68 +575,4 @@ const styles = StyleSheet.create({
   possibleAvatar: { width: AVATAR_SMALL, height: AVATAR_SMALL, borderRadius: AVATAR_SMALL / 2 },
   possibleName: { flex: 1, fontSize: 15, ...Fonts.grotesk.medium, color: '#ddd' },
   possiblePct: { fontSize: 13, fontFamily: Fonts.inter.regular, color: '#666' },
-  encounterConfirm: {
-    backgroundColor: '#0f0f14',
-    borderWidth: 1,
-    borderColor: '#1e1e2a',
-    borderRadius: 12,
-    padding: 16,
-    gap: 14,
-  },
-  encounterConfirmLabel: {
-    fontSize: 14,
-    fontFamily: Fonts.inter.medium,
-    color: '#aaa',
-  },
-  encounterToggleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  toggle: {
-    width: 40,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: '#222',
-    padding: 2,
-    justifyContent: 'center',
-  },
-  toggleOn: { backgroundColor: '#7c3aed' },
-  toggleThumb: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: '#555',
-  },
-  toggleThumbOn: {
-    backgroundColor: '#fff',
-    alignSelf: 'flex-end',
-  },
-  encounterToggleText: {
-    fontSize: 13,
-    fontFamily: Fonts.inter.regular,
-    color: '#666',
-  },
-  encounterConfirmBtns: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  confirmCancelBtn: {
-    flex: 1,
-    backgroundColor: '#1a1a1a',
-    borderWidth: 1,
-    borderColor: '#2a2a2a',
-    borderRadius: 8,
-    paddingVertical: 10,
-    alignItems: 'center',
-  },
-  confirmCancelText: { fontSize: 14, fontFamily: Fonts.inter.medium, color: '#555' },
-  confirmGoBtn: {
-    flex: 1,
-    backgroundColor: '#7c3aed',
-    borderRadius: 8,
-    paddingVertical: 10,
-    alignItems: 'center',
-  },
-  confirmGoText: { fontSize: 14, fontFamily: Fonts.inter.medium, color: '#fff' },
 });

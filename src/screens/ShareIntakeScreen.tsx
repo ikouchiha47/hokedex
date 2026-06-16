@@ -107,7 +107,7 @@ export function ShareIntakeScreen() {
         mediaType: 'photo',
         freeStyleCropEnabled: true,
         cropperToolbarColor: '#1a1a1a',
-        cropperStatusBarColor: '#1a1a1a',
+        cropperStatusBarLight: false,
         cropperActiveWidgetColor: '#7c3aed',
         cropperToolbarWidgetColor: '#ffffff',
       });
@@ -134,7 +134,7 @@ export function ShareIntakeScreen() {
         mediaType: 'photo',
         freeStyleCropEnabled: true,
         cropperToolbarColor: '#1a1a1a',
-        cropperStatusBarColor: '#1a1a1a',
+        cropperStatusBarLight: false,
         cropperActiveWidgetColor: '#7c3aed',
         cropperToolbarWidgetColor: '#ffffff',
       });

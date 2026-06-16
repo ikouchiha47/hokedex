@@ -23,7 +23,7 @@ export const backfillEncounters: DataMigration = {
         [batchSize, offset],
       );
 
-      const batch = (rows.rows?._array ?? rows.rows ?? []) as Array<{ id: string; created_at: number }>;
+      const batch = (rows.rows ?? []) as Array<{ id: string; created_at: number }>;
       if (batch.length === 0) break;
 
       for (const row of batch) {

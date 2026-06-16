@@ -47,6 +47,24 @@ export type Embedding = {
 export type Tag = {
   id: string;
   name: string;
+  key: string;
+  value: string;
+};
+
+export type NoteLocation = {
+  label: string;
+  geohash: string;
+  placeUrl?: string;
+};
+
+export type Note = {
+  id: string;
+  entryId: string;
+  body: string;
+  locationLabel: string | null;
+  locationGeohash: string | null;
+  placeUrl: string | null;
+  createdAt: number;
 };
 
 // Contract the HokedexML native module satisfies — used for typed NativeModules access

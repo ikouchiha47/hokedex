@@ -232,6 +232,46 @@ Before implementing any multi-part feature, identify the choke points and design
 | `NFCReceiveScreen` | `search.ts` + `merge.ts` types | Share track |
 | `NFCMergeScreen` | `merge.ts` types | Share + Receive tracks |
 
+## Skill: Parallel Worktree Decomposition
+
+Use this before creating any worktrees for a multi-feature batch. The goal is zero merge conflicts by design, not by luck.
+
+**1. Find hub files**
+Files every new feature touches regardless of what it does. Identifiable by: high fan-in (imports from many places), new features must register here to become visible.
+In this repo the hubs are: `loader.ts`, `runner.ts`, `RootNavigator.tsx`, `App.tsx`, and any screen that two features both add UI to.
+
+**2. Classify each hub and fix it before branching**
+
+| Hub type | Symptom | Fix |
+|----------|---------|-----|
+| Registry | New things must declare themselves in a list | Extract list to a data file; features add one line there; hub reads from it |
+| Compositor | Wires together unrelated concerns in one function | Split each concern into its own hook/module; compositor only calls them |
+| God file | Grew organically, now owns too much UI or logic | Extract sub-components or sub-modules; parent becomes a thin shell |
+
+**3. Lock interfaces first**
+Agree on TypeScript types and function signatures, commit to main. Parallel tracks implement against the contract — they never invent incompatible shapes independently.
+
+**4. Pre-stub insertion points**
+Before branching: write empty stubs (typed props, null/[] returns) and add the import lines in parent files. The parent is now pre-touched. Each track fills in only its own stub. Merging two complete implementations into a pre-stubbed parent is mechanical — no conflicts.
+
+**5. Ownership table**
+Draw this before creating any worktree:
+
+| Track | Files it modifies |
+|-------|------------------|
+| A | ... |
+| B | ... |
+
+Any file appearing in more than one row is a conflict. Resolve it in steps 2–4 before branching.
+
+**6. The execution order**
+
+```
+Serial:   hub fixes + interface lock + stubs   (cheap — no implementation)
+Parallel: each track implements its leaf files  (all the real work)
+Serial:   one wire-up step if needed           (trivial — both implementations exist)
+```
+
 ## Migrations
 
 - Runner: `src/db/migrations/runner.ts`

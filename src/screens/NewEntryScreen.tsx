@@ -17,12 +17,7 @@ import type { RouteProp } from '@react-navigation/native';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import { useApp } from '../AppContext';
-import { insertEntry, deleteEntry } from '../db/queries/entries';
-import { setProfilePhoto, unsetAllProfilePhotos } from '../db/queries/photos';
-import { saveEntryTags } from '../db/queries/tags';
-import { logEncounter } from '../db/queries/encounters';
-import { withTransaction } from '../db/tx';
-import { ingestImage } from '../services/ingestion';
+import { NewEntryController } from '../services/NewEntryController';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Fonts } from '../theme/fonts';
@@ -47,14 +42,6 @@ const PRESET_TAGS = [
   { label: 'Dark Academia',   color: '#705746' },
   { label: 'NPC',             color: '#B7B7CE' },
 ];
-
-function slugify(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'entry';
-}
-
-function generateId(): string {
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
-}
 
 export function NewEntryScreen() {
   const { db, collectionRoot, category } = useApp();
@@ -112,62 +99,12 @@ export function NewEntryScreen() {
     if (!valid) return;
 
     setSaving(true);
-    const entryId = generateId();
-    const now = Date.now();
-
+    const ctrl = new NewEntryController(db, collectionRoot, category.id, { HokedexIngest, HokedexML });
     try {
-      try {
-        withTransaction(db, tx => insertEntry(tx, {
-          id: entryId,
-          category_id: category.id,
-          name: name.trim(),
-          notes: null,
-          is_public: 0,
-          created_at: now,
-          updated_at: now,
-        }));
-      } catch (insertErr) {
-        console.error('[NewEntry] insertEntry failed:', insertErr);
-        throw new Error('Failed to create entry. Please try again.');
-      }
-
-      let outcome;
-      try {
-        outcome = await ingestImage(db, { HokedexIngest, HokedexML }, {
-          imageUri: photoUri!,
-          collectionRoot,
-          entryId,
-          categoryId: category.id,
-          entryNameSlug: slugify(name.trim()),
-        });
-      } catch (ingestErr) {
-        console.error('[NewEntry] ingestImage failed, rolling back entry:', ingestErr);
-        try { withTransaction(db, tx => deleteEntry(tx, entryId)); } catch (rollbackErr) {
-          console.error('[NewEntry] rollback deleteEntry also failed:', rollbackErr);
-        }
-        throw ingestErr;
-      }
-
-      try {
-        withTransaction(db, tx => {
-          unsetAllProfilePhotos(tx, entryId);
-          setProfilePhoto(tx, outcome.photoId);
-          if (selectedTags.length > 0) saveEntryTags(tx, entryId, selectedTags);
-          logEncounter(tx, entryId, now);
-        });
-      } catch (postErr) {
-        console.error('[NewEntry] post-ingest DB writes failed:', postErr);
-        ToastAndroid.show('Saved, but some details failed to write.', ToastAndroid.SHORT);
-      }
-
-      if (outcome.status === 'reference_only') {
-        ToastAndroid.show('No face detected — saved as reference photo.', ToastAndroid.SHORT);
-      } else if (outcome.status === 'low_confidence_warning') {
-        ToastAndroid.show('Low confidence face — saved with warning.', ToastAndroid.SHORT);
-      } else if (outcome.status === 'needs_face_selection') {
-        ToastAndroid.show('Multiple faces detected — only the first was used.', ToastAndroid.SHORT);
-      }
-
+      const result = await ctrl.save(name, selectedTags, photoUri!);
+      if (result.status === 'reference_only') ToastAndroid.show('No face detected — saved as reference photo.', ToastAndroid.SHORT);
+      else if (result.status === 'low_confidence_warning') ToastAndroid.show('Low confidence face — saved with warning.', ToastAndroid.SHORT);
+      else if (result.status === 'needs_face_selection') ToastAndroid.show('Multiple faces detected — only the first was used.', ToastAndroid.SHORT);
       navigation.goBack();
     } catch (e) {
       console.error('[NewEntry] save failed:', e);

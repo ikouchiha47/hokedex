@@ -12,6 +12,7 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import RNFS from 'react-native-fs';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useApp } from '../AppContext';
 import { clearPin, verifyPin, setPin } from '../services/pin';
 import { Fonts } from '../theme/fonts';
@@ -90,8 +91,8 @@ export function SettingsScreen() {
       <StatusBar barStyle="light-content" backgroundColor="#0a0a0a" />
 
       <View style={styles.topBar}>
-        <Pressable onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text style={styles.backBtnText}>← Back</Text>
+        <Pressable onPress={() => navigation.goBack()} style={styles.backBtn} accessibilityLabel="Back">
+          <MaterialIcons name="arrow-back" size={24} color="#fff" />
         </Pressable>
         <Text style={styles.pageTitle}>Settings</Text>
       </View>
@@ -221,8 +222,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#1a1a1a',
   },
-  backBtn: { marginRight: 16 },
-  backBtnText: { fontSize: 15, color: '#7c3aed', fontFamily: Fonts.inter.medium },
+  backBtn: { width: 40, height: 40, justifyContent: 'center', marginRight: 8 },
   pageTitle: { fontSize: 20, color: '#ffffff', ...Fonts.grotesk.semiBold },
   content: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 60, gap: 32 },
   section: {

@@ -180,7 +180,7 @@ export function InsightsScreen() {
                 )}
 
                 {tagView === 'list' && (
-                  <View style={styles.tagBarsWrapInCard}>
+                  <View style={styles.tagBarsWrap}>
                     {(graphData as TagPattern[]).map(t => (
                       <View key={t.name} style={styles.tagRow}>
                         <Text style={styles.tagLabel} numberOfLines={1}>{t.name}</Text>

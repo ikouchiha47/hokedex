@@ -5,13 +5,14 @@ import {
   Image,
   Pressable,
   ScrollView,
-  TextInput,
   Alert,
   Animated,
   ActivityIndicator,
   ToastAndroid,
   NativeModules,
   StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -19,21 +20,22 @@ import type { RouteProp } from '@react-navigation/native';
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useApp } from '../AppContext';
-import { getEntry, deleteEntry } from '../db/queries/entries';
-import { listPhotosByEntry, getProfilePhoto, setProfilePhoto, unsetAllProfilePhotos, deletePhoto, countPhotosByEntry } from '../db/queries/photos';
-import { listTagsByEntry, addEntryTag, removeEntryTag, upsertTag } from '../db/queries/tags';
-import { logEncounter, listEncountersByEntry, deleteEncounter, type Encounter } from '../db/queries/encounters';
-import { withTransaction } from '../db/tx';
 import { ingestImage } from '../services/ingestion';
 import { searchByEmbedding } from '../services/search';
 import { accentForEntry } from '../theme/accent';
+import { EntryDetailController } from '../services/EntryDetailController';
+import { EntryTagsController } from '../services/EntryTagsController';
+import { ColorPickerSection } from './entry-detail/ColorPickerSection';
+import { NotesTimelineSection } from './entry-detail/NotesTimelineSection';
+import { InfoSection } from './entry-detail/InfoSection';
 import { PhotoLightboxModal } from './PhotoLightboxModal';
 import { requestCameraPermission, requestGalleryPermission } from '../utils/permissions';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { RootStackParamList } from '../navigation/RootNavigator';
-import type { Photo } from '../db/types';
+import type { Photo, Note } from '../db/types';
+import type { EntryDetailState } from '../services/EntryDetailController';
+import type { TagRow } from '../services/EntryTagsController';
 import { Fonts } from '../theme/fonts';
-import RNFS from 'react-native-fs';
 
 const { HokedexIngest, HokedexML } = NativeModules;
 
@@ -70,23 +72,31 @@ export function EntryDetailScreen() {
   const { entryId } = route.params;
   const insets = useSafeAreaInsets();
 
-  const [entry, setEntry] = useState(getEntry(db, entryId));
-  const [photos, setPhotos] = useState<Photo[]>([]);
-  const [profilePhoto, setProfilePhotoState] = useState<Photo | null>(null);
-  const [photoCount, setPhotoCount] = useState(0);
-  const [notes, setNotes] = useState(entry?.notes ?? '');
-  const [tags, setTags] = useState<Array<{ id: string; name: string }>>([]);
-  const [tagInput, setTagInput] = useState('');
+  const controller = new EntryDetailController(db, entryId, collectionRoot);
+  const tagsController = new EntryTagsController(db, entryId);
+
+  const [state, setState] = useState<EntryDetailState | null>(() => controller.load());
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [ingesting, setIngesting] = useState(false);
   const [sampleResult, setSampleResult] = useState<string | null>(null);
-  const [encounters, setEncounters] = useState<Encounter[]>([]);
   const meetAnim = useRef(new Animated.Value(1)).current;
 
-  const accent = entry ? accentForEntry(profilePhoto?.original_phash ?? 0) : '#7c3aed';
+  const reload = useCallback(() => {
+    setState(controller.load());
+  }, [db, entryId, collectionRoot]);
 
+  useEffect(() => { reload(); }, [reload]);
+
+  if (!state) return null;
+
+  const { entry, photos, profilePhoto, photoCount, tags, encounters, colorTag, entryNotes } = state;
+
+  const accent = accentForEntry(profilePhoto?.original_phash ?? 0, colorTag);
   const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
   const alreadyMet = encounters.some(e => e.occurred_at >= todayStart.getTime());
+  const profileUri = profilePhoto ? `file://${collectionRoot}/${profilePhoto.local_path}` : null;
+  const lastEncounter = encounters[0];
+  const entryNumber = `#${entryId.replace(/\D/g, '').slice(-4).padStart(4, '0')}`;
 
   function triggerMeetAnim() {
     Animated.sequence([
@@ -95,19 +105,6 @@ export function EntryDetailScreen() {
       Animated.timing(meetAnim, { toValue: 1, duration: 120, useNativeDriver: true }),
     ]).start();
   }
-
-  const reload = useCallback(() => {
-    const e = getEntry(db, entryId);
-    setEntry(e);
-    const ps = listPhotosByEntry(db, entryId);
-    setPhotos(ps);
-    setProfilePhotoState(getProfilePhoto(db, entryId));
-    setPhotoCount(countPhotosByEntry(db, entryId));
-    setTags(listTagsByEntry(db, entryId));
-    setEncounters(listEncountersByEntry(db, entryId));
-  }, [db, entryId]);
-
-  useEffect(() => { reload(); }, [reload]);
 
   async function showSourcePicker(onPick: (uri: string) => void) {
     Alert.alert('Add photo', undefined, [
@@ -130,7 +127,7 @@ export function EntryDetailScreen() {
   }
 
   async function addPhoto(uri: string) {
-    if (ingesting || !entry) return;
+    if (ingesting) return;
     setIngesting(true);
     try {
       const outcome = await ingestImage(db, { HokedexIngest, HokedexML }, {
@@ -149,7 +146,6 @@ export function EntryDetailScreen() {
   }
 
   async function runSample(uri: string) {
-    if (!entry) return;
     try {
       const detection = await HokedexML.detect(uri, category.id);
       if (detection.type === 'NO_SUBJECT') { setSampleResult('No face detected'); return; }
@@ -168,55 +164,40 @@ export function EntryDetailScreen() {
     }
   }
 
-  function addTag() {
-    const t = tagInput.trim();
-    if (!t || tags.some(x => x.name === t)) { setTagInput(''); return; }
-    withTransaction(db, tx => {
-      const tagId = upsertTag(tx, t);
-      addEntryTag(tx, entryId, tagId);
-    });
-    setTagInput('');
-    setTags(listTagsByEntry(db, entryId));
-  }
-
-  function removeTag(tagId: string) {
-    withTransaction(db, tx => removeEntryTag(tx, entryId, tagId));
-    setTags(listTagsByEntry(db, entryId));
-  }
-
   function handleSetProfile(photoId: string) {
-    withTransaction(db, tx => {
-      unsetAllProfilePhotos(tx, entryId);
-      setProfilePhoto(tx, photoId);
-    });
+    controller.setProfilePhoto(photoId);
     reload();
   }
 
   function handleRemove(photoId: string) {
-    withTransaction(db, tx => deletePhoto(tx, photoId));
+    controller.removePhoto(photoId);
     reload();
     if (lightboxIndex !== null) setLightboxIndex(null);
   }
 
   function handleRemoveAndDelete(photoId: string) {
     const photo = photos.find(p => p.id === photoId);
-    withTransaction(db, tx => deletePhoto(tx, photoId));
-    if (photo) RNFS.unlink(`${collectionRoot}/${photo.local_path}`).catch(() => {});
+    if (photo) controller.removeAndDeletePhoto(photoId, photo.local_path);
+    else controller.removePhoto(photoId);
     reload();
     if (lightboxIndex !== null) setLightboxIndex(null);
   }
 
   async function confirmDeleteEntry() {
-    Alert.alert(`Delete ${entry?.name}?`, 'This will remove all their photos from Hokédex.', [
+    Alert.alert(`Delete ${entry.name}?`, 'This will remove all their photos from Hokédex.', [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete', style: 'destructive', onPress: () => {
           Alert.alert('Delete original files?', 'Also delete original files from your device? This cannot be undone.', [
-            { text: 'Keep files', onPress: () => { withTransaction(db, tx => deleteEntry(tx, entryId)); navigation.goBack(); } },
+            {
+              text: 'Keep files', onPress: () => {
+                controller.deleteEntry(true, []);
+                navigation.goBack();
+              },
+            },
             {
               text: 'Delete files', style: 'destructive', onPress: () => {
-                photos.forEach(p => RNFS.unlink(`${collectionRoot}/${p.local_path}`).catch(() => {}));
-                withTransaction(db, tx => deleteEntry(tx, entryId));
+                controller.deleteEntry(false, photos.map(p => p.local_path));
                 navigation.goBack();
               },
             },
@@ -226,43 +207,18 @@ export function EntryDetailScreen() {
     ]);
   }
 
-  if (!entry) return null;
-
-  const profileUri = profilePhoto ? `file://${collectionRoot}/${profilePhoto.local_path}` : null;
-  const lastEncounter = encounters[0];
-  const entryNumber = `#${entryId.replace(/\D/g, '').slice(-4).padStart(4, '0')}`;
-
   return (
-    <View style={styles.root}>
-
+    <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'android' ? 'height' : 'padding'}>
       <ScrollView style={styles.scroll} contentContainerStyle={{ paddingBottom: 100 }}>
 
         {/* ── HEADER BAND ── */}
         <View style={[styles.headerBand, { backgroundColor: accent, paddingTop: insets.top + 12 }]}>
-          {/* shimmer overlay */}
           <View style={styles.shimmer} pointerEvents="none" />
-
           <Pressable onPress={() => navigation.goBack()} style={styles.backBtn} accessibilityLabel="Back">
             <MaterialIcons name="arrow-back" size={22} color="rgba(255,255,255,0.8)" />
           </Pressable>
-
           <Text style={styles.cardNumber}>{entryNumber}</Text>
           <Text style={styles.cardName}>{entry.name}</Text>
-
-          {tags.length > 0 && (
-            <View style={styles.typeBadges}>
-              {tags.map(tag => (
-                <Pressable
-                  key={tag.id}
-                  style={styles.typeBadge}
-                  onLongPress={() => removeTag(tag.id)}
-                  delayLongPress={400}
-                >
-                  <Text style={styles.typeBadgeText}>{tag.name}</Text>
-                </Pressable>
-              ))}
-            </View>
-          )}
         </View>
 
         {/* ── PHOTO HERO ── */}
@@ -279,10 +235,18 @@ export function EntryDetailScreen() {
           )}
         </View>
 
+        {/* ── COLOR PICKER ── */}
+        <ColorPickerSection
+          currentColor={colorTag}
+          onColorChange={hex => {
+            controller.setColor(hex);
+            reload();
+          }}
+        />
+
         {/* ── STATS PANEL ── */}
         <View style={styles.statsPanel}>
 
-          {/* Stat boxes */}
           <View style={styles.statRow}>
             <View style={styles.statBox}>
               <Text style={[styles.statValue, { color: accent }]}>{encounters.length}</Text>
@@ -294,7 +258,6 @@ export function EntryDetailScreen() {
             </View>
           </View>
 
-          {/* Date row */}
           <View style={styles.dateRow}>
             <View>
               <Text style={styles.dateLabel}>First met</Text>
@@ -308,18 +271,6 @@ export function EntryDetailScreen() {
             </View>
           </View>
 
-          {/* Notes / flavor text */}
-          <TextInput
-            style={[styles.flavorText, { borderLeftColor: accent }]}
-            value={notes}
-            onChangeText={setNotes}
-            placeholder="Add a note…"
-            placeholderTextColor="#3a3a3a"
-            multiline
-            textAlignVertical="top"
-          />
-
-          {/* Sample result */}
           {sampleResult && (
             <View style={styles.sampleResult}>
               <Text style={styles.sampleResultText}>{sampleResult}</Text>
@@ -329,35 +280,11 @@ export function EntryDetailScreen() {
             </View>
           )}
 
-          {/* Types / tags */}
-          <Text style={styles.sectionLabel}>Types</Text>
-          <View style={styles.tagsWrap}>
-            {tags.map(tag => (
-              <Pressable
-                key={tag.id}
-                style={[styles.tagChip, { borderColor: accent }]}
-                onPress={() => setTagInput(tag.name)}
-                onLongPress={() => removeTag(tag.id)}
-                delayLongPress={400}
-              >
-                <Text style={[styles.tagChipText, { color: accent }]}>{tag.name}</Text>
-              </Pressable>
-            ))}
-            <View style={styles.tagInputRow}>
-              <TextInput
-                style={styles.tagInput}
-                value={tagInput}
-                onChangeText={setTagInput}
-                placeholder="Add type…"
-                placeholderTextColor="#333"
-                onSubmitEditing={addTag}
-                returnKeyType="done"
-              />
-              <Pressable style={styles.tagAddBtn} onPress={addTag}>
-                <MaterialIcons name="add" size={18} color="#555" />
-              </Pressable>
-            </View>
-          </View>
+          <InfoSection
+            controller={tagsController}
+            tags={tags as TagRow[]}
+            onTagsChange={reload}
+          />
 
           {/* Encounters */}
           <Text style={styles.sectionLabel}>Recent encounters</Text>
@@ -372,8 +299,8 @@ export function EntryDetailScreen() {
                   <Pressable
                     onPress={() => {
                       try {
-                        withTransaction(db, tx => deleteEncounter(tx, enc.id));
-                        setEncounters(listEncountersByEntry(db, entryId));
+                        controller.deleteEncounter(enc.id);
+                        reload();
                       } catch (e) {
                         console.error('[EntryDetail] deleteEncounter failed:', e);
                       }
@@ -429,6 +356,20 @@ export function EntryDetailScreen() {
             </Pressable>
           </ScrollView>
 
+          {/* ── NOTES TIMELINE ── */}
+          <NotesTimelineSection
+            entryId={entryId}
+            notes={entryNotes}
+            onAddNote={(body, location) => {
+              controller.addNote(body, location);
+              reload();
+            }}
+            onDeleteNote={noteId => {
+              controller.deleteNote(noteId);
+              reload();
+            }}
+          />
+
         </View>
       </ScrollView>
 
@@ -441,8 +382,8 @@ export function EntryDetailScreen() {
             onPress={() => {
               try {
                 triggerMeetAnim();
-                withTransaction(db, tx => logEncounter(tx, entryId, Date.now()));
-                setEncounters(listEncountersByEntry(db, entryId));
+                controller.logEncounter();
+                reload();
               } catch (e) {
                 console.error('[EntryDetail] logEncounter failed:', e);
                 Alert.alert('Error', 'Failed to log encounter.');
@@ -472,7 +413,7 @@ export function EntryDetailScreen() {
           onRemoveAndDelete={handleRemoveAndDelete}
         />
       )}
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -480,7 +421,6 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#0a0a0a' },
   scroll: { flex: 1 },
 
-  // Header band
   headerBand: {
     paddingHorizontal: 20,
     paddingBottom: 52,
@@ -488,7 +428,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   shimmer: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     opacity: 0.06,
     backgroundColor: 'transparent',
     borderStyle: 'solid',
@@ -532,7 +472,6 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.inter.medium,
   },
 
-  // Hero photo
   heroWrap: {
     alignItems: 'center',
     marginTop: -64,
@@ -562,7 +501,6 @@ const styles = StyleSheet.create({
     ...Fonts.grotesk.bold,
   },
 
-  // Stats panel
   statsPanel: {
     paddingHorizontal: 16,
     paddingTop: 4,
@@ -611,7 +549,6 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.inter.regular,
   },
 
-  // Flavor / notes
   flavorText: {
     backgroundColor: '#111',
     borderLeftWidth: 3,
@@ -635,7 +572,6 @@ const styles = StyleSheet.create({
   },
   sampleResultText: { flex: 1, fontSize: 14, fontFamily: Fonts.inter.medium, color: '#fff' },
 
-  // Section label
   sectionLabel: {
     fontSize: 9,
     fontWeight: '700',
@@ -645,7 +581,6 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.inter.medium,
   },
 
-  // Tags
   tagsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, alignItems: 'center' },
   tagChip: {
     borderWidth: 1,
@@ -677,7 +612,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  // Encounters
   encounterEmpty: { fontSize: 12, color: '#2a2a2a', fontFamily: Fonts.inter.regular },
   encounterList: { gap: 4 },
   encounterRow: {
@@ -693,7 +627,6 @@ const styles = StyleSheet.create({
   encounterDate: { flex: 1, fontSize: 11, color: '#555', fontFamily: Fonts.inter.regular },
   encounterMore: { fontSize: 11, color: '#2a2a2a', fontFamily: Fonts.inter.regular },
 
-  // Photo strip
   photoStrip: { marginHorizontal: -4 },
   stripThumb: {
     width: 72,
@@ -717,7 +650,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  // Fixed action bar
   actionBar: {
     position: 'absolute',
     bottom: 0,

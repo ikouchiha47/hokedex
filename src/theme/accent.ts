@@ -15,6 +15,7 @@ export const ACCENT_PALETTE = [
   '#be185d', // rose
 ] as const;
 
-export function accentForEntry(pHash: number): string {
+export function accentForEntry(pHash: number, colorTag?: string | null): string {
+  if (colorTag && /^#[0-9a-fA-F]{6}$/.test(colorTag)) return colorTag;
   return ACCENT_PALETTE[Math.abs(pHash) % ACCENT_PALETTE.length];
 }
