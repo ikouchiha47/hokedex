@@ -7,6 +7,8 @@ import com.google.mediapipe.framework.image.BitmapImageBuilder
 import com.google.mediapipe.tasks.core.BaseOptions
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.facedetector.FaceDetector as MediaPipeFaceDetector
+import java.io.File
+import java.io.FileInputStream
 import java.io.InputStream
 
 data class BoundingBox(
@@ -44,8 +46,7 @@ class FaceDetector(context: Context, private val confidenceThreshold: Float = 0.
     }
 
     fun detect(context: Context, imageUri: String): DetectionResult {
-        val uri = Uri.parse(imageUri)
-        val stream: InputStream = context.contentResolver.openInputStream(uri)
+        val stream: InputStream = openImageStream(context, imageUri)
             ?: return DetectionResult.NoSubject
 
         val bitmap = BitmapFactory.decodeStream(stream)
@@ -85,6 +86,16 @@ class FaceDetector(context: Context, private val confidenceThreshold: Float = 0.
         } else {
             DetectionResult.LowConfidence(box, confidence)
         }
+    }
+
+    private fun openImageStream(context: Context, imageUri: String): InputStream? {
+        // Plain file path (e.g. from share_intake cache)
+        if (!imageUri.startsWith("content://") && !imageUri.startsWith("file://")) {
+            val file = File(imageUri)
+            return if (file.exists()) FileInputStream(file) else null
+        }
+        val uri = Uri.parse(imageUri)
+        return context.contentResolver.openInputStream(uri)
     }
 
     fun close() = detector.close()
