@@ -4,7 +4,34 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>hokédex — gotta log 'em all</title>
-  <meta name="description" content="A pokédex for the people you date. Scan. Tag. Never get fooled again." />
+  <meta name="description" content="A pokédex for the people you date. Scan faces, tag their type, track encounters. Free Android app. No cloud, no account." />
+  <meta name="keywords" content="hokedex, dating app, face recognition, pokédex parody, red flag, situationship, android" />
+  <link rel="canonical" href="https://ikouchiha47.github.io/hokedex/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://ikouchiha47.github.io/hokedex/" />
+  <meta property="og:title" content="hokédex — gotta log 'em all" />
+  <meta property="og:description" content="A pokédex for the people you date. Scan. Tag. Never forget a red flag again." />
+  <meta property="og:image" content="https://ikouchiha47.github.io/hokedex/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:site_name" content="hokédex" />
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="hokédex — gotta log 'em all" />
+  <meta name="twitter:description" content="A pokédex for the people you date. Scan. Tag. Never forget a red flag again." />
+  <meta name="twitter:image" content="https://ikouchiha47.github.io/hokedex/og.png" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="icon.png" />
+
+  <!-- Theme -->
+  <meta name="theme-color" content="#7c3aed" />
+  <meta name="color-scheme" content="dark" />
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800&family=Inter:wght@400;500&display=swap');
 
@@ -41,7 +68,9 @@
     .logo {
       font-family: 'Space Grotesk', sans-serif;
       font-weight: 800; font-size: 20px; color: #fff; letter-spacing: -0.5px;
+      display: flex; align-items: center; gap: 8px;
     }
+    .logo img { width: 28px; height: 28px; border-radius: 7px; }
     .logo em { color: var(--accent-l); font-style: normal; }
 
     .nav-dl {
@@ -209,7 +238,7 @@
 <body>
 
 <nav>
-  <div class="logo">hok<em>é</em>dex</div>
+  <div class="logo"><img src="icon.png" alt="" /><span>hok<em>é</em>dex</span></div>
   <a href="#download" class="nav-dl">Get the app ↓</a>
 </nav>
 
