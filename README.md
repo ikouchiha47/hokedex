@@ -1,4 +1,12 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# hokédex
+
+![hokédex](./hokedex_landing.png)
+
+A pokédex for the people you date. Scan faces. Tag their type. Never forget a red flag again.
+
+---
+
+This is a [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
 # Getting Started
 

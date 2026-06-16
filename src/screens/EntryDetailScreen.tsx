@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   ScrollView,
   TextInput,
   Alert,
+  Animated,
   ActivityIndicator,
   ToastAndroid,
   NativeModules,
@@ -75,8 +76,20 @@ export function EntryDetailScreen() {
   const [ingesting, setIngesting] = useState(false);
   const [sampleResult, setSampleResult] = useState<string | null>(null);
   const [encounters, setEncounters] = useState<Encounter[]>([]);
+  const smashAnim = useRef(new Animated.Value(1)).current;
 
   const accent = entry ? accentForEntry(profilePhoto?.original_phash ?? 0) : '#7c3aed';
+
+  const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+  const alreadySmashed = encounters.some(e => e.occurred_at >= todayStart.getTime());
+
+  function triggerSmashAnim() {
+    Animated.sequence([
+      Animated.timing(smashAnim, { toValue: 1.25, duration: 100, useNativeDriver: true }),
+      Animated.timing(smashAnim, { toValue: 0.92, duration: 80, useNativeDriver: true }),
+      Animated.timing(smashAnim, { toValue: 1, duration: 120, useNativeDriver: true }),
+    ]).start();
+  }
 
   const reload = useCallback(() => {
     const e = getEntry(db, entryId);
@@ -222,11 +235,9 @@ export function EntryDetailScreen() {
         </Pressable>
         <View style={styles.headerContent}>
           <View style={[styles.avatar, { width: avatarSize, height: avatarSize, borderRadius: avatarSize / 2, borderColor: accent }]}>
-            {profileUri ? (
-              <Image source={{ uri: profileUri }} style={{ width: avatarSize, height: avatarSize, borderRadius: avatarSize / 2 }} />
-            ) : (
-              <View style={[styles.avatarPlaceholder, { borderRadius: avatarSize / 2 }]} />
-            )}
+            {profileUri
+              ? <Image source={{ uri: profileUri }} style={{ width: avatarSize, height: avatarSize, borderRadius: avatarSize / 2 }} />
+              : <Text style={{ fontSize: Math.round(avatarSize * 0.42), color: '#fff', fontFamily: 'SpaceGrotesk' }}>{(entry.name.trim()[0] ?? '?').toUpperCase()}</Text>}
           </View>
           <Text style={styles.entryName} numberOfLines={1}>{entry.name}</Text>
         </View>
@@ -300,21 +311,41 @@ export function EntryDetailScreen() {
               <Text style={styles.encounterCount}>{encounters.length}</Text>
               <Text style={styles.encounterCountLabel}>encounter{encounters.length !== 1 ? 's' : ''}</Text>
             </View>
-            <Pressable
-              style={[styles.logEncounterBtn, { borderColor: accent }]}
-              onPress={() => {
-                try {
-                  withTransaction(db, tx => logEncounter(tx, entryId, Date.now()));
-                  setEncounters(listEncountersByEntry(db, entryId));
-                } catch (e) {
-                  console.error('[EntryDetail] logEncounter failed:', e);
-                  Alert.alert('Error', 'Failed to log encounter.');
-                }
-              }}
-            >
-              <MaterialIcons name="add" size={18} color={accent} />
-              <Text style={[styles.logEncounterText, { color: accent }]}>Log</Text>
-            </Pressable>
+            <View style={{ alignItems: 'flex-end', gap: 4 }}>
+              <Animated.View style={{ transform: [{ scale: smashAnim }] }}>
+                <Pressable
+                  style={[
+                    styles.logEncounterBtn,
+                    alreadySmashed
+                      ? { borderColor: '#2a2a38', backgroundColor: '#111118' }
+                      : { borderColor: accent },
+                  ]}
+                  disabled={alreadySmashed}
+                  onPress={() => {
+                    try {
+                      triggerSmashAnim();
+                      withTransaction(db, tx => logEncounter(tx, entryId, Date.now()));
+                      setEncounters(listEncountersByEntry(db, entryId));
+                    } catch (e) {
+                      console.error('[EntryDetail] logEncounter failed:', e);
+                      Alert.alert('Error', 'Failed to log encounter.');
+                    }
+                  }}
+                >
+                  <MaterialIcons
+                    name={alreadySmashed ? 'check' : 'bolt'}
+                    size={18}
+                    color={alreadySmashed ? '#333' : accent}
+                  />
+                  <Text style={[styles.logEncounterText, { color: alreadySmashed ? '#333' : accent }]}>
+                    {alreadySmashed ? 'Smashed' : 'Smash'}
+                  </Text>
+                </Pressable>
+              </Animated.View>
+              {alreadySmashed && (
+                <Text style={styles.smashLimit}>once a day · see you tomorrow</Text>
+              )}
+            </View>
           </View>
 
           {/* History */}
@@ -348,14 +379,8 @@ export function EntryDetailScreen() {
 
         {/* Action bar */}
         <View style={styles.actionBar}>
-          <Pressable style={styles.actionBtn} onPress={() => showSourcePicker(runSample)}>
-            <Text style={styles.actionBtnText}>Sample</Text>
-          </Pressable>
           <Pressable style={[styles.actionBtn, ingesting && styles.actionBtnDisabled]} onPress={() => !ingesting && showSourcePicker(addPhoto)} disabled={ingesting}>
             {ingesting ? <ActivityIndicator color="#fff" size="small" /> : <MaterialIcons name="add-a-photo" size={18} color="#ccc" />}
-          </Pressable>
-          <Pressable style={styles.actionBtn} onPress={() => photos.length > 0 && setLightboxIndex(0)}>
-            <Text style={styles.actionBtnText}>All photos</Text>
           </Pressable>
         </View>
 
@@ -417,7 +442,7 @@ const styles = StyleSheet.create({
   },
   iconBtn: { width: 40, height: 40, justifyContent: 'center' },
   headerContent: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
-  avatar: { borderWidth: 2, overflow: 'hidden', backgroundColor: '#1a1a1a' },
+  avatar: { borderWidth: 2, backgroundColor: '#1a1a1a', alignItems: 'center', justifyContent: 'center' },
   avatarPlaceholder: { flex: 1, backgroundColor: '#222' },
   entryName: { flex: 1, fontSize: 20, ...Fonts.grotesk.bold, color: '#fff' },
   scroll: { flex: 1 },
@@ -505,13 +530,14 @@ const styles = StyleSheet.create({
   },
   encounterCount: { fontSize: 28, ...Fonts.grotesk.bold, color: '#fff' },
   encounterCountLabel: { fontSize: 11, fontFamily: Fonts.inter.regular, color: '#444', marginTop: 1 },
-  sectionLabel: { fontSize: 11, fontFamily: Fonts.inter.medium, color: '#555', textTransform: 'uppercase', letterSpacing: 0.8 },
+  sectionLabel: { fontSize: 15, fontFamily: Fonts.inter.medium, color: '#888', textTransform: 'uppercase', letterSpacing: 0.8 },
   logEncounterBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     borderWidth: 1, borderRadius: 10,
     paddingHorizontal: 14, paddingVertical: 8,
   },
   logEncounterText: { fontSize: 14, fontFamily: Fonts.inter.medium },
+  smashLimit: { fontSize: 10, fontFamily: Fonts.inter.regular, color: '#333', fontStyle: 'italic' },
   encounterEmpty: { fontSize: 12, fontFamily: Fonts.inter.regular, color: '#333' },
   encounterRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   encounterDate: { flex: 1, fontSize: 12, fontFamily: Fonts.inter.regular, color: '#555' },

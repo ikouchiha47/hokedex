@@ -5,7 +5,6 @@ import {
   FlatList,
   ScrollView,
   Pressable,
-  Image,
   Alert,
   useWindowDimensions,
   StyleSheet,
@@ -14,6 +13,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../AppContext';
 import { listEntriesByCategory, deleteEntry } from '../db/queries/entries';
@@ -91,9 +91,8 @@ export function CollectionListScreen() {
     });
     setEntries(withPhotos);
 
-    // 1 year of encounter data for the calendar
-    const yearAgo = Date.now() - 365 * 24 * 60 * 60 * 1000;
-    setEncounters(listEncountersInRange(db, yearAgo, Date.now() + 86400000));
+    // All encounters — calendar handles per-year filtering internally
+    setEncounters(listEncountersInRange(db, 0, Date.now() + 86400000));
     setStats(getEncounterStats(db));
   }, [db, collectionRoot, category.id]);
 
@@ -121,9 +120,9 @@ export function CollectionListScreen() {
     );
   }
 
-  const PREVIEW_COUNT = numColumns * 2 - 1; // rows × columns minus the Add tile
-  const previewEntries = entries.slice(0, PREVIEW_COUNT);
-  const hasMore = entries.length > PREVIEW_COUNT;
+  const MAX_PREVIEW = 11;
+  const hasMore = entries.length > MAX_PREVIEW;
+  const previewEntries = hasMore ? entries.slice(0, MAX_PREVIEW - 1) : entries.slice(0, MAX_PREVIEW);
 
   const roast = getRoast(stats, entries);
 
@@ -149,6 +148,9 @@ export function CollectionListScreen() {
           </View>
           <Pressable onPress={purgeAll} style={styles.iconBtn}>
             <MaterialIcons name="delete-sweep" size={22} color="#444" />
+          </Pressable>
+          <Pressable onPress={() => navigation.navigate('Insights')} style={styles.iconBtn}>
+            <MaterialIcons name="auto-graph" size={22} color="#aaa" />
           </Pressable>
           <Pressable onPress={() => navigation.navigate('SearchResult')} style={styles.iconBtn}>
             <MaterialIcons name="search" size={24} color="#aaa" />
@@ -178,7 +180,7 @@ export function CollectionListScreen() {
                 <View style={[styles.circle, { width: circleDiameter, height: circleDiameter, borderRadius: circleDiameter / 2 }, styles.personCircle]}>
                   {data.profilePhotoPath
                     ? <Image source={{ uri: `file://${data.profilePhotoPath}` }} style={{ width: circleDiameter, height: circleDiameter, borderRadius: circleDiameter / 2 }} />
-                    : <View style={[styles.placeholderCircle, { width: circleDiameter, height: circleDiameter, borderRadius: circleDiameter / 2 }]} />}
+                    : <Text style={{ fontSize: Math.round(circleDiameter * 0.38), color: '#fff', fontFamily: 'SpaceGrotesk' }}>{(data.name.trim()[0] ?? '?').toUpperCase()}</Text>}
                 </View>
                 <Text style={[styles.label, { maxWidth: cellWidth }]} numberOfLines={1}>{data.name}</Text>
               </Pressable>
@@ -206,44 +208,55 @@ export function CollectionListScreen() {
             <Text style={styles.subtitle}>{entries.length} {entries.length === 1 ? 'person' : 'people'} indexed</Text>
           </View>
           <Pressable onPress={purgeAll} style={styles.iconBtn}>
-            <MaterialIcons name="delete-sweep" size={22} color="#333" />
+            <MaterialIcons name="delete-sweep" size={22} color="#444" />
+          </Pressable>
+          <Pressable onPress={() => navigation.navigate('Insights')} style={styles.iconBtn}>
+            <MaterialIcons name="auto-graph" size={22} color="#aaa" />
           </Pressable>
           <Pressable onPress={() => navigation.navigate('SearchResult')} style={styles.iconBtn}>
             <MaterialIcons name="search" size={24} color="#aaa" />
           </Pressable>
         </View>
 
-        {/* ── People strip ── */}
+        {/* ── People grid (3 cols) ── */}
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>People</Text>
-          <View style={styles.peopleRow}>
+          <View style={styles.peopleGrid}>
             {/* Add tile */}
-            <Pressable style={styles.peopleCell} onPress={() => navigation.navigate('NewEntry', {})}>
-              <View style={[styles.peopleCircle, styles.addCircle, { width: 56, height: 56, borderRadius: 28 }]}>
+            <Pressable style={[styles.peopleCell, { width: cellWidth }]} onPress={() => navigation.navigate('NewEntry', {})}>
+              <View style={[styles.peopleCircle, styles.addCircle, { width: circleDiameter, height: circleDiameter, borderRadius: circleDiameter / 2 }]}>
                 <Text style={styles.addPlus}>+</Text>
               </View>
-              <Text style={styles.peopleLabel} numberOfLines={1}>Add</Text>
+              <Text style={[styles.peopleLabel, { maxWidth: cellWidth }]} numberOfLines={1}>Add</Text>
             </Pressable>
 
             {/* Preview entries */}
             {previewEntries.map(e => (
-              <Pressable key={e.id} style={styles.peopleCell} onPress={() => navigation.navigate('EntryDetail', { entryId: e.id })}>
-                <View style={[styles.peopleCircle, { width: 56, height: 56, borderRadius: 28, borderColor: colorFromId(e.id) + '60', borderWidth: 1.5 }]}>
+              <Pressable key={e.id} style={[styles.peopleCell, { width: cellWidth }]} onPress={() => navigation.navigate('EntryDetail', { entryId: e.id })}>
+                <View style={[styles.peopleCircle, { width: circleDiameter, height: circleDiameter, borderRadius: circleDiameter / 2, borderColor: colorFromId(e.id) + '60', borderWidth: 1.5 }]}>
                   {e.profilePhotoPath
-                    ? <Image source={{ uri: `file://${e.profilePhotoPath}` }} style={{ width: 56, height: 56, borderRadius: 28 }} />
-                    : <View style={[styles.placeholderCircle, { width: 56, height: 56, borderRadius: 28 }]} />}
+                    ? <Image source={{ uri: `file://${e.profilePhotoPath}` }} style={{ width: circleDiameter, height: circleDiameter, borderRadius: circleDiameter / 2 }} />
+                    : <Text style={{ fontSize: Math.round(circleDiameter * 0.38), color: '#fff', fontFamily: 'SpaceGrotesk' }}>{(e.name.trim()[0] ?? '?').toUpperCase()}</Text>}
                 </View>
-                <Text style={styles.peopleLabel} numberOfLines={1}>{e.name}</Text>
+                <Text style={[styles.peopleLabel, { maxWidth: cellWidth }]} numberOfLines={1}>{e.name}</Text>
               </Pressable>
             ))}
 
-            {/* See more */}
+            {/* Empty placeholder slots */}
+            {!hasMore && Array.from({ length: MAX_PREVIEW - previewEntries.length }).map((_, i) => (
+              <View key={`empty-${i}`} style={[styles.peopleCell, { width: cellWidth }]}>
+                <View style={[styles.peopleCircle, { width: circleDiameter, height: circleDiameter, borderRadius: circleDiameter / 2, backgroundColor: '#0d0d10', borderColor: '#141418', borderWidth: 1 }]} />
+              </View>
+            ))}
+
+            {/* Show More › */}
             {hasMore && (
-              <Pressable style={styles.peopleCell} onPress={() => setShowAll(true)}>
-                <View style={[styles.peopleCircle, { width: 56, height: 56, borderRadius: 28, backgroundColor: '#1a1a22', borderColor: '#333', borderWidth: 1 }]}>
-                  <Text style={{ fontSize: 12, color: '#555', fontFamily: Fonts.inter.medium }}>+{entries.length - PREVIEW_COUNT}</Text>
+              <Pressable style={[styles.peopleCell, { width: cellWidth }]} onPress={() => setShowAll(true)}>
+                <View style={[styles.peopleCircle, { width: circleDiameter, height: circleDiameter, borderRadius: circleDiameter / 2, backgroundColor: '#111118', borderColor: '#1e1e2c', borderWidth: 1 }]}>
+                  <Text style={styles.showMoreCount}>+{entries.length - (MAX_PREVIEW - 1)}</Text>
+                  <Text style={styles.showMoreLabel}>more</Text>
                 </View>
-                <Text style={styles.peopleLabel} numberOfLines={1}>More</Text>
+                <Text style={[styles.peopleLabel, { maxWidth: cellWidth }]} numberOfLines={1}>See all</Text>
               </Pressable>
             )}
           </View>
@@ -293,25 +306,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: GRID_PADDING,
     paddingBottom: 20,
   },
-  wordmark: { fontSize: 32, ...Fonts.grotesk.bold, color: '#fff', letterSpacing: -1 },
+  wordmark: { fontSize: 42, ...Fonts.grotesk.bold, color: '#fff', letterSpacing: -1.5 },
   accent: { color: ACCENT },
   subtitle: { fontSize: 11, fontFamily: Fonts.inter.regular, color: '#333', marginTop: 1, letterSpacing: 0.2 },
-  iconBtn: { padding: 8 },
+  iconBtn: { padding: 10 },
 
   section: {
     paddingHorizontal: GRID_PADDING,
-    marginBottom: 28,
+    marginBottom: 48,
   },
   sectionLabel: {
-    fontSize: 11,
+    fontSize: 15,
     fontFamily: Fonts.inter.medium,
-    color: '#444',
+    color: '#888',
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: 12,
   },
 
-  peopleRow: {
+  peopleGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
@@ -321,7 +334,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#1a1a22',
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'hidden',
   },
   addCircle: {
     borderWidth: 1.5,
@@ -329,14 +341,16 @@ const styles = StyleSheet.create({
     borderColor: '#2a2a35',
     backgroundColor: 'transparent',
   },
-  addPlus: { fontSize: 20, color: '#444', ...Fonts.grotesk.medium },
+  addPlus: { fontSize: 28, color: '#444', ...Fonts.grotesk.medium },
   placeholderCircle: { backgroundColor: '#1a1a22' },
-  peopleLabel: { fontSize: 10, fontFamily: Fonts.inter.regular, color: '#555', maxWidth: 56, textAlign: 'center' },
+  peopleLabel: { fontSize: 11, fontFamily: Fonts.inter.regular, color: '#555', textAlign: 'center' },
+  showMoreCount: { fontSize: 16, fontFamily: Fonts.inter.medium, color: '#333' },
+  showMoreLabel: { fontSize: 10, fontFamily: Fonts.inter.regular, color: '#2a2a38' },
   emptyHint: { fontSize: 12, fontFamily: Fonts.inter.regular, color: '#2a2a3a', marginTop: 8 },
 
   // Full grid (showAll mode)
   cell: { alignItems: 'center', paddingVertical: 8, paddingHorizontal: CELL_PADDING },
-  circle: { overflow: 'hidden', marginBottom: 6 },
+  circle: { marginBottom: 6 },
   personCircle: { backgroundColor: '#1a1a1a' },
   label: { fontSize: 11, fontFamily: Fonts.inter.regular, color: '#aaa', textAlign: 'center' },
 

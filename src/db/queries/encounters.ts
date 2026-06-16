@@ -56,3 +56,25 @@ export function logEncounter(tx: Tx, entryId: string, occurredAt: number, note?:
 export function deleteEncounter(tx: Tx, id: string): void {
   tx.executeSync(Q.DELETE_ENCOUNTER, [id]);
 }
+
+export type RegularEncounter = {
+  id: string;
+  name: string;
+  encounter_count: number;
+  last_seen: number;
+};
+
+export type TagPattern = {
+  name: string;
+  people_count: number;
+};
+
+export function getRegularEncounters(db: DB, sinceMs: number, limit: number): RegularEncounter[] {
+  const r = db.executeSync(Q.REGULAR_ENCOUNTERS, [sinceMs, limit]);
+  return (r.rows?._array ?? r.rows ?? []) as RegularEncounter[];
+}
+
+export function getTagPatternAmongRegulars(db: DB, sinceMs: number, limit: number): TagPattern[] {
+  const r = db.executeSync(Q.TAG_PATTERN_AMONG_REGULARS, [sinceMs, limit]);
+  return (r.rows?._array ?? r.rows ?? []) as TagPattern[];
+}

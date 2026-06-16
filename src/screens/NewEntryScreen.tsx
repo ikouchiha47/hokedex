@@ -342,9 +342,9 @@ const styles = StyleSheet.create({
   errorText: { fontSize: 12, fontFamily: Fonts.inter.regular, color: '#dc2626', alignSelf: 'center' },
   sectionLabel: {
     alignSelf: 'flex-start',
-    fontSize: 12,
+    fontSize: 15,
     fontFamily: Fonts.inter.medium,
-    color: '#555',
+    color: '#888',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginTop: 4,

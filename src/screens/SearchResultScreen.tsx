@@ -69,6 +69,7 @@ export function SearchResultScreen() {
 
       const cropped = await ImageCropPicker.openCropper({
         path: original.path,
+        mediaType: 'photo',
         freeStyleCropEnabled: true,
         includeBase64: false,
       });
