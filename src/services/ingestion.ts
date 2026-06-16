@@ -6,6 +6,7 @@
  */
 
 import type { DB } from '@op-engineering/op-sqlite';
+import { withTransaction } from '../db/tx';
 import { parseLongFromBridge } from '../utils/numbers';
 import type { DetectionResult } from '../types/ml';
 import { insertPhoto } from '../db/queries/photos';
@@ -60,16 +61,6 @@ function float32ToBuffer(arr: number[]): ArrayBuffer {
   return buf;
 }
 
-function runTransaction(db: DB, work: () => void): void {
-  db.executeSync('BEGIN');
-  try {
-    work();
-    db.executeSync('COMMIT');
-  } catch (e) {
-    db.executeSync('ROLLBACK');
-    throw e;
-  }
-}
 
 // ---------------------------------------------------------------------------
 // Main export
@@ -103,7 +94,7 @@ export async function ingestImage(
       original_sha256: sha256, original_phash: phash,
       is_profile_photo: 0, embedding_id: null, created_at: now,
     };
-    runTransaction(db, () => insertPhoto(db, photo));
+    withTransaction(db, tx => insertPhoto(tx, photo));
     return { status: 'needs_face_selection', photoId, crops: detection as DetectionResult & { type: 'MULTI_SUBJECT' } };
   }
 
@@ -114,7 +105,7 @@ export async function ingestImage(
       original_sha256: sha256, original_phash: phash,
       is_profile_photo: 0, embedding_id: null, created_at: now,
     };
-    runTransaction(db, () => insertPhoto(db, photo));
+    withTransaction(db, tx => insertPhoto(tx, photo));
     return { status: 'reference_only', photoId };
   }
 
@@ -133,9 +124,9 @@ export async function ingestImage(
     category_id: categoryId, vector: vectorBuffer, created_at: now,
   };
 
-  runTransaction(db, () => {
-    insertEmbedding(db, embedding);
-    insertPhoto(db, photo);
+  withTransaction(db, tx => {
+    insertEmbedding(tx, embedding);
+    insertPhoto(tx, photo);
   });
 
   if (detection.type === 'LOW_CONFIDENCE') {

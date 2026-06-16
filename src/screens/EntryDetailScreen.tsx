@@ -22,6 +22,7 @@ import { getEntry, deleteEntry } from '../db/queries/entries';
 import { listPhotosByEntry, getProfilePhoto, setProfilePhoto, unsetAllProfilePhotos, deletePhoto, countPhotosByEntry } from '../db/queries/photos';
 import { listTagsByEntry, addEntryTag, removeEntryTag, upsertTag } from '../db/queries/tags';
 import { logEncounter, listEncountersByEntry, deleteEncounter, type Encounter } from '../db/queries/encounters';
+import { withTransaction } from '../db/tx';
 import { ingestImage } from '../services/ingestion';
 import { searchByEmbedding } from '../services/search';
 import { accentForEntry } from '../theme/accent';
@@ -152,32 +153,36 @@ export function EntryDetailScreen() {
   function addTag() {
     const t = tagInput.trim();
     if (!t || tags.some(x => x.name === t)) { setTagInput(''); return; }
-    const tagId = upsertTag(db, t);
-    addEntryTag(db, entryId, tagId);
+    withTransaction(db, tx => {
+      const tagId = upsertTag(tx, t);
+      addEntryTag(tx, entryId, tagId);
+    });
     setTagInput('');
     setTags(listTagsByEntry(db, entryId));
   }
 
   function removeTag(tagId: string) {
-    removeEntryTag(db, entryId, tagId);
+    withTransaction(db, tx => removeEntryTag(tx, entryId, tagId));
     setTags(listTagsByEntry(db, entryId));
   }
 
   function handleSetProfile(photoId: string) {
-    unsetAllProfilePhotos(db, entryId);
-    setProfilePhoto(db, photoId);
+    withTransaction(db, tx => {
+      unsetAllProfilePhotos(tx, entryId);
+      setProfilePhoto(tx, photoId);
+    });
     reload();
   }
 
   function handleRemove(photoId: string) {
-    deletePhoto(db, photoId);
+    withTransaction(db, tx => deletePhoto(tx, photoId));
     reload();
     if (lightboxIndex !== null) setLightboxIndex(null);
   }
 
   function handleRemoveAndDelete(photoId: string) {
     const photo = photos.find(p => p.id === photoId);
-    deletePhoto(db, photoId);
+    withTransaction(db, tx => deletePhoto(tx, photoId));
     if (photo) RNFS.unlink(`${collectionRoot}/${photo.local_path}`).catch(() => {});
     reload();
     if (lightboxIndex !== null) setLightboxIndex(null);
@@ -189,11 +194,11 @@ export function EntryDetailScreen() {
       {
         text: 'Delete', style: 'destructive', onPress: () => {
           Alert.alert('Delete original files?', 'Also delete original files from your device? This cannot be undone.', [
-            { text: 'Keep files', onPress: () => { deleteEntry(db, entryId); navigation.goBack(); } },
+            { text: 'Keep files', onPress: () => { withTransaction(db, tx => deleteEntry(tx, entryId)); navigation.goBack(); } },
             {
               text: 'Delete files', style: 'destructive', onPress: () => {
                 photos.forEach(p => RNFS.unlink(`${collectionRoot}/${p.local_path}`).catch(() => {}));
-                deleteEntry(db, entryId);
+                withTransaction(db, tx => deleteEntry(tx, entryId));
                 navigation.goBack();
               },
             },
@@ -299,7 +304,7 @@ export function EntryDetailScreen() {
               style={[styles.logEncounterBtn, { borderColor: accent }]}
               onPress={() => {
                 try {
-                  logEncounter(db, entryId, Date.now());
+                  withTransaction(db, tx => logEncounter(tx, entryId, Date.now()));
                   setEncounters(listEncountersByEntry(db, entryId));
                 } catch (e) {
                   console.error('[EntryDetail] logEncounter failed:', e);
@@ -323,7 +328,7 @@ export function EntryDetailScreen() {
                 <Pressable
                   onPress={() => {
                     try {
-                      deleteEncounter(db, enc.id);
+                      withTransaction(db, tx => deleteEncounter(tx, enc.id));
                       setEncounters(listEncountersByEntry(db, entryId));
                     } catch (e) {
                       console.error('[EntryDetail] deleteEncounter failed:', e);

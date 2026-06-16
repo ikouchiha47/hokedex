@@ -5,14 +5,11 @@
  */
 
 import { type DB } from '@op-engineering/op-sqlite';
+import { type Tx } from '../tx';
 import { SQL, parseNamedQueries } from '../sql/loader';
 import { type Entry } from '../types';
 
 const q = parseNamedQueries(SQL.queriesEntries);
-
-// ---------------------------------------------------------------------------
-// Row mapper
-// ---------------------------------------------------------------------------
 
 function rowToEntry(row: Record<string, unknown>): Entry {
   return {
@@ -26,33 +23,21 @@ function rowToEntry(row: Record<string, unknown>): Entry {
   };
 }
 
-// ---------------------------------------------------------------------------
-// name: GetEntry :one
-// ---------------------------------------------------------------------------
-
+// Reads — accept plain DB
 export function getEntry(db: DB, id: string): Entry | null {
   const result = db.executeSync(q.GET_ENTRY, [id]);
   const row = result.rows?.[0];
   return row ? rowToEntry(row as Record<string, unknown>) : null;
 }
 
-// ---------------------------------------------------------------------------
-// name: ListEntriesByCategory :many
-// ---------------------------------------------------------------------------
-
 export function listEntriesByCategory(db: DB, categoryId: string): Entry[] {
   const result = db.executeSync(q.LIST_ENTRIES_BY_CATEGORY, [categoryId]);
-  return (result.rows ?? []).map(row =>
-    rowToEntry(row as Record<string, unknown>)
-  );
+  return (result.rows ?? []).map(row => rowToEntry(row as Record<string, unknown>));
 }
 
-// ---------------------------------------------------------------------------
-// name: InsertEntry :exec
-// ---------------------------------------------------------------------------
-
-export function insertEntry(db: DB, params: Entry): void {
-  db.executeSync(q.INSERT_ENTRY, [
+// Writes — accept Tx
+export function insertEntry(tx: Tx, params: Entry): void {
+  tx.executeSync(q.INSERT_ENTRY, [
     params.id,
     params.category_id,
     params.name,
@@ -63,20 +48,12 @@ export function insertEntry(db: DB, params: Entry): void {
   ]);
 }
 
-// ---------------------------------------------------------------------------
-// name: UpdateEntryName :exec
-// ---------------------------------------------------------------------------
-
 export type UpdateEntryNameParams = { id: string; name: string; updated_at: number };
 
-export function updateEntryName(db: DB, params: UpdateEntryNameParams): void {
-  db.executeSync(q.UPDATE_ENTRY_NAME, [params.name, params.updated_at, params.id]);
+export function updateEntryName(tx: Tx, params: UpdateEntryNameParams): void {
+  tx.executeSync(q.UPDATE_ENTRY_NAME, [params.name, params.updated_at, params.id]);
 }
 
-// ---------------------------------------------------------------------------
-// name: DeleteEntry :exec
-// ---------------------------------------------------------------------------
-
-export function deleteEntry(db: DB, id: string): void {
-  db.executeSync(q.DELETE_ENTRY, [id]);
+export function deleteEntry(tx: Tx, id: string): void {
+  tx.executeSync(q.DELETE_ENTRY, [id]);
 }

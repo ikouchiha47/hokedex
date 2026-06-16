@@ -1,4 +1,5 @@
 import { type DB } from '@op-engineering/op-sqlite';
+import { type Tx } from '../tx';
 import { SQL, parseNamedQueries } from '../sql/loader';
 
 const Q = parseNamedQueries(SQL.queriesEncounters);
@@ -23,33 +24,35 @@ function generateId(): string {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
 
-export function logEncounter(db: DB, entryId: string, occurredAt: number, note?: string): string {
-  const id = generateId();
-  db.executeSync(Q.LOG_ENCOUNTER, [id, entryId, note ?? null, occurredAt]);
-  return id;
-}
-
-export function deleteEncounter(db: DB, id: string): void {
-  db.executeSync(Q.DELETE_ENCOUNTER, [id]);
-}
-
+// Reads — accept plain DB
 export function listEncountersByEntry(db: DB, entryId: string): Encounter[] {
   const r = db.executeSync(Q.LIST_ENCOUNTERS_BY_ENTRY, [entryId]);
-  return (r.rows?._array ?? []) as Encounter[];
+  return (r.rows?._array ?? r.rows ?? []) as Encounter[];
 }
 
 export function listEncountersInRange(db: DB, fromMs: number, toMs: number): EncounterWithName[] {
   const r = db.executeSync(Q.LIST_ENCOUNTERS_IN_RANGE, [fromMs, toMs]);
-  return (r.rows?._array ?? []) as EncounterWithName[];
+  return (r.rows?._array ?? r.rows ?? []) as EncounterWithName[];
 }
 
 export function getEncounterStats(db: DB): EncounterStats {
   const r = db.executeSync(Q.ENCOUNTER_STATS, []);
-  const row = r.rows?._array?.[0];
+  const row = (r.rows?._array ?? r.rows ?? [])[0];
   return {
-    total: row?.total ?? 0,
+    total:         row?.total         ?? 0,
     unique_people: row?.unique_people ?? 0,
-    last_at: row?.last_at ?? null,
-    first_at: row?.first_at ?? null,
+    last_at:       row?.last_at       ?? null,
+    first_at:      row?.first_at      ?? null,
   };
+}
+
+// Writes — accept Tx
+export function logEncounter(tx: Tx, entryId: string, occurredAt: number, note?: string): string {
+  const id = generateId();
+  tx.executeSync(Q.LOG_ENCOUNTER, [id, entryId, note ?? null, occurredAt]);
+  return id;
+}
+
+export function deleteEncounter(tx: Tx, id: string): void {
+  tx.executeSync(Q.DELETE_ENCOUNTER, [id]);
 }

@@ -17,6 +17,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../AppContext';
 import { listEntriesByCategory, deleteEntry } from '../db/queries/entries';
+import { withTransaction } from '../db/tx';
 import { getProfilePhoto } from '../db/queries/photos';
 import { listEncountersInRange, getEncounterStats, type EncounterWithName, type EncounterStats } from '../db/queries/encounters';
 import { ActivityCalendar, colorFromId } from '../components/ActivityCalendar';
@@ -110,7 +111,9 @@ export function CollectionListScreen() {
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Purge', style: 'destructive', onPress: () => {
-            entries.forEach(e => deleteEntry(db, e.id));
+            withTransaction(db, tx => {
+              entries.forEach(e => deleteEntry(tx, e.id));
+            });
             loadAll();
           },
         },

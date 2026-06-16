@@ -5,6 +5,7 @@
  */
 
 import { type DB } from '@op-engineering/op-sqlite';
+import { type Tx } from '../tx';
 import { SQL, parseNamedQueries } from '../sql/loader';
 import { type Embedding } from '../types';
 
@@ -15,10 +16,10 @@ const q = parseNamedQueries(SQL.queriesEmbeddings);
 // ---------------------------------------------------------------------------
 
 export function insertEmbedding(
-  db: DB,
+  tx: Tx,
   embedding: Omit<Embedding, 'vector'> & { vector: ArrayBuffer }
 ): void {
-  db.executeSync(q.INSERT_EMBEDDING, [
+  tx.executeSync(q.INSERT_EMBEDDING, [
     embedding.id,
     embedding.entry_id,
     embedding.photo_id,
@@ -32,8 +33,8 @@ export function insertEmbedding(
 // name: DeleteEmbeddingsByEntry :exec
 // ---------------------------------------------------------------------------
 
-export function deleteEmbeddingsByEntry(db: DB, entryId: string): void {
-  db.executeSync(q.DELETE_EMBEDDINGS_BY_ENTRY, [entryId]);
+export function deleteEmbeddingsByEntry(tx: Tx, entryId: string): void {
+  tx.executeSync(q.DELETE_EMBEDDINGS_BY_ENTRY, [entryId]);
 }
 
 // ---------------------------------------------------------------------------

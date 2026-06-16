@@ -21,6 +21,7 @@ import { insertEntry, deleteEntry } from '../db/queries/entries';
 import { setProfilePhoto, unsetAllProfilePhotos } from '../db/queries/photos';
 import { saveEntryTags } from '../db/queries/tags';
 import { logEncounter } from '../db/queries/encounters';
+import { withTransaction } from '../db/tx';
 import { ingestImage } from '../services/ingestion';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -116,7 +117,7 @@ export function NewEntryScreen() {
 
     try {
       try {
-        insertEntry(db, {
+        withTransaction(db, tx => insertEntry(tx, {
           id: entryId,
           category_id: category.id,
           name: name.trim(),
@@ -124,7 +125,7 @@ export function NewEntryScreen() {
           is_public: 0,
           created_at: now,
           updated_at: now,
-        });
+        }));
       } catch (insertErr) {
         console.error('[NewEntry] insertEntry failed:', insertErr);
         throw new Error('Failed to create entry. Please try again.');
@@ -141,20 +142,21 @@ export function NewEntryScreen() {
         });
       } catch (ingestErr) {
         console.error('[NewEntry] ingestImage failed, rolling back entry:', ingestErr);
-        try { deleteEntry(db, entryId); } catch (rollbackErr) {
+        try { withTransaction(db, tx => deleteEntry(tx, entryId)); } catch (rollbackErr) {
           console.error('[NewEntry] rollback deleteEntry also failed:', rollbackErr);
         }
         throw ingestErr;
       }
 
       try {
-        unsetAllProfilePhotos(db, entryId);
-        setProfilePhoto(db, outcome.photoId);
-        if (selectedTags.length > 0) saveEntryTags(db, entryId, selectedTags);
-        logEncounter(db, entryId, now);
+        withTransaction(db, tx => {
+          unsetAllProfilePhotos(tx, entryId);
+          setProfilePhoto(tx, outcome.photoId);
+          if (selectedTags.length > 0) saveEntryTags(tx, entryId, selectedTags);
+          logEncounter(tx, entryId, now);
+        });
       } catch (postErr) {
         console.error('[NewEntry] post-ingest DB writes failed:', postErr);
-        // Entry and photo are saved — don't rollback, just warn
         ToastAndroid.show('Saved, but some details failed to write.', ToastAndroid.SHORT);
       }
 

@@ -19,6 +19,7 @@ import { useApp } from '../AppContext';
 import { getEntry, listEntriesByCategory } from '../db/queries/entries';
 import { getProfilePhoto, setProfilePhoto, unsetAllProfilePhotos } from '../db/queries/photos';
 import { logEncounter } from '../db/queries/encounters';
+import { withTransaction } from '../db/tx';
 import { searchByEmbedding, type SearchResult } from '../services/search';
 import { searchEmbeddingsByVector } from '../db/queries/embeddings';
 import { ingestImage } from '../services/ingestion';
@@ -131,16 +132,16 @@ export function SearchResultScreen() {
         entryNameSlug: slugify(entry.name),
       });
       const existing = getProfilePhoto(db, entryId);
-      if (!existing) {
-        unsetAllProfilePhotos(db, entryId);
-        setProfilePhoto(db, outcome.photoId);
-      }
-      if (withEncounter) {
-        try {
-          logEncounter(db, entryId, Date.now());
-        } catch (encErr) {
-          console.error('[Search] logEncounter failed:', encErr);
-        }
+      try {
+        withTransaction(db, tx => {
+          if (!existing) {
+            unsetAllProfilePhotos(tx, entryId);
+            setProfilePhoto(tx, outcome.photoId);
+          }
+          if (withEncounter) logEncounter(tx, entryId, Date.now());
+        });
+      } catch (postErr) {
+        console.error('[Search] post-attach writes failed:', postErr);
       }
       if (outcome.status === 'reference_only') {
         ToastAndroid.show('No face — saved as reference photo.', ToastAndroid.SHORT);
