@@ -32,6 +32,14 @@ const MIN_TILE_WIDTH = 72;
 const GRID_PADDING = 16;
 const CELL_PADDING = 6;
 
+function formatCount(n: number): string {
+  if (n < 1000) return String(n);
+  if (n < 10000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+  if (n < 1000000) return Math.floor(n / 1000) + 'K';
+  if (n < 10000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+  return Math.floor(n / 1000000) + 'M';
+}
+
 // ── Roast engine ──────────────────────────────────────────────────────────────
 
 function getRoast(stats: EncounterStats, entries: EntryWithPhoto[]): string {
@@ -218,7 +226,6 @@ export function CollectionListScreen({ onReset }: { onReset?: () => void } = {})
           </Pressable>
           <View style={{ flex: 1 }}>
             <Text style={styles.wordmark}>hok<Text style={styles.accent}>é</Text>dex</Text>
-            <Text style={styles.subtitle}>{entries.length} {entries.length === 1 ? 'person' : 'people'} indexed</Text>
           </View>
           <Pressable onPress={purgeAll} style={styles.iconBtn}>
             <MaterialIcons name="delete-sweep" size={22} color="#444" />
@@ -286,7 +293,6 @@ export function CollectionListScreen({ onReset }: { onReset?: () => void } = {})
         <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
           <View style={{ flex: 1 }}>
             <Text style={styles.wordmark}>hok<Text style={styles.accent}>é</Text>dex</Text>
-            <Text style={styles.subtitle}>{entries.length} {entries.length === 1 ? 'person' : 'people'} indexed</Text>
           </View>
           <Pressable onPress={purgeAll} style={styles.iconBtn}>
             <MaterialIcons name="delete-sweep" size={22} color="#444" />
@@ -300,6 +306,14 @@ export function CollectionListScreen({ onReset }: { onReset?: () => void } = {})
           <Pressable onPress={() => navigation.navigate('Settings', { onReset })} style={styles.iconBtn}>
             <MaterialIcons name="settings" size={22} color="#aaa" />
           </Pressable>
+        </View>
+
+        {/* ── Body count ── */}
+        <View style={styles.bodyCountWrap}>
+          <Text style={styles.bodyCountLabel}>BODY COUNT</Text>
+          <View style={styles.bodyCountCircle}>
+            <Text style={styles.bodyCountNumber}>{formatCount(entries.length)}</Text>
+          </View>
         </View>
 
         {/* ── People grid (3 cols) ── */}
@@ -332,9 +346,9 @@ export function CollectionListScreen({ onReset }: { onReset?: () => void } = {})
 
             {/* Empty placeholder slots */}
             {!hasMore && Array.from({ length: MAX_PREVIEW - previewEntries.length }).map((_, i) => (
-              <View key={`empty-${i}`} style={[styles.peopleCell, { width: cellWidth }]}>
+              <Pressable key={`empty-${i}`} style={[styles.peopleCell, { width: cellWidth }]} onPress={() => navigation.navigate('NewEntry', {})}>
                 <View style={[styles.peopleCircle, { width: circleDiameter, height: circleDiameter, borderRadius: circleDiameter / 2, backgroundColor: '#0d0d10', borderColor: '#141418', borderWidth: 1 }]} />
-              </View>
+              </Pressable>
             ))}
 
             {/* Show More › */}
@@ -396,7 +410,10 @@ const styles = StyleSheet.create({
   },
   wordmark: { fontSize: 42, ...Fonts.grotesk.bold, color: '#fff', letterSpacing: -1.5 },
   accent: { color: ACCENT },
-  subtitle: { fontSize: 11, fontFamily: Fonts.inter.regular, color: '#333', marginTop: 1, letterSpacing: 0.2 },
+  bodyCountWrap: { alignItems: 'center', paddingVertical: 24 },
+  bodyCountLabel: { fontSize: 10, fontFamily: Fonts.inter.medium, color: '#444', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 },
+  bodyCountCircle: { width: 110, height: 110, borderRadius: 55, borderWidth: 3, borderColor: '#00bfff', justifyContent: 'center', alignItems: 'center' },
+  bodyCountNumber: { fontSize: 36, ...Fonts.grotesk.bold, color: '#fff' },
   iconBtn: { padding: 10 },
 
   section: {
