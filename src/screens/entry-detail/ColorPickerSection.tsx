@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Pressable, Text, TextInput, Modal, StyleSheet } from 'react-native';
+import { View, Pressable, Text, Modal, StyleSheet } from 'react-native';
+import ColorPicker from 'react-native-wheel-color-picker';
 import { ACCENT_PALETTE } from '../../theme/accent';
 
 export type ColorPickerSectionProps = {
@@ -9,19 +10,11 @@ export type ColorPickerSectionProps = {
 
 export function ColorPickerSection({ currentColor, onColorChange }: ColorPickerSectionProps): React.JSX.Element {
   const [modalVisible, setModalVisible] = useState(false);
-  const [customHex, setCustomHex] = useState('');
+  const [pickedColor, setPickedColor] = useState(currentColor ?? '#7c3aed');
 
-  function applyColor(hex: string): void {
-    onColorChange(hex);
-  }
-
-  function commitCustom(): void {
-    const clean = customHex.startsWith('#') ? customHex : `#${customHex}`;
-    if (/^#[0-9a-fA-F]{6}$/.test(clean)) {
-      applyColor(clean);
-      setModalVisible(false);
-      setCustomHex('');
-    }
+  function commitColor(): void {
+    onColorChange(pickedColor);
+    setModalVisible(false);
   }
 
   return (
@@ -31,10 +24,13 @@ export function ColorPickerSection({ currentColor, onColorChange }: ColorPickerS
           <Pressable
             key={hex}
             style={[styles.swatch, { backgroundColor: hex }, currentColor === hex && styles.active]}
-            onPress={() => applyColor(hex)}
+            onPress={() => onColorChange(hex)}
           />
         ))}
-        <Pressable style={styles.addBtn} onPress={() => setModalVisible(true)}>
+        <Pressable style={styles.addBtn} onPress={() => {
+          setPickedColor(currentColor ?? '#7c3aed');
+          setModalVisible(true);
+        }}>
           <Text style={styles.addTxt}>+</Text>
         </Pressable>
       </View>
@@ -42,20 +38,23 @@ export function ColorPickerSection({ currentColor, onColorChange }: ColorPickerS
       <Modal visible={modalVisible} transparent animationType="fade" onRequestClose={() => setModalVisible(false)}>
         <Pressable style={styles.backdrop} onPress={() => setModalVisible(false)}>
           <Pressable style={styles.sheet} onPress={() => {}}>
-            <Text style={styles.sheetTitle}>Custom color</Text>
-            <TextInput
-              style={styles.hexInput}
-              value={customHex}
-              onChangeText={setCustomHex}
-              placeholder="#rrggbb"
-              placeholderTextColor="#555"
-              maxLength={7}
-              autoCapitalize="none"
-              autoFocus
-              returnKeyType="done"
-              onSubmitEditing={commitCustom}
-            />
-            <Pressable style={styles.setBtn} onPress={commitCustom}>
+            <Text style={styles.sheetTitle}>Pick a color</Text>
+            <View style={styles.wheelWrap}>
+              <ColorPicker
+                color={pickedColor}
+                onColorChange={setPickedColor}
+                thumbSize={30}
+                sliderSize={30}
+                noSnap
+                row={false}
+                swatches={false}
+              />
+            </View>
+            <View style={styles.previewRow}>
+              <View style={[styles.previewSwatch, { backgroundColor: pickedColor }]} />
+              <Text style={styles.previewHex}>{pickedColor}</Text>
+            </View>
+            <Pressable style={styles.setBtn} onPress={commitColor}>
               <Text style={styles.setBtnTxt}>Set color</Text>
             </Pressable>
           </Pressable>
@@ -68,9 +67,7 @@ export function ColorPickerSection({ currentColor, onColorChange }: ColorPickerS
 const SWATCH = 26;
 
 const styles = StyleSheet.create({
-  container: {
-    paddingVertical: 10,
-  },
+  container: { paddingVertical: 10 },
   row: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -84,10 +81,7 @@ const styles = StyleSheet.create({
     height: SWATCH,
     borderRadius: SWATCH / 2,
   },
-  active: {
-    borderWidth: 2,
-    borderColor: '#fff',
-  },
+  active: { borderWidth: 2, borderColor: '#fff' },
   addBtn: {
     width: SWATCH,
     height: SWATCH,
@@ -97,51 +91,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  addTxt: {
-    color: '#aaa',
-    fontSize: 18,
-    lineHeight: 20,
-    includeFontPadding: false,
-  },
+  addTxt: { color: '#aaa', fontSize: 18, lineHeight: 20, includeFontPadding: false },
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: 'rgba(0,0,0,0.7)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   sheet: {
     backgroundColor: '#1a1a1a',
-    borderRadius: 14,
-    padding: 24,
-    width: 260,
+    borderRadius: 16,
+    padding: 20,
+    width: 300,
     alignItems: 'center',
     gap: 16,
   },
-  sheetTitle: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  hexInput: {
-    color: '#fff',
-    fontSize: 16,
-    borderBottomWidth: 1,
-    borderColor: '#444',
-    paddingVertical: 6,
-    paddingHorizontal: 4,
-    width: '100%',
-    textAlign: 'center',
-    letterSpacing: 2,
-  },
+  sheetTitle: { color: '#fff', fontSize: 15, fontWeight: '600' },
+  wheelWrap: { width: 240, height: 260 },
+  previewRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  previewSwatch: { width: 24, height: 24, borderRadius: 12, borderWidth: 1, borderColor: '#444' },
+  previewHex: { color: '#aaa', fontSize: 13, fontFamily: 'monospace' },
   setBtn: {
     backgroundColor: '#7c3aed',
     borderRadius: 8,
     paddingHorizontal: 24,
     paddingVertical: 10,
   },
-  setBtnTxt: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
+  setBtnTxt: { color: '#fff', fontSize: 14, fontWeight: '600' },
 });
