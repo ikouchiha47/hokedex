@@ -2,38 +2,84 @@
 
 ## How to make a video (start here)
 
-Follow these stages in order. Each stage feeds the next.
+---
 
-### Stage 1 — Collect assets
-Bring all images (URLs or local paths) into the project's public directory before touching any spec.
+### Stage 1 — Collect
 
-Read `.claude/commands/collect-assets.md` for the full instructions. In short:
+Bring all images in before touching any spec. Assets must be local before the video is built.
+
+Ask the user:
+- What images do they have? (URLs, local files, screenshots, anything)
+- What to call each one (becomes the filename and manifest key)
+
+Run:
 ```bash
 node video/scripts/collect-assets.js \
   --dest     video/remotion/public/<project> \
   --manifest video/remotion/src/projects/<project>/assets.yaml \
-  --name <key> --src <url-or-local-path>
+  --name <key> --src <url-or-path> \
+  [--name <key2> --src <path2> ...]
 ```
-After this step, all images are local. `assets.yaml` records what was collected.
+
+Confirm what landed. Show the manifest. Do not proceed until all assets are confirmed local.
+
+---
 
 ### Stage 2 — Understand
-Read `assets.yaml` and the user's brief. Describe what each asset shows and what scene type it suggests. Produce a bullet-point treatment — not a spec yet. Get the user to confirm the direction before writing any code.
 
-### Stage 3 — Propose → Feedback → Refine
-Present a human-readable scene breakdown:
-```
-Scene 1 (text, 1.5s): hook line + accent line
-Scene 2 (screenshot, 3s): <key>.png, preset: ken-burns, pill badge at 1.2s
-Scene 3 (lockup, 2.5s): closing hook + app name
-```
-User responds with edits. Revise and repeat until they say go.
+Read `assets.yaml`. Look at each asset. Then ask the user:
 
-### Stage 4 — Build
-Write the spec file at `video/remotion/src/projects/<project>/specs/<name>.ts`.
-- Use `video/remotion/templates/new-spec.ts` as the starting point
-- Read `video/remotion/references/scene-types.md` for every field
-- Add the composition to `src/projects/<project>/index.ts`
-- Run `cd video/remotion && npx remotion preview src/index.ts` to confirm it loads
+1. **What is this video for?** (app launch, ad, demo, social post — what platform, what goal)
+2. **Who is watching?** (existing users, cold audience, investors — what do they already know)
+3. **What should they feel at the end?** (convinced, curious, entertained, informed)
+4. **Is there a hook line?** (the first thing they read — if they don't have one, help them write it)
+5. **Is there a closing line?** (what the video ends on)
+
+Do not propose a scene breakdown until you have answers to all five. The answers determine the scene order, pacing, and tone — without them you're guessing.
+
+---
+
+### Stage 3 — Propose
+
+Write a scene-by-scene breakdown as a table. No TypeScript. Human readable.
+
+| # | Type | Duration | Content | Notes |
+|---|------|----------|---------|-------|
+| 1 | text | 1.5s | "hook line" / "second line" (accent) | cold open, cuts fast |
+| 2 | screenshot | 3s | profile asset, ken-burns preset, Red Flag pill at 1.2s | establish the app |
+| 3 | chips | 4s | 4 type chips radiate out, stamp at 3s | pattern recognition moment |
+| 4 | lockup | 2.5s | closing hook / app name / tagline | end card |
+
+Below the table, state:
+- Total duration
+- Intended pacing (fast cut / slow drift / mixed)
+- Any assumptions you made (e.g. "assumed 30fps")
+
+Then stop. Wait for feedback. Do not write code.
+
+---
+
+### Stage 4 — Refine (loop)
+
+Take the user's feedback. Revise the table. Show the full updated breakdown each time — not just the changed rows.
+
+Keep iterating until the user says go. "Looks good", "yes", "ship it", or equivalent. Silence is not approval.
+
+---
+
+### Stage 5 — Build
+
+Only after explicit approval.
+
+1. Read `video/remotion/references/scene-types.md` — every field for every scene type
+2. Read `video/remotion/templates/new-spec.ts` — boilerplate
+3. Write `video/remotion/src/projects/<project>/specs/<name>.ts`
+4. Add the composition to `src/projects/<project>/index.ts`
+5. Tell the user to open Remotion Studio if not already running:
+   ```bash
+   cd video/remotion && npx remotion preview src/index.ts
+   ```
+6. Tell them to check the preview at http://localhost:3000 and come back with feedback
 
 ---
 
@@ -41,8 +87,8 @@ Write the spec file at `video/remotion/src/projects/<project>/specs/<name>.ts`.
 
 | Command | Purpose |
 |---------|---------|
-| `/collect-assets` | Stage 1 — download/copy assets into public/, write assets.yaml |
-| `/make-video` | Shortcut — stages 2–4 in one go when assets are already local |
+| `/collect-assets` | Stage 1 — download/copy assets, write assets.yaml |
+| `/make-video` | Stages 2–5 in one go when assets are already local |
 | `/add-preset` | Register a new named camera/atmosphere preset |
 | `/add-effect` | Implement a new per-element visual effect |
 
