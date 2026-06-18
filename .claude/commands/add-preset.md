@@ -14,15 +14,15 @@ Add a new named preset to the Remotion video engine.
 2. Add a `registerPreset(id, { name, description, category, duration?, enter?, motion?, overlays? })` call
 3. Update `video/remotion/references/preset-api.md` — add a row to the built-in presets table
 
-**To add a project preset** (hokedex-only):
+**To add a project-specific preset:**
 
-1. Create or open `video/remotion/src/projects/hokedex/presets/index.ts`
-2. Add `registerPreset(...)` — same API
-3. Import the file in `video/remotion/src/projects/hokedex/registry.ts`
+1. Create or open `video/remotion/src/projects/<project>/presets/index.ts`
+2. Add `registerPreset(...)` — same API, use a project-namespaced id e.g. `'<project>:my-preset'`
+3. Import the file in `video/remotion/src/projects/<project>/registry.ts`
 
 **Preset merge semantics:**
 - Explicit scene fields always win over preset fields
 - `motion`, `overlays`, `enter`, `duration` can all be set by the preset
-- Motion arrays are replaced entirely (not merged) — document this if your preset has specific motion requirements
+- Motion arrays are replaced entirely (not merged)
 
-**After adding:** write a quick test by adding `preset: '<your-id>'` to a scene in `video/remotion/src/projects/hokedex/specs/main.ts` and previewing to confirm it renders.
+**After adding:** add `preset: '<your-id>'` to a scene in any spec under the project and run `npx remotion preview` to confirm it renders.
