@@ -5,7 +5,9 @@
     "moduleResolution": "bundler",
     "jsx": "react",
     "strict": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "lib": ["ES2020", "DOM"],
+    "skipLibCheck": true
   },
   "include": ["src"]
 }
