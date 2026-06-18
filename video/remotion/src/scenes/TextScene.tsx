@@ -37,6 +37,8 @@ export const TextScene: React.FC<{ lines: TextLine[] }> = ({ lines }) => {
             fontSize: 168,
             lineHeight: 0.9,
             letterSpacing: -6,
+            whiteSpace: 'nowrap',
+            textAlign: 'center',
             transform: `translateY(${y}px)`,
             opacity,
           }}>

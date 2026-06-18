@@ -4,7 +4,8 @@
   "scripts": {
     "render": "node render.js",
     "render:v1": "node render.js video1",
-    "render:v4": "node render.js video4"
+    "render:v4": "node render.js video4",
+    "editor": "node editor-server.js"
   },
   "dependencies": {
     "puppeteer": "^21.0.0"

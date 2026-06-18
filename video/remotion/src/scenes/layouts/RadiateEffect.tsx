@@ -1,17 +1,16 @@
 import React, { useMemo } from 'react';
 import { useCurrentFrame, useVideoConfig, spring, interpolate } from 'remotion';
-import { ChipItem } from '../../types';
+import { ElementSpec } from '../../types';
+import { resolveElement } from '../../core/element-registry';
 import { radiatePositions } from '../../layout';
 
 type Props = {
-  items: ChipItem[];
+  items: ElementSpec[];
   stamp?: { text: string; accentWord: string; at: number };
 };
 
-// Deterministic shuffle so stagger order is random-looking but frame-stable
 function shuffleIndices(n: number): number[] {
   const arr = Array.from({ length: n }, (_, i) => i);
-  // simple deterministic permutation — xor-based, not seeded random
   for (let i = n - 1; i > 0; i--) {
     const j = (i * 7 + 3) % (i + 1);
     [arr[i], arr[j]] = [arr[j], arr[i]];
@@ -23,14 +22,13 @@ export const RadiateEffect: React.FC<Props> = ({ items, stamp }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const slots = radiatePositions(items.map(c => c.label));
+  const slots = radiatePositions(items.map(it => ({ w: it.w, h: it.h })));
 
-  // randomised stagger order, stable across frames
   const staggerOrder = useMemo(() => {
     const order = shuffleIndices(items.length);
-    const rank = new Array(items.length);
-    order.forEach((chipIdx, rank_) => { rank[chipIdx] = rank_; });
-    return rank; // rank[i] = stagger position for chip i
+    const rank  = new Array(items.length);
+    order.forEach((chipIdx, r) => { rank[chipIdx] = r; });
+    return rank;
   }, [items.length]);
 
   const stampStartFrame = stamp ? Math.round(stamp.at * fps) : 99999;
@@ -40,34 +38,24 @@ export const RadiateEffect: React.FC<Props> = ({ items, stamp }) => {
 
   return (
     <div style={{ width: 1080, height: 1920, background: '#0a0a0a', position: 'relative', overflow: 'hidden' }}>
-      {items.map((chip, i) => {
-        const slot = slots[i];
-
+      {items.map((item, i) => {
+        const slot          = slots[i];
         const staggerFrames = Math.round(staggerOrder[i] * 0.09 * fps);
-        const p = spring({ frame: frame - staggerFrames, fps, config: { damping: 14, stiffness: 240 } });
-
-        const scale   = interpolate(p, [0, 1], [1.45, 1.0]);
-        const opacity = interpolate(p, [0, 0.12], [0, 1]);
+        const p             = spring({ frame: frame - staggerFrames, fps, config: { damping: 14, stiffness: 240 } });
+        const scale         = interpolate(p, [0, 1], [1.45, 1.0]);
+        const opacity       = interpolate(p, [0, 0.12], [0, 1]);
+        const renderer      = resolveElement(item.element);
 
         return (
           <div key={i} style={{
             position: 'absolute',
             left: slot.x, top: slot.y,
             width: slot.w, height: slot.h,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            gap: 12,
-            borderRadius: 100,
-            fontFamily: "'Space Grotesk', sans-serif",
-            fontWeight: 600, fontSize: 40,
-            color: chip.color,
-            border: `2.5px solid ${chip.color}`,
-            background: 'rgba(255,255,255,0.04)',
-            whiteSpace: 'nowrap',
             transform: `scale(${scale})`,
             transformOrigin: 'center center',
             opacity,
           }}>
-            {chip.emoji} {chip.label}
+            {renderer.render(item.data, slot.w, slot.h)}
           </div>
         );
       })}

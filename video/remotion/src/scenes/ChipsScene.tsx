@@ -1,10 +1,10 @@
 import React from 'react';
-import { ChipItem } from '../types';
+import { ElementSpec } from '../types';
 import { RadiateEffect } from './layouts/RadiateEffect';
 import { RadialSpokeEffect } from './layouts/RadialSpokeEffect';
 
 type ChipEffect = React.FC<{
-  items: ChipItem[];
+  items: ElementSpec[];
   stamp?: { text: string; accentWord: string; at: number };
 }>;
 
@@ -15,7 +15,7 @@ const LayoutRegistry: Record<string, ChipEffect> = {
 };
 
 type Props = {
-  items: ChipItem[];
+  items: ElementSpec[];
   layout: string;
   stamp?: { text: string; accentWord: string; at: number };
 };
