@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useCurrentFrame, useVideoConfig, interpolate, staticFile, delayRender, continueRender } from 'remotion';
 import { Motion } from '../types';
+import { computePan, computeSlideEased } from '../motion';
 
 type Props = {
   images: string[];
@@ -35,11 +36,6 @@ function useImageSizes(srcs: string[]): Array<{ w: number; h: number } | null> {
   return sizes;
 }
 
-function overflowPx(naturalW: number, naturalH: number): number {
-  return Math.max(0, naturalH * (1080 / naturalW) - 1920);
-}
-
-// How many frames the spring-based enter takes to settle (>99% complete)
 const ENTER_SETTLE_FRAMES = 18;
 
 export const SlideshowScene: React.FC<Props> = ({ images, duration, enter, motion }) => {
@@ -51,20 +47,12 @@ export const SlideshowScene: React.FC<Props> = ({ images, duration, enter, motio
   const slotFrames = Math.round((duration / n) * fps);
   const swipeDur   = Math.round(0.35 * fps);
 
-  // Enter slide: ease-out, no bounce. Completes in ENTER_SETTLE_FRAMES frames.
-  const enterT = interpolate(frame, [0, ENTER_SETTLE_FRAMES], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-    easing: (t) => 1 - Math.pow(1 - t, 3), // ease-out cubic
-  });
   let innerTranslateX = 0;
   let innerTranslateY = 0;
   if (enter?.type === 'slide') {
-    const dist = 1 - enterT;
-    if (enter.direction === 'right') innerTranslateX =  dist * 1080;
-    if (enter.direction === 'left')  innerTranslateX = -dist * 1080;
-    if (enter.direction === 'up')    innerTranslateY =  dist * 1920;
-    if (enter.direction === 'down')  innerTranslateY = -dist * 1920;
+    const slide = computeSlideEased(frame, enter, ENTER_SETTLE_FRAMES);
+    innerTranslateX = slide.translateX;
+    innerTranslateY = slide.translateY;
   }
 
   // Pan starts only after the enter animation has settled
@@ -90,22 +78,11 @@ export const SlideshowScene: React.FC<Props> = ({ images, duration, enter, motio
           const translateX = slideInX + slideOutX;
 
           // Pan: starts after enter settles, local to each slot
-          let panY = 0;
           const size = imgSizes[i];
-          if (motion?.type === 'pan' && size) {
-            const overflow  = overflowPx(size.w, size.h);
-            const fromPx    = (motion.from ?? 0) * overflow;
-            const toPx      = motion.to * overflow;
-            const panFrame0 = Math.max(slotStart, panStartFrame);
-            const panFrame1 = slotEnd - 1;
-            const localFrame = Math.max(0, frame - panFrame0);
-            const totalPanFrames = Math.max(1, panFrame1 - panFrame0);
-            const travelled = interpolate(localFrame, [0, totalPanFrames], [fromPx, toPx], {
-              extrapolateLeft: 'clamp',
-              extrapolateRight: 'clamp',
-            });
-            panY = motion.direction === 'down' ? -travelled : travelled;
-          }
+          const panStartForSlot = i === 0 ? panStartFrame : 0;
+          const pan = (motion?.type === 'pan' && size)
+            ? computePan(frame - slotStart, slotFrames, motion, size, panStartForSlot)
+            : { translateX: 0, translateY: 0 };
 
           const isPan = motion?.type === 'pan';
 
@@ -119,7 +96,7 @@ export const SlideshowScene: React.FC<Props> = ({ images, duration, enter, motio
                   objectFit: isPan ? undefined : 'cover',
                   objectPosition: isPan ? undefined : '50% 0%',
                   display: 'block',
-                  transform: `translateY(${panY}px)`,
+                  transform: `translate(${pan.translateX}px, ${pan.translateY}px)`,
                 }}
               />
             </div>
