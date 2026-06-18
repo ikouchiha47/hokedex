@@ -1,4 +1,5 @@
 const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+const path = require('path');
 
 /**
  * Metro configuration
@@ -12,6 +13,10 @@ const config = {
   resolver: {
     // Treat .sql files as source modules so Metro inlines them as raw strings.
     sourceExts: [...(defaultConfig.resolver?.sourceExts ?? []), 'sql'],
+    // Exclude the Remotion video engine — it's not part of the RN app bundle.
+    blockList: [
+      new RegExp(`^${path.resolve(__dirname, 'video').replace(/\//g, '\\/')}.*`),
+    ],
   },
   transformer: {
     // Custom transformer: .sql files are emitted as JS string modules, not parsed as JS.
