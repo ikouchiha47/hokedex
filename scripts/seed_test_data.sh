@@ -64,11 +64,11 @@ push_db() {
 # ── purge ─────────────────────────────────────────────────────────────────────
 
 purge() {
-  echo "🗑️  Purging test data (entries where name LIKE 'test_%')..."
-  sql "DELETE FROM encounters WHERE entry_id IN (SELECT id FROM entries WHERE name LIKE 'test_%');"
-  sql "DELETE FROM entry_tags WHERE entry_id IN (SELECT id FROM entries WHERE name LIKE 'test_%');"
-  sql "DELETE FROM photos WHERE entry_id IN (SELECT id FROM entries WHERE name LIKE 'test_%');"
-  sql "DELETE FROM entries WHERE name LIKE 'test_%';"
+  echo "🗑️  Purging seed data (entries with id LIKE 'seed_entry_%')..."
+  sql "DELETE FROM encounters WHERE entry_id LIKE 'seed_entry_%';"
+  sql "DELETE FROM entry_tags WHERE entry_id LIKE 'seed_entry_%';"
+  sql "DELETE FROM photos WHERE entry_id LIKE 'seed_entry_%';"
+  sql "DELETE FROM entries WHERE id LIKE 'seed_entry_%';"
   echo "✅ Purged."
   push_db
 }
@@ -89,18 +89,18 @@ seed() {
   # Tag names to distribute
   TAGS=("red flag" "ghost type" "situationship" "recurring" "mid")
 
-  # 15 test entries
+  # 15 seed entries
   NAMES=(
-    "test_Alice" "test_Bob" "test_Carol" "test_Dave" "test_Eve"
-    "test_Frank" "test_Grace" "test_Heidi" "test_Ivan" "test_Judy"
-    "test_Karl" "test_Leo" "test_Mallory" "test_Niaj" "test_Olivia"
+    "Alice" "Bob" "Carol" "Dave" "Eve"
+    "Frank" "Grace" "Heidi" "Ivan" "Judy"
+    "Karl" "Leo" "Mallory" "Niaj" "Olivia"
   )
 
   NOW=$(python3 -c "import time; print(int(time.time() * 1000))")   # ms
 
   for i in "${!NAMES[@]}"; do
     NAME="${NAMES[$i]}"
-    ENTRY_ID="test_entry_$(printf '%02d' $i)_$$"
+    ENTRY_ID="seed_entry_$(printf '%02d' $i)_$$"
     CREATED=$((NOW - (14 - i) * 86400000))   # spread over last 14 days
 
     sql "INSERT OR IGNORE INTO entries (id, category_id, name, created_at, updated_at)
@@ -108,14 +108,14 @@ seed() {
 
     # Assign character tag (round-robin from TAGS list) using flat entry_tags schema
     TAG_NAME="${TAGS[$((i % ${#TAGS[@]}))]}"
-    TAG_ROW_ID="test_etag_${i}_$$"
+    TAG_ROW_ID="seed_etag_${i}_$$"
     sql "INSERT OR IGNORE INTO entry_tags (id, entry_id, key, value)
          VALUES ('$TAG_ROW_ID', '$ENTRY_ID', 'character', '$TAG_NAME');"
 
     # 1–5 encounters spread over last 90 days
     ENCOUNTER_COUNT=$(( (i % 5) + 1 ))
     for j in $(seq 1 $ENCOUNTER_COUNT); do
-      ENC_ID="test_enc_${i}_${j}_$$"
+      ENC_ID="seed_enc_${i}_${j}_$$"
       ENC_AT=$((NOW - (90 - i * 5 - j) * 86400000))
       sql "INSERT OR IGNORE INTO encounters (id, entry_id, note, occurred_at)
            VALUES ('$ENC_ID', '$ENTRY_ID', NULL, $ENC_AT);"
@@ -125,7 +125,7 @@ seed() {
   done
 
   echo ""
-  echo "✅ Seeded ${#NAMES[@]} test entries."
+  echo "✅ Seeded ${#NAMES[@]} entries."
   echo "   To purge:  ./scripts/seed_test_data.sh purge"
   push_db
 }

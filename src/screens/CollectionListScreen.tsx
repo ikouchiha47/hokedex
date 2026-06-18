@@ -432,6 +432,7 @@ const styles = StyleSheet.create({
   peopleGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'space-between',
     gap: 12,
   },
   peopleCell: { alignItems: 'center', gap: 4 },

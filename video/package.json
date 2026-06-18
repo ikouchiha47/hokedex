@@ -1,0 +1,12 @@
+{
+  "name": "hokedex-video",
+  "version": "1.0.0",
+  "scripts": {
+    "render": "node render.js",
+    "render:v1": "node render.js video1",
+    "render:v4": "node render.js video4"
+  },
+  "dependencies": {
+    "puppeteer": "^21.0.0"
+  }
+}
