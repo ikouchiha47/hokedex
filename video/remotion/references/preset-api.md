@@ -28,14 +28,14 @@ type Preset = {
 
 ```ts
 // Preset fills motion, enter, overlays, duration
-{ type: 'screenshot', src: 'hokedex/photo.png', preset: 'ken-burns' }
+{ type: 'screenshot', src: '<project>/photo.png', preset: 'ken-burns' }
 
 // Explicit fields WIN over preset — this overrides ken-burns motion
-{ type: 'screenshot', src: 'hokedex/photo.png', preset: 'ken-burns',
+{ type: 'screenshot', src: '<project>/photo.png', preset: 'ken-burns',
   motion: { type: 'pan', direction: 'down', to: 0.9 } }
 
 // Combine preset atmosphere with custom motion
-{ type: 'screenshot', src: 'hokedex/photo.png', preset: 'film',
+{ type: 'screenshot', src: '<project>/photo.png', preset: 'film',
   motion: [{ type: 'zoom', from: 1.0, to: 1.2 }] }
 ```
 
@@ -77,14 +77,14 @@ registerPreset('slow-drift', {
 });
 ```
 
-### Project preset (hokedex-specific)
+### Project preset (project-specific)
 
-Create `src/projects/hokedex/presets/index.ts`:
+Create `src/projects/<project>/presets/index.ts`:
 
 ```ts
 import { registerPreset } from '../../../platform/core/preset-registry';
 
-registerPreset('hokedex:snap-in', {
+registerPreset('<project>:snap-in', {
   name:     'Snap In',
   category: 'social',
   duration: 1.5,
@@ -92,7 +92,7 @@ registerPreset('hokedex:snap-in', {
 });
 ```
 
-Then import it in `src/projects/hokedex/registry.ts`:
+Then import it in `src/projects/<project>/registry.ts`:
 ```ts
 import './presets/index';
 ```

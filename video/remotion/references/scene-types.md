@@ -2,7 +2,7 @@
 
 Stage is always **1080×1920 px**. Every scene requires `duration` (seconds).
 
-Source of truth: `src/platform/types.ts` and `src/projects/hokedex/types.ts`.
+Source of truth: `src/platform/types.ts` and `src/projects/<project>/types.ts`.
 
 ---
 
@@ -45,7 +45,7 @@ Single image, fills frame. Camera motion, element overlays, optional KO finish.
 {
   type: 'screenshot',
   duration: 3,
-  src: 'hokedex/screen.png',        // relative to public/
+  src: '<project>/screen.png',       // relative to public/
   preset: 'ken-burns',              // optional — see preset-api.md
   enter: { type: 'slide', direction: 'up' },
   motion: { type: 'pan', direction: 'down', to: 0.85 },
@@ -66,7 +66,7 @@ Single image, fills frame. Camera motion, element overlays, optional KO finish.
   overlays: [                       // fullscreen atmosphere — see overlay-api.md
     { type: 'core:vignette', intensity: 0.5 },
   ],
-  koFinish: {                       // hokedex only — fullscreen word slam
+  koFinish: {                       // project-specific — fullscreen word slam
     text: 'DEXED.',
     sub: 'optional subtitle',
     at: 2.5,                        // seconds after scene start
@@ -89,7 +89,7 @@ Multiple images with horizontal swipe between them. Camera motion per slot.
 {
   type: 'slideshow',
   duration: 5,
-  images: ['hokedex/a.png', 'hokedex/b.png', 'hokedex/c.png'],
+  images: ['<project>/a.png', '<project>/b.png', '<project>/c.png'],
   preset: 'slow-pan-up',
   enter: { type: 'slide', direction: 'right' },
   motion: { type: 'pan', direction: 'down', to: 0.9 },
@@ -103,7 +103,7 @@ Pan starts after enter animation settles (18 frames = 0.6s at 30fps).
 
 ---
 
-## `chips` (hokedex)
+## `chips` (project-specific scene type)
 
 Elements radiate or spoke from center. Used for tag/pill showcases.
 
@@ -129,7 +129,7 @@ Elements radiate or spoke from center. Used for tag/pill showcases.
 
 ---
 
-## `lockup` (hokedex)
+## `lockup` (project-specific scene type)
 
 Branding end card. Words slam in, logo scales up, subtitle slides.
 
@@ -137,9 +137,9 @@ Branding end card. Words slam in, logo scales up, subtitle slides.
 {
   type: 'lockup',
   duration: 2.5,
-  hook: "gotta hook 'em all",      // space-separated; each word slams independently
-  name: 'hokédex',                  // 'é' auto-accented in purple
-  sub: 'Free · Android · No account',
+  hook: 'your closing hook',        // space-separated; each word slams independently
+  name: 'your app name',            // can be styled by project
+  sub: 'Your tagline here',
 }
 ```
 

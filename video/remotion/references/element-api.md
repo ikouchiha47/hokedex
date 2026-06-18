@@ -1,6 +1,6 @@
 # Element API Reference
 
-Source of truth: `src/platform/core/element-registry.ts`, `src/projects/hokedex/elements/`.
+Source of truth: `src/platform/core/element-registry.ts`, `src/projects/<project>/elements/`.
 
 Elements are **positioned renderable components** placed on top of screenshot scenes via `SceneElement`. They are also used as items in `ChipsScene`.
 
@@ -18,7 +18,7 @@ interface ElementRenderer<T = unknown> {
 
 ---
 
-## Built-in elements (hokedex)
+## Built-in elements (platform)
 
 | id | data shape | renders |
 |----|------------|---------|
@@ -70,13 +70,13 @@ No `x`/`y` — ChipsScene layouts (`RadiateEffect`, `RadialSpokeEffect`) compute
 ## Adding an element
 
 ```ts
-// src/projects/hokedex/elements/my-badge.tsx
+// src/projects/<project>/elements/my-badge.tsx
 import React from 'react';
 import { registerElement } from '../../../platform/core/element-registry';
 
 type MyData = { title: string; color: string };
 
-registerElement('hokedex:my-badge', {
+registerElement('<project>:my-badge', {
   render(data: MyData, w: number, h: number) {
     return (
       <div style={{
@@ -94,8 +94,8 @@ registerElement('hokedex:my-badge', {
 ```
 
 Then:
-1. Import in `src/projects/hokedex/elements/index.ts`
+1. Import in `src/projects/<project>/elements/index.ts`
 2. Add to your project's element union (in `types.ts`) if you want TypeScript to type-check `data`
-3. Use in spec: `{ element: 'hokedex:my-badge', w: 200, h: 60, data: { title: 'VIP', color: '#gold' } }`
+3. Use in spec: `{ element: '<project>:my-badge', w: 200, h: 60, data: { title: 'VIP', color: '#gold' } }`
 
 Duplicate registrations throw at startup. Unknown element names throw at render time.
