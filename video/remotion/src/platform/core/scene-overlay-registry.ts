@@ -9,13 +9,24 @@ export type SceneOverlayFn = (
   params: Record<string, unknown>,
 ) => React.ReactNode;
 
-const registry = new Map<string, SceneOverlayFn>();
+export type SceneOverlayRegistry = {
+  register(type: string, fn: SceneOverlayFn): void;
+  resolve(type: string): SceneOverlayFn | undefined;
+};
 
-export function registerSceneOverlay(type: string, fn: SceneOverlayFn): void {
-  if (registry.has(type)) throw new Error(`duplicate scene overlay registration: ${type}`);
-  registry.set(type, fn);
+export function createSceneOverlayRegistry(): SceneOverlayRegistry {
+  const map = new Map<string, SceneOverlayFn>();
+  return {
+    register(type, fn) {
+      if (map.has(type)) throw new Error(`duplicate scene overlay registration: ${type}`);
+      map.set(type, fn);
+    },
+    resolve(type) {
+      return map.get(type);
+    },
+  };
 }
 
-export function resolveSceneOverlay(type: string): SceneOverlayFn | undefined {
-  return registry.get(type);
-}
+const _default = createSceneOverlayRegistry();
+export const registerSceneOverlay = _default.register.bind(_default);
+export const resolveSceneOverlay  = _default.resolve.bind(_default);

@@ -13,15 +13,26 @@ export type EffectFn<P = unknown> = (
   size: { w: number; h: number },
 ) => EffectOutput;
 
-const registry = new Map<string, EffectFn>();
+export type EffectRegistry = {
+  register(name: string, fn: EffectFn<any>): void;
+  resolve(name: string): EffectFn;
+};
 
-export function registerEffect(name: string, fn: EffectFn<any>): void {
-  if (registry.has(name)) throw new Error(`duplicate effect registration: ${name}`);
-  registry.set(name, fn);
+export function createEffectRegistry(): EffectRegistry {
+  const map = new Map<string, EffectFn>();
+  return {
+    register(name, fn) {
+      if (map.has(name)) throw new Error(`duplicate effect registration: ${name}`);
+      map.set(name, fn);
+    },
+    resolve(name) {
+      const fn = map.get(name);
+      if (!fn) throw new Error(`unknown effect: ${name}`);
+      return fn;
+    },
+  };
 }
 
-export function resolveEffect(name: string): EffectFn {
-  const fn = registry.get(name);
-  if (!fn) throw new Error(`unknown effect: ${name}`);
-  return fn;
-}
+const _default = createEffectRegistry();
+export const registerEffect = _default.register.bind(_default);
+export const resolveEffect  = _default.resolve.bind(_default);

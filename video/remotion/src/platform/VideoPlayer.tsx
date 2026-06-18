@@ -1,6 +1,6 @@
 import React from 'react';
 import { Series, AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate } from 'remotion';
-import { resolveScene as resolveSceneComponent } from './core/scene-registry';
+import { useRegistry } from './core/RegistryContext';
 import { resolveSceneOverlay } from './core/scene-overlay-registry';
 import { resolvePreset } from './core/preset-registry';
 import { overlapFrames } from './core/transitions';
@@ -67,12 +67,13 @@ type Props = {
 export const VideoPlayer: React.FC<Props> = ({ scenes, videoConfig }) => {
   useFonts(videoConfig.fonts);
   const fillColor = videoConfig.transitionFillColor ?? videoConfig.bgColor ?? '#0a0a0a';
+  const registry  = useRegistry();
 
   return (
     <Series>
       {scenes.map((rawScene, i) => {
         const scene          = applyPreset(rawScene);
-        const Scene          = resolveSceneComponent(scene.type);
+        const Scene          = registry.scenes.resolve(scene.type);
         const sceneDuration  = Math.round(scene.duration * FPS);
         const transition     = scene.transition as 'cut' | 'fade' | undefined;
         const prevTransition = i > 0 ? scenes[i - 1].transition as 'cut' | 'fade' | undefined : undefined;

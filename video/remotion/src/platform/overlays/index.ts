@@ -4,3 +4,4 @@ import './film-grain';
 import './lens-flare';
 import './color-grade';
 import './light-leak';
+import './confetti';
