@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useCurrentFrame, useVideoConfig, interpolate, staticFile, delayRender, continueRender } from 'remotion';
 import { Motion } from '../types';
-import { computePan, computeSlideEased } from '../motion';
+import { composeMotions, motionToTransform, computeSlideEased } from '../motion';
 
 type Props = {
   images: string[];
@@ -77,14 +77,18 @@ export const SlideshowScene: React.FC<Props> = ({ images, duration, enter, motio
             : 0;
           const translateX = slideInX + slideOutX;
 
-          // Pan: starts after enter settles, local to each slot
+          // Compose all motions local to this slot
           const size = imgSizes[i];
-          const panStartForSlot = i === 0 ? panStartFrame : 0;
-          const pan = (motion?.type === 'pan' && size)
-            ? computePan(frame - slotStart, slotFrames, motion, size, panStartForSlot)
-            : { translateX: 0, translateY: 0 };
+          const slotLocalFrame = frame - slotStart;
+          const adjustedMotion = i === 0 && panStartFrame > 0
+            ? (Array.isArray(motion) ? motion : motion ? [motion] : []).map(m =>
+                m.type === 'pan' ? { ...m, startAt: panStartFrame / slotFrames } : m
+              )
+            : motion;
+          const composed = composeMotions(adjustedMotion, slotLocalFrame, slotFrames, size ?? null);
 
-          const isPan = motion?.type === 'pan';
+          const motionList = Array.isArray(motion) ? motion : (motion ? [motion] : []);
+          const isPan = motionList.some(m => m.type === 'pan');
 
           return (
             <div key={i} style={{ position: 'absolute', inset: 0, overflow: 'hidden', transform: `translateX(${translateX}px)` }}>
@@ -96,7 +100,8 @@ export const SlideshowScene: React.FC<Props> = ({ images, duration, enter, motio
                   objectFit: isPan ? undefined : 'cover',
                   objectPosition: isPan ? undefined : '50% 0%',
                   display: 'block',
-                  transform: `translate(${pan.translateX}px, ${pan.translateY}px)`,
+                  transform: motionToTransform(composed),
+                  transformOrigin: composed.transformOrigin,
                 }}
               />
             </div>

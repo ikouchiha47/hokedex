@@ -111,12 +111,27 @@ export type Effect =
 // slide.direction: which edge the scene enters from
 // fade.from / fade.to: opacity (0–1), defaults to 0→1 or 1→0
 
+// startAt/endAt: normalized scene duration fraction (0–1).
+// Omit both = full scene = concurrent with other motions.
+// Set both = sequential or overlapping with other motions.
 export type Motion =
-  | { type: 'pan';   direction: 'down' | 'up' | 'left' | 'right'; from?: number; to: number }
-  | { type: 'zoom';  from: number; to: number; origin?: 'center' | 'top' | 'bottom' }
+  | { type: 'pan';   direction: 'down' | 'up' | 'left' | 'right'; from?: number; to: number;
+      startAt?: number; endAt?: number; }
+  | { type: 'zoom';  from: number; to: number; origin?: 'center' | 'top' | 'bottom';
+      startAt?: number; endAt?: number; }
   | { type: 'slide'; direction: 'up' | 'down' | 'left' | 'right' }
   | { type: 'fade';  from?: number; to?: number }
   | { type: 'cut' };
+
+// Additive output from motion functions. Sum all contributions, build one transform string.
+// scale is multiplicative — start accumulator at 1.0, multiply each contribution.
+export type MotionOutput = {
+  translateX:      number;   // px
+  translateY:      number;   // px
+  scale:           number;   // multiplier, default 1.0
+  rotate:          number;   // deg
+  transformOrigin: string;   // last zoom wins, default 'center center'
+};
 
 // ── Scenes ────────────────────────────────────────────────────────────────────
 
@@ -133,7 +148,7 @@ export type SceneSpec =
       duration: number;
       src: string;
       enter?: Motion;
-      motion?: Motion;
+      motion?: Motion | Motion[];
       elements?: SceneElement[];
       koFinish?: { text: string; sub?: string; at: number };
     }
@@ -150,7 +165,7 @@ export type SceneSpec =
       duration: number;
       images: string[];
       enter?: Motion;
-      motion?: Motion;
+      motion?: Motion | Motion[];
     }
   | {
       type: 'lockup';

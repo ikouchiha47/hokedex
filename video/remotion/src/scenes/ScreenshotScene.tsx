@@ -4,7 +4,7 @@ import { Motion, SceneElement } from '../types';
 import { SceneElementRenderer } from './SceneElement';
 import { KOSlam } from '../scene-effects/KOSlam';
 import { KOSlamParams } from '../scene-effects/ko-slam';
-import { computePan, computeZoom, computeSlide } from '../motion';
+import { computeSlide, composeMotions, motionToTransform } from '../motion';
 
 type Props = {
   src: string;
@@ -36,30 +36,26 @@ export const ScreenshotScene: React.FC<Props> = ({ src, enter, motion, elements,
 
   const enterSpring = spring({ frame, fps, config: { damping: 20, stiffness: 180 } });
 
-  // Pan
-  const pan = (motion?.type === 'pan' && imgSize)
-    ? computePan(frame, durationInFrames, motion, imgSize)
-    : { translateX: 0, translateY: 0 };
+  // Compose all motions (array or single) into one transform
+  const composed = composeMotions(motion, frame, durationInFrames, imgSize ?? null);
 
-  // Enter
+  // Enter transform (additive on top of motion)
   let enterTranslateY = 0;
-  let enterScale      = 1;
   let imgOpacity      = 1;
 
   if (enter?.type === 'slide') {
-    const slide  = computeSlide(enterSpring, enter);
-    enterTranslateY = slide.translateY;
+    enterTranslateY = computeSlide(enterSpring, enter).translateY;
   } else if (enter?.type === 'zoom') {
-    const zoom   = computeZoom(frame, durationInFrames, enter);
-    enterScale   = zoom.scale;
-    imgOpacity   = interpolate(frame, [0, 8], [0, 1], { extrapolateRight: 'clamp' });
+    imgOpacity = interpolate(frame, [0, 8], [0, 1], { extrapolateRight: 'clamp' });
   }
 
-  const totalTranslateY = enterTranslateY + pan.translateY;
-  const totalTranslateX = pan.translateX;
+  const finalTransform = motionToTransform({
+    ...composed,
+    translateY: composed.translateY + enterTranslateY,
+  });
 
-  const imgTransform = `translate(${totalTranslateX}px, ${totalTranslateY}px) scale(${enterScale})`;
-  const isPan        = motion?.type === 'pan';
+  const motionList = Array.isArray(motion) ? motion : (motion ? [motion] : []);
+  const isPan = motionList.some(m => m.type === 'pan');
 
   return (
     <div style={{ width: 1080, height: 1920, background: '#0a0a0a', overflow: 'hidden', position: 'relative' }}>
@@ -71,8 +67,8 @@ export const ScreenshotScene: React.FC<Props> = ({ src, enter, motion, elements,
           objectFit: isPan ? undefined : 'cover',
           objectPosition: isPan ? undefined : 'top center',
           display: 'block',
-          transform: imgTransform,
-          transformOrigin: enter?.type === 'zoom' ? (enter as any).origin ?? 'center center' : 'center center',
+          transform: finalTransform,
+          transformOrigin: composed.transformOrigin,
           opacity: imgOpacity,
         }}
       />
