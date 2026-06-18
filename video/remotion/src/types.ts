@@ -78,8 +78,15 @@ export type SceneSpec =
       type: 'chips';
       duration: number;
       items: ChipItem[];
-      layout: 'radiate';
+      layout: 'radiate' | 'radial-spoke';
       stamp?: { text: string; accentWord: string; at: number };
+      transition?: 'cut' | 'fade';
+    }
+  | {
+      type: 'slideshow';
+      duration: number;
+      images: string[];
+      crop?: 'top' | 'middle' | 'bottom';
       transition?: 'cut' | 'fade';
     }
   | {

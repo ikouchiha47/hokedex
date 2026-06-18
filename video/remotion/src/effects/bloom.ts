@@ -24,8 +24,8 @@ export function bloomValues(
   const p = Math.min(1, (t - delay) / duration);
 
   return {
-    scale:   interpolate(p, [0, 1], [1.0, 2.4]),
+    scale:   interpolate(p, [0, 1], [1.0, 3.8]),
     opacity: interpolate(p, [0, 0.06, 1], [0, 1, 0]),
-    blur:    interpolate(p, [0, 1], [10, 52]),
+    blur:    interpolate(p, [0, 1], [8, 80]),
   };
 }
