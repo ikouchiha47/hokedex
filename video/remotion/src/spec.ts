@@ -1,5 +1,17 @@
+import './registry';
 import './core-elements/index';
-import { SceneSpec } from './types';
+import './effects/index';
+import { SceneSpec, VideoConfig } from './types';
+
+export const videoConfig: VideoConfig = {
+  bgColor:             '#0a0a0a',
+  transitionFillColor: '#0a0a0a',
+  accentColor:         '#9d5cff',
+  fontFamily:          "'Space Grotesk', sans-serif",
+  fonts: [
+    { type: 'google', family: 'Space Grotesk', weights: [400, 600, 700, 800, 900] },
+  ],
+};
 
 export const scenes: SceneSpec[] = [
   {
@@ -32,7 +44,7 @@ export const scenes: SceneSpec[] = [
         x: 408, y: 834, w: 160, h: 163,
         at: 0.5,
         data: { color: '#9d5cff' },
-        effects: [{ type: 'tap-ring', count: 5, stagger: 0.4, color: '#9d5cff' }],
+        effects: [{ type: 'core:tap-ring', count: 5, stagger: 0.4, color: '#9d5cff' }],
       },
     ],
     koFinish: { text: 'DEXED.', at: 2.8 },
@@ -69,8 +81,8 @@ export const scenes: SceneSpec[] = [
         at: 1.2,
         data: { label: 'Red Flag', emoji: '🚩', color: '#ef4444' },
         effects: [
-          { type: 'pop-in' },
-          { type: 'bloom', color: '#ef4444', delay: 0.3, duration: 0.8 },
+          { type: 'core:pop-in' },
+          { type: 'core:bloom', color: '#ef4444', delay: 0.3, duration: 0.8 },
         ],
       },
     ],

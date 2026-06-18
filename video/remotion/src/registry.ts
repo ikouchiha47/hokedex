@@ -1,15 +1,14 @@
-import { TextScene } from './scenes/TextScene';
+// Register all platform scene types.
+// Project-specific scenes: call registerScene() in your own file and import it in spec.ts.
+import { registerScene } from './core/scene-registry';
+import { TextScene }       from './scenes/TextScene';
 import { ScreenshotScene } from './scenes/ScreenshotScene';
-import { ChipsScene } from './scenes/ChipsScene';
-import { SlideshowScene } from './scenes/SlideshowScene';
-import { LockupScene } from './scenes/LockupScene';
-import { SceneSpec } from './types';
+import { ChipsScene }      from './scenes/ChipsScene';
+import { SlideshowScene }  from './scenes/SlideshowScene';
+import { LockupScene }     from './scenes/LockupScene';
 
-// Add new scene types here only. Root.tsx never changes.
-export const SceneRegistry: Record<SceneSpec['type'], React.FC<any>> = {
-  'text':       TextScene,
-  'screenshot': ScreenshotScene,
-  'chips':      ChipsScene,
-  'slideshow':  SlideshowScene,
-  'lockup':     LockupScene,
-};
+registerScene('text',       TextScene);
+registerScene('screenshot', ScreenshotScene);
+registerScene('chips',      ChipsScene);
+registerScene('slideshow',  SlideshowScene);
+registerScene('lockup',     LockupScene);
