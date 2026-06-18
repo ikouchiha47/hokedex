@@ -37,6 +37,6 @@ Add a new per-element visual effect to the Remotion video engine.
 - No hardcoded magic numbers — all values come from `params` with `?? default`
 - `contentStyle` merges with existing element styles; pick CSS properties that don't conflict with other effects
 - `underlays`/`overlays` are arrays — push multiple nodes if needed (see `tap-ring.ts`)
-- For project-specific effects: use `projects/<p>/effects/` and register with a project namespace, e.g. `'hokedex:<name>'`
+- For project-specific effects: use `projects/<p>/effects/` and register with a project namespace, e.g. `'<project>:<name>'`
 
 **After adding:** add `effects: [{ type: 'core:<name>' }]` to a `SceneElement` in a spec and preview to confirm.

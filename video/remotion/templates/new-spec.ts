@@ -1,9 +1,9 @@
-// Template: new video spec for the hokedex project.
-// Copy to: src/projects/hokedex/specs/<name>.ts
-// Then add to: src/projects/hokedex/index.ts compositions array.
+// Template: new video spec.
+// Copy to: src/projects/<project>/specs/<name>.ts
+// Then add to: src/projects/<project>/index.ts compositions array.
 //
-// Assets go in: video/remotion/public/hokedex/
-// Reference as: 'hokedex/filename.png'
+// Assets go in: video/remotion/public/<project>/
+// Reference as: '<project>/filename.png'
 
 import '../registry';
 import { SceneSpec, VideoConfig } from '../types';
@@ -33,15 +33,15 @@ export const scenes: SceneSpec[] = [
   {
     type: 'screenshot',
     duration: 3,
-    src: 'hokedex/your-screenshot.png',
+    src: '<project>/your-screenshot.png',
     preset: 'ken-burns',
   },
   {
     type: 'lockup',
     duration: 2.5,
-    hook: "gotta hook 'em all",
-    name: 'hokédex',
-    sub: 'Free · Android · No account',
+    hook: 'your closing hook',
+    name: 'your app',
+    sub: 'Your tagline here',
   },
 ];
 

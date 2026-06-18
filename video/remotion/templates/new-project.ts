@@ -1,4 +1,4 @@
-// Template: bootstrap a new project alongside hokedex.
+// Template: bootstrap a new project.
 //
 // Steps:
 // 1. mkdir -p src/projects/<yourproject>/{elements,scenes,scene-effects,specs,presets}

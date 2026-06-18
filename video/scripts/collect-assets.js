@@ -10,8 +10,8 @@
 //
 // Example:
 //   node scripts/collect-assets.js \
-//     --dest    remotion/public/hokedex \
-//     --manifest remotion/src/projects/hokedex/assets.yaml \
+//     --dest    remotion/public/<project> \
+//     --manifest remotion/src/projects/<project>/assets.yaml \
 //     --name profile --src /Downloads/photo.png \
 //     --name hero    --src https://example.com/banner.jpg
 
