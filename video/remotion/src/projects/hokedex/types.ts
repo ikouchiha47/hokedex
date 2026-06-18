@@ -11,9 +11,10 @@ import type {
   Effect,
   FontSource,
   TextLine,
+  SceneOverlaySpec,
 } from '../../platform/types';
 
-export type { SceneElement, ElementSpec, VideoConfig, Motion, MotionOutput, Effect, FontSource, TextLine };
+export type { SceneElement, ElementSpec, VideoConfig, Motion, MotionOutput, Effect, FontSource, TextLine, SceneOverlaySpec };
 
 // Platform screenshot doesn't know about koFinish. Extend it here.
 type PlatformScreenshot = Extract<PlatformSceneSpec, { type: 'screenshot' }>;

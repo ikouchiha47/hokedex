@@ -3,6 +3,8 @@
 import '../../platform/registry';           // text, slideshow
 import '../../platform/effects/index';      // core:pop-in, bloom, tap-ring, typewriter
 import '../../platform/motion/register';    // pan, zoom
+import '../../platform/overlays/index';     // core:vignette, film-grain, lens-flare, etc.
+import '../../platform/presets/index';      // ken-burns, dramatic-zoom, etc.
 
 import { registerScene }   from '../../platform/core/scene-registry';
 import { ScreenshotScene } from './scenes/ScreenshotScene';

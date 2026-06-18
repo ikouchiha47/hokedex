@@ -80,6 +80,11 @@ export type Motion =
   | { type: 'fade';  from?: number; to?: number }
   | { type: 'cut' };
 
+export type SceneOverlaySpec = {
+  type: string;
+  [param: string]: unknown;
+};
+
 export type MotionOutput = {
   translateX:      number;
   translateY:      number;
@@ -101,15 +106,19 @@ export type SceneSpec =
       type: 'screenshot';
       duration: number;
       src: string;
+      preset?: string;           // preset id — motion/enter/overlays applied from preset; explicit fields override
       enter?: Motion;
       motion?: Motion | Motion[];
       elements?: SceneElement[];
+      overlays?: SceneOverlaySpec[];
       transition?: 'cut' | 'fade';
     }
   | {
       type: 'slideshow';
       duration: number;
       images: string[];
+      preset?: string;
       enter?: Motion;
       motion?: Motion | Motion[];
+      overlays?: SceneOverlaySpec[];
     };
