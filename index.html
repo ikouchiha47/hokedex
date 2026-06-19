@@ -119,9 +119,21 @@
     .dl-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(124,58,237,.5); background: var(--purple-dark); }
     .dl-small { margin-top: 10px; font-size: 11px; color: var(--muted); }
 
+    /* GIF PREVIEW */
+    .preview-gif-wrap {
+      margin-top: 48px;
+      display: flex;
+      justify-content: center;
+    }
+    .preview-gif {
+      width: 220px;
+      border-radius: 28px;
+      box-shadow: 0 20px 60px rgba(124,58,237,.35), 0 4px 16px rgba(0,0,0,.15);
+    }
+
     /* CAROUSEL */
     .carousel-outer {
-      margin-top: 60px;
+      margin-top: 48px;
       width: 100%;
       max-width: 860px;
       position: relative;
@@ -311,46 +323,12 @@
   </a>
   <p class="dl-small">Android 9+ · sideload · ~102 MB · v1.4.5 · works offline</p>
 
-  <div class="carousel-outer">
-    <div class="carousel-track-wrap">
-      <div class="carousel-track" id="carousel">
-        <img src="hokedex_landing.png" alt="hokédex home screen" />
-        <img src="hokedex_seed_landing.png" alt="hokédex roster with entries" />
-        <img src="hokedex_profile.png" alt="hokédex profile screen" />
-        <img src="hokedex_insights.png" alt="hokédex insights screen" />
-        <img src="hokedex_insights2.png" alt="hokédex insights charts" />
-      </div>
-    </div>
-    <div class="carousel-dots" id="dots">
-      <button class="active" data-i="0"></button>
-      <button data-i="1"></button>
-      <button data-i="2"></button>
-      <button data-i="3"></button>
-      <button data-i="4"></button>
-    </div>
+  <div class="preview-gif-wrap">
+    <img src="hokedex_preview.gif" alt="hokédex in action" class="preview-gif" />
   </div>
+
 </section>
 
-<script>
-  const track = document.getElementById('carousel');
-  const dots = document.querySelectorAll('#dots button');
-  track.addEventListener('scroll', () => {
-    const imgs = track.querySelectorAll('img');
-    let closest = 0, minDist = Infinity;
-    imgs.forEach((img, i) => {
-      const dist = Math.abs(img.getBoundingClientRect().left - track.getBoundingClientRect().left - track.clientWidth / 2 + img.clientWidth / 2);
-      if (dist < minDist) { minDist = dist; closest = i; }
-    });
-    dots.forEach((d, i) => d.classList.toggle('active', i === closest));
-  });
-  dots.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const imgs = track.querySelectorAll('img');
-      const img = imgs[+btn.dataset.i];
-      img.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-    });
-  });
-</script>
 
 <!-- TYPES -->
 <section class="section types-bg">
@@ -458,6 +436,32 @@
   </div>
 </section>
 
+<!-- SCREENSHOTS -->
+<section class="section">
+  <div class="section-inner" style="text-align:center">
+    <p class="eyebrow">the app</p>
+    <h2>Every screen.<br/><em>Zero clutter.</em></h2>
+    <div class="carousel-outer">
+      <div class="carousel-track-wrap">
+        <div class="carousel-track" id="carousel">
+          <img src="hokedex_landing.png" alt="hokédex home screen" />
+          <img src="hokedex_seed_landing.png" alt="hokédex roster with entries" />
+          <img src="hokedex_profile.png" alt="hokédex profile screen" />
+          <img src="hokedex_insights.png" alt="hokédex insights screen" />
+          <img src="hokedex_insights2.png" alt="hokédex insights charts" />
+        </div>
+      </div>
+      <div class="carousel-dots" id="dots">
+        <button class="active" data-i="0"></button>
+        <button data-i="1"></button>
+        <button data-i="2"></button>
+        <button data-i="3"></button>
+        <button data-i="4"></button>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- CTA -->
 <section class="section cta-bg" id="download">
   <div class="section-inner" style="text-align:center">
@@ -482,6 +486,27 @@
 <footer>
   <p>From <strong>Parody Studio</strong> with questionable judgment &nbsp;·&nbsp; hokédex is satire. be nice out there.</p>
 </footer>
+
+<script>
+  const track = document.getElementById('carousel');
+  const dots = document.querySelectorAll('#dots button');
+  track.addEventListener('scroll', () => {
+    const imgs = track.querySelectorAll('img');
+    let closest = 0, minDist = Infinity;
+    imgs.forEach((img, i) => {
+      const dist = Math.abs(img.getBoundingClientRect().left - track.getBoundingClientRect().left - track.clientWidth / 2 + img.clientWidth / 2);
+      if (dist < minDist) { minDist = dist; closest = i; }
+    });
+    dots.forEach((d, i) => d.classList.toggle('active', i === closest));
+  });
+  dots.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const imgs = track.querySelectorAll('img');
+      const img = imgs[+btn.dataset.i];
+      img.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    });
+  });
+</script>
 
 </body>
 </html>
