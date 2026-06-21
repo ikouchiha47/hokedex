@@ -44,6 +44,8 @@ hokédex — Moments Redesign
 - [Phase 01]: lucide-react-native installed as dependency; src/components/icons/index.ts is sole import site (R-CONV-05)
 - [Phase 02]: RootStackParamList moved to types.ts, re-exported from RootNavigator for backward compatibility
 - [Phase 02]: timelineMapRef is module-level ref; TimelineScreen exposes toggleMap via useImperativeHandle
+- [Phase 02]: Used barrel icon names (Plus, User, Mic, Camera) without Icon suffix — adapted to actual barrel exports
+- [Phase 02]: Added User to icons/index.ts barrel as it was missing but needed for Contact option icon
 
 ## Session
 - Last session: 2026-06-21
