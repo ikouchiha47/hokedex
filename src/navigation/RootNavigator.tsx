@@ -2,6 +2,7 @@ import React from 'react';
 import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+
 import { CollectionListScreen } from '../screens/CollectionListScreen';
 import { NewEntryScreen } from '../screens/NewEntryScreen';
 import { EntryDetailScreen } from '../screens/EntryDetailScreen';
@@ -10,15 +11,9 @@ import { InsightsScreen } from '../screens/InsightsScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { ShareIntakeScreen } from '../screens/ShareIntakeScreen';
 
-export type RootStackParamList = {
-  CollectionList: undefined;
-  NewEntry: { prefillImageUri?: string };
-  EntryDetail: { entryId: string; prefillImageUri?: string };
-  SearchResult: { preloadedImageUri?: string } | undefined;
-  Insights: undefined;
-  Settings: { onReset?: () => void };
-  ShareIntake: { imageUri: string };
-};
+import type { RootStackParamList } from './types';
+
+export type { RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
