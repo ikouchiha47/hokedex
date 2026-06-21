@@ -21,6 +21,7 @@ export {
   Search,
   Settings,
   Trash2,
+  User,
   UserX,
   Users,
   X,
