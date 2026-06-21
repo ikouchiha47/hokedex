@@ -30,6 +30,8 @@ import queriesMoments from './queries/moments.sql';
 import queriesMomentPeople from './queries/moment_people.sql';
 import queriesPersonDates from './queries/person_dates.sql';
 import queriesSavedPlaces from './queries/saved_places.sql';
+import queriesDataMigrations from './queries/data_migrations.sql';
+import dataMigration000BackfillEncounters from './data-migrations/000_backfill_encounters.sql';
 import dataMigration001BackfillMoments from './data-migrations/001_backfill_moments.sql';
 
 export const SQL = {
@@ -55,6 +57,8 @@ export const SQL = {
   queriesMomentPeople,
   queriesPersonDates,
   queriesSavedPlaces,
+  queriesDataMigrations,
+  dataMigration000BackfillEncounters,
   dataMigration001BackfillMoments,
 } as const;
 
