@@ -25,6 +25,10 @@ import queriesEmbeddings from './queries/embeddings.sql';
 import queriesEntryTags from './queries/entry_tags.sql';
 import queriesEncounters from './queries/encounters.sql';
 import queriesEntryNotes from './queries/entry_notes.sql';
+import queriesMoments from './queries/moments.sql';
+import queriesMomentPeople from './queries/moment_people.sql';
+import queriesPersonDates from './queries/person_dates.sql';
+import queriesSavedPlaces from './queries/saved_places.sql';
 
 export const SQL = {
   migration000,
@@ -44,6 +48,10 @@ export const SQL = {
   queriesEntryTags,
   queriesEncounters,
   queriesEntryNotes,
+  queriesMoments,
+  queriesMomentPeople,
+  queriesPersonDates,
+  queriesSavedPlaces,
 } as const;
 
 /**
