@@ -1,5 +1,5 @@
--- name: CHECK_DATA_MIGRATION_APPLIED
+-- name: CheckDataMigrationApplied :one
 SELECT version FROM data_migrations WHERE version = ?
 
--- name: INSERT_DATA_MIGRATION
+-- name: InsertDataMigration :exec
 INSERT INTO data_migrations (version, applied_at, rows_affected) VALUES (?, ?, ?)
