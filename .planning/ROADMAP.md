@@ -79,9 +79,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: Camera Screen + Face Picker — bounding box overlay, face crop cards, confirm/reject
-- [ ] 03-02: Embedding Match + Person Link — cosine similarity, "Is this [name]?" confirm, new person flow
-- [ ] 03-03: MomentCaptureService camera implementation — atomic DB write (moments + moment_people transaction)
+- [ ] 03-01-PLAN.md — Migration 010 + CameraCaptureScreen scaffold + PersonConfirmModal + RadialFAB wiring
+- [ ] 03-02-PLAN.md — cameraCaptureFlow.ts: runDetect() and runEmbedAndMatch() pure service functions
+- [ ] 03-03-PLAN.md — MomentCaptureService.capture() atomic write + full screen orchestration + E2E checkpoint
 
 ### Phase 4: Voice Capture, Type Inference & Timeline Feed
 **Goal**: Voice capture path works. Timeline shows real moments from DB. Type inference fills the type field on moments.
