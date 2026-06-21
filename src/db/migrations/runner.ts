@@ -13,6 +13,8 @@ const MIGRATIONS: ReadonlyArray<{ version: number; sql: string }> = [
   { version: 4, sql: SQL.migration004 },
   { version: 5, sql: SQL.migration005 },
   { version: 6, sql: SQL.migration006 },
+  { version: 7, sql: SQL.migration007 },
+  { version: 8, sql: SQL.migration008 },
 ];
 
 // Parsed once at module load — these queries are always needed.
