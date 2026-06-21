@@ -46,6 +46,8 @@ hokédex — Moments Redesign
 - [Phase 02]: timelineMapRef is module-level ref; TimelineScreen exposes toggleMap via useImperativeHandle
 - [Phase 02]: Used barrel icon names (Plus, User, Mic, Camera) without Icon suffix — adapted to actual barrel exports
 - [Phase 02]: Added User to icons/index.ts barrel as it was missing but needed for Contact option icon
+- [Phase 02]: Easing.sin used instead of Easing.sine (correct reanimated API name)
+- [Phase 02]: RadialFAB from 02-01 preserved in HomeScreen during 02-02 replacement
 
 ## Session
 - Last session: 2026-06-21
