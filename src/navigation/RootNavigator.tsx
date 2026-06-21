@@ -10,6 +10,7 @@ import { SearchResultScreen } from '../screens/SearchResultScreen';
 import { InsightsScreen } from '../screens/InsightsScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { ShareIntakeScreen } from '../screens/ShareIntakeScreen';
+import { TabNavigator } from './TabNavigator';
 
 import type { RootStackParamList } from './types';
 
@@ -34,13 +35,14 @@ export function RootNavigator({ onReset, navigationRef, initialSharedImageUri }:
     <SafeAreaProvider>
       <NavigationContainer ref={navigationRef} onReady={handleReady}>
         <Stack.Navigator
-          initialRouteName="CollectionList"
+          initialRouteName="Tabs"
           screenOptions={{
             headerShown: false,
             contentStyle: { backgroundColor: '#0a0a0a' },
             animation: 'slide_from_right',
           }}
         >
+          <Stack.Screen name="Tabs" component={TabNavigator} />
           <Stack.Screen name="CollectionList">
             {props => <CollectionListScreen {...props} onReset={onReset} />}
           </Stack.Screen>
