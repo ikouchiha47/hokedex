@@ -29,6 +29,7 @@ import queriesMoments from './queries/moments.sql';
 import queriesMomentPeople from './queries/moment_people.sql';
 import queriesPersonDates from './queries/person_dates.sql';
 import queriesSavedPlaces from './queries/saved_places.sql';
+import dataMigration001BackfillMoments from './data-migrations/001_backfill_moments.sql';
 
 export const SQL = {
   migration000,
@@ -52,6 +53,7 @@ export const SQL = {
   queriesMomentPeople,
   queriesPersonDates,
   queriesSavedPlaces,
+  dataMigration001BackfillMoments,
 } as const;
 
 /**

@@ -2,6 +2,7 @@ import { open, type DB } from '@op-engineering/op-sqlite';
 import { runMigrations } from './migrations/runner';
 import { runDataMigrations } from './migrations/data-runner';
 import { backfillEncounters } from './data-migrations/001_backfill_encounters';
+import { backfillMoments } from './data-migrations/001_backfill_moments';
 import { updateCategoryThresholds } from './queries/categories';
 
 // Calibrated for MobileFaceNet/ArcFace 512-dim cosine similarity.
@@ -45,7 +46,7 @@ export async function initDatabase(collectionRoot: string): Promise<DB> {
   updateCategoryThresholds(db, 'people', THRESHOLDS.likely, THRESHOLDS.possible);
 
   // Data migrations — run after schema is ready, process existing rows in batches
-  runDataMigrations(db, [backfillEncounters]);
+  runDataMigrations(db, [backfillEncounters, backfillMoments]);
 
   return db;
 }
