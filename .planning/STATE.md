@@ -4,13 +4,13 @@
 hokédex — Moments Redesign
 
 ## Current Phase
-1 — Schema, Interfaces & Conventions Foundation
+2 — Navigation Shell & Home Screen
 
 ## Phase Status
 | Phase | Status |
 |-------|--------|
-| 1 — Schema, Interfaces & Conventions | in progress (plan 03 complete) |
-| 2 — Navigation Shell & Home Screen | not started |
+| 1 — Schema, Interfaces & Conventions | complete |
+| 2 — Navigation Shell & Home Screen | in progress (plan 01 complete) |
 | 3 — Camera Capture Path | not started |
 | 4 — Voice Capture, Type Inference & Timeline | not started |
 | 5 — People, Planner, Special Dates & Calendar | not started |
@@ -42,10 +42,12 @@ hokédex — Moments Redesign
 - [Phase 01]: Rule.evaluate returns Result<RuleResult> | null — null means rule does not apply
 - [Phase 01]: PlaceResolver.resolve is async to support GPS/network lookups in implementations
 - [Phase 01]: lucide-react-native installed as dependency; src/components/icons/index.ts is sole import site (R-CONV-05)
+- [Phase 02]: RootStackParamList moved to types.ts, re-exported from RootNavigator for backward compatibility
+- [Phase 02]: timelineMapRef is module-level ref; TimelineScreen exposes toggleMap via useImperativeHandle
 
 ## Session
 - Last session: 2026-06-21
-- Stopped at: Completed 01-03-PLAN.md (service stubs: MomentCaptureService, PlaceResolverRegistry, RuleRegistry, CalendarProxy + icon barrel)
+- Stopped at: Completed 02-01-PLAN.md (navigation shell: TabNavigator, 4 stub screens, Tabs as root)
 
 ## Notes
 - Source plan: MOMENTS_PLAN.md
