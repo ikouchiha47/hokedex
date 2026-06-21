@@ -17,6 +17,7 @@ import migration005 from './migrations/005_flat_entry_tags.sql';
 import migration006 from './migrations/006_photo_original_path.sql';
 import migration007 from './migrations/007_moments.sql';
 import migration008 from './migrations/008_entries_is_self.sql';
+import migration009 from './migrations/009_group_sessions.sql';
 import queriesMigrations from './queries/migrations.sql';
 import queriesCategories from './queries/categories.sql';
 import queriesEntries from './queries/entries.sql';
@@ -41,6 +42,7 @@ export const SQL = {
   migration006,
   migration007,
   migration008,
+  migration009,
   queriesMigrations,
   queriesCategories,
   queriesEntries,
