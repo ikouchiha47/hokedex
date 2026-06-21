@@ -1,17 +1,11 @@
-/**
- * Ingestion orchestrator.
- *
- * Accepts db and native modules as parameters — no singleton imports.
- * Call order: processImage (native) → detect → embed → DB transaction.
- */
-
 import type { DB } from '@op-engineering/op-sqlite';
 import { withTransaction } from '../db/tx';
 import { parseLongFromBridge } from '../utils/numbers';
 import type { DetectionResult } from '../types/ml';
-import { insertPhoto } from '../db/queries/photos';
+import { insertPhoto, updatePhotoEmbeddingId } from '../db/queries/photos';
 import { insertEmbedding } from '../db/queries/embeddings';
 import { type Photo, type Embedding } from '../db/types';
+import RNFS from 'react-native-fs';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -26,13 +20,17 @@ export type IngestInput = {
   entryNameSlug: string;
 };
 
-export type IngestOutcome =
-  | { status: 'embedded'; photoId: string; embeddingId: string }
-  | { status: 'reference_only'; photoId: string }
-  | { status: 'needs_face_selection'; photoId: string; crops: DetectionResult & { type: 'MULTI_SUBJECT' } }
-  | { status: 'low_confidence_warning'; photoId: string; embeddingId: string; confidence: number };
+export type PendingIngest = {
+  photoId: string;
+  sha256: string;
+  phash: number;
+  thumbnailStagingPath: string;
+  originalPath: string | null;
+  categoryId: string;
+  detection: DetectionResult;
+  embeddingVector?: number[];
+};
 
-// Shape the native modules must satisfy — callers inject these.
 export type IngestNativeModules = {
   HokedexIngest: {
     processImage(
@@ -44,6 +42,7 @@ export type IngestNativeModules = {
   HokedexML: {
     detect(imageUri: string, categoryId: string): Promise<DetectionResult>;
     embed(imageUri: string, categoryId: string): Promise<number[]>;
+    embedCrop(imageUri: string, x: number, y: number, width: number, height: number, categoryId: string): Promise<number[]>;
   };
 };
 
@@ -55,84 +54,135 @@ function generateId(): string {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
 
-function float32ToBuffer(arr: number[]): ArrayBuffer {
+export function float32ToBuffer(arr: number[]): ArrayBuffer {
   const buf = new ArrayBuffer(arr.length * 4);
   const view = new Float32Array(buf);
   arr.forEach((v, i) => { view[i] = v; });
   return buf;
 }
 
-
 // ---------------------------------------------------------------------------
-// Main export
+// Detect + thumbnail only — no DB writes
 // ---------------------------------------------------------------------------
 
 export async function ingestImage(
-  db: DB,
   modules: IngestNativeModules,
   input: IngestInput
-): Promise<IngestOutcome> {
-  const { imageUri, originalPath, collectionRoot, entryId, categoryId, entryNameSlug } = input;
+): Promise<PendingIngest> {
+  const { imageUri, originalPath, collectionRoot, entryNameSlug, categoryId } = input;
   const { HokedexIngest, HokedexML } = modules;
 
-  // Step 1: SHA-256, pHash, file copy, thumbnail — one bridge call, background thread.
-  // phash arrives as a decimal string from Kotlin (64-bit Long can't cross the RN bridge as a
-  // JS number without losing precision). Parse once here; SQLite stores the full integer.
   const { sha256, phash: phashStr, thumbnailRelativePath } =
     await HokedexIngest.processImage(imageUri, collectionRoot, entryNameSlug);
   const phash = parseLongFromBridge(phashStr, 'phash');
 
   const photoId = generateId();
-  const now = Date.now();
-
-  // Step 2: Face detection
   const detection: DetectionResult = await HokedexML.detect(imageUri, categoryId);
 
-  // MULTI_SUBJECT — caller must let the user pick a crop, then call again with a crop URI
   if (detection.type === 'MULTI_SUBJECT') {
-    const photo: Photo = {
-      id: photoId, entry_id: entryId, local_path: thumbnailRelativePath, original_path: originalPath,
-      original_sha256: sha256, original_phash: phash,
-      is_profile_photo: 0, embedding_id: null, created_at: now,
-    };
-    withTransaction(db, tx => insertPhoto(tx, photo));
-    return { status: 'needs_face_selection', photoId, crops: detection as DetectionResult & { type: 'MULTI_SUBJECT' } };
+    return { photoId, sha256, phash, thumbnailStagingPath: thumbnailRelativePath, originalPath, categoryId, detection };
   }
 
-  // NO_SUBJECT — store photo as reference only, no embedding
-  if (detection.type === 'NO_SUBJECT') {
-    const photo: Photo = {
-      id: photoId, entry_id: entryId, local_path: thumbnailRelativePath, original_path: originalPath,
-      original_sha256: sha256, original_phash: phash,
-      is_profile_photo: 0, embedding_id: null, created_at: now,
-    };
-    withTransaction(db, tx => insertPhoto(tx, photo));
-    return { status: 'reference_only', photoId };
+  if (detection.type === 'NO_SUBJECT' || detection.type === 'LOW_CONFIDENCE') {
+    return { photoId, sha256, phash, thumbnailStagingPath: thumbnailRelativePath, originalPath, categoryId, detection };
   }
 
-  // SUCCESS or LOW_CONFIDENCE — embed and write both rows in one transaction
-  const embeddingId = generateId();
-  const rawEmbedding: number[] = await HokedexML.embed(imageUri, categoryId);
-  const vectorBuffer = float32ToBuffer(rawEmbedding);
+  // SUCCESS — pre-embed so commit is one shot
+  const embeddingVector = await HokedexML.embed(imageUri, categoryId);
+  return { photoId, sha256, phash, thumbnailStagingPath: thumbnailRelativePath, originalPath, categoryId, detection, embeddingVector };
+}
+
+// ---------------------------------------------------------------------------
+// Commit — moves thumbnail staging → thumbnails/$year/, writes DB rows
+// ---------------------------------------------------------------------------
+
+export async function commitIngest(
+  db: DB,
+  entryId: string,
+  pending: PendingIngest,
+  collectionRoot: string,
+  embeddingVector?: number[],
+): Promise<{ photoId: string; embeddingId?: string }> {
+  const { photoId, sha256, phash, thumbnailStagingPath, originalPath, categoryId } = pending;
+  const vector = embeddingVector ?? pending.embeddingVector;
+
+  const year = new Date().getFullYear().toString();
+  const filename = thumbnailStagingPath.replace('staging/', '');
+  const destRelPath = `thumbnails/${year}/${filename}`;
+  const srcAbs = `${collectionRoot}/${thumbnailStagingPath}`;
+  const destAbs = `${collectionRoot}/thumbnails/${year}`;
+
+  await RNFS.mkdir(destAbs);
+  await RNFS.moveFile(srcAbs, `${destAbs}/${filename}`);
+
+  const now = Date.now();
+
+  if (vector && vector.length > 0) {
+    const embeddingId = generateId();
+    const vectorBuffer = float32ToBuffer(vector);
+
+    const photo: Photo = {
+      id: photoId, entry_id: entryId, local_path: destRelPath, original_path: originalPath,
+      original_sha256: sha256, original_phash: phash,
+      is_profile_photo: 0, embedding_id: embeddingId, created_at: now,
+    };
+    const embedding: Omit<Embedding, 'vector'> & { vector: ArrayBuffer } = {
+      id: embeddingId, entry_id: entryId, photo_id: photoId,
+      category_id: categoryId, vector: vectorBuffer, created_at: now,
+    };
+
+    withTransaction(db, tx => {
+      insertPhoto(tx, photo);
+      insertEmbedding(tx, embedding);
+    });
+
+    return { photoId, embeddingId };
+  }
 
   const photo: Photo = {
-    id: photoId, entry_id: entryId, local_path: thumbnailRelativePath, original_path: originalPath,
+    id: photoId, entry_id: entryId, local_path: destRelPath, original_path: originalPath,
     original_sha256: sha256, original_phash: phash,
-    is_profile_photo: 0, embedding_id: embeddingId, created_at: now,
-  };
-  const embedding: Omit<Embedding, 'vector'> & { vector: ArrayBuffer } = {
-    id: embeddingId, entry_id: entryId, photo_id: photoId,
-    category_id: categoryId, vector: vectorBuffer, created_at: now,
+    is_profile_photo: 0, embedding_id: null, created_at: now,
   };
 
-  withTransaction(db, tx => {
-    insertEmbedding(tx, embedding);
-    insertPhoto(tx, photo);
-  });
+  withTransaction(db, tx => insertPhoto(tx, photo));
+  return { photoId };
+}
 
-  if (detection.type === 'LOW_CONFIDENCE') {
-    return { status: 'low_confidence_warning', photoId, embeddingId, confidence: detection.confidence };
+// ---------------------------------------------------------------------------
+// Embed a manually drawn/selected crop — returns vector only, no DB write
+// ---------------------------------------------------------------------------
+
+export type SelectedFaceInput = {
+  imageUri: string;
+  selectedCrop: { x: number; y: number; width: number; height: number };
+  categoryId: string;
+};
+
+export async function embedCrop(
+  modules: Pick<IngestNativeModules, 'HokedexML'>,
+  input: SelectedFaceInput,
+): Promise<number[]> {
+  const { imageUri, selectedCrop, categoryId } = input;
+  return modules.HokedexML.embedCrop(
+    imageUri,
+    selectedCrop.x, selectedCrop.y, selectedCrop.width, selectedCrop.height,
+    categoryId,
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Wipe staging on app boot — call before first render
+// ---------------------------------------------------------------------------
+
+export async function wipeStagingDir(collectionRoot: string): Promise<void> {
+  const stagingDir = `${collectionRoot}/staging`;
+  try {
+    const exists = await RNFS.exists(stagingDir);
+    if (!exists) return;
+    const files = await RNFS.readDir(stagingDir);
+    await Promise.all(files.map(f => RNFS.unlink(f.path)));
+  } catch (e) {
+    console.warn('[wipeStagingDir] failed:', e);
   }
-
-  return { status: 'embedded', photoId, embeddingId };
 }

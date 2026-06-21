@@ -19,7 +19,9 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useApp } from '../AppContext';
-import { ingestImage } from '../services/ingestion';
+import { ingestImage, commitIngest, embedCrop, type PendingIngest } from '../services/ingestion';
+import { FacePickerModal } from '../components/FacePickerModal';
+import type { BoundingBox } from '../types/ml';
 import { searchByEmbedding } from '../services/search';
 import { accentForEntry } from '../theme/accent';
 import { EntryDetailController } from '../services/EntryDetailController';
@@ -77,6 +79,12 @@ export function EntryDetailScreen() {
   const [state, setState] = useState<EntryDetailState | null>(() => controller.load());
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [ingesting, setIngesting] = useState(false);
+  const [facePicker, setFacePicker] = useState<{
+    pending: PendingIngest;
+    imageUri: string;
+    crops: BoundingBox[];
+  } | null>(null);
+  const [faceEmbedding, setFaceEmbedding] = useState(false);
   const [sampleResult, setSampleResult] = useState<string | null>(null);
   const meetAnim = useRef(new Animated.Value(1)).current;
 
@@ -137,13 +145,20 @@ export function EntryDetailScreen() {
     if (ingesting) return;
     setIngesting(true);
     try {
-      const outcome = await ingestImage(db, { HokedexIngest, HokedexML }, {
+      const pending = await ingestImage({ HokedexIngest, HokedexML }, {
         imageUri: uri, originalPath, collectionRoot, entryId, categoryId: category.id,
         entryNameSlug: slugify(entry.name),
       });
-      if (outcome.status === 'reference_only') ToastAndroid.show('No face detected — saved as reference photo.', ToastAndroid.SHORT);
-      else if (outcome.status === 'low_confidence_warning') ToastAndroid.show('Low confidence face — saved with warning.', ToastAndroid.SHORT);
-      else if (outcome.status === 'needs_face_selection') Alert.alert('Multiple faces detected — only the first was used.');
+      if (pending.detection.type !== 'NO_SUBJECT') {
+        const det = pending.detection;
+        const crops: BoundingBox[] = det.type === 'MULTI_SUBJECT'
+          ? (det as any).crops
+          : [(det as any).crop];
+        setFacePicker({ pending, imageUri: uri, crops });
+        return;
+      }
+      await commitIngest(db, entryId, pending, collectionRoot);
+      ToastAndroid.show('No face detected — saved as reference photo.', ToastAndroid.SHORT);
       reload();
     } catch (e) {
       Alert.alert('Error', e instanceof Error ? e.message : String(e));
@@ -214,8 +229,54 @@ export function EntryDetailScreen() {
     ]);
   }
 
+  async function handleFaceSelect(crop: BoundingBox) {
+    if (!facePicker) return;
+    setFaceEmbedding(true);
+    try {
+      const vector = await embedCrop({ HokedexML }, {
+        imageUri: facePicker.imageUri,
+        selectedCrop: crop,
+        categoryId: category.id,
+      });
+      await commitIngest(db, entryId, facePicker.pending, collectionRoot, vector);
+    } catch (e) {
+      console.error('[EntryDetail] face embed failed:', e);
+    } finally {
+      setFaceEmbedding(false);
+      setFacePicker(null);
+      reload();
+    }
+  }
+
+  async function handleFaceAdd() {
+    if (!facePicker) return;
+    try {
+      await commitIngest(db, entryId, facePicker.pending, collectionRoot);
+    } catch (e) {
+      console.error('[EntryDetail] commit failed:', e);
+    } finally {
+      setFacePicker(null);
+      reload();
+    }
+  }
+
+  function handleFaceDismiss() {
+    setFacePicker(null);
+  }
+
   return (
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'android' ? 'height' : 'padding'}>
+      {facePicker && (
+        <FacePickerModal
+          visible
+          imageUri={facePicker.imageUri}
+          crops={facePicker.crops}
+          onSelect={handleFaceSelect}
+          onAdd={handleFaceAdd}
+          onDismiss={handleFaceDismiss}
+          loading={faceEmbedding}
+        />
+      )}
       <ScrollView style={styles.scroll} contentContainerStyle={{ paddingBottom: 100 }}>
 
         {/* ── HEADER BAND ── */}

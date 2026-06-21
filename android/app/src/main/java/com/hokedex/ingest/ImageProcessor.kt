@@ -35,12 +35,11 @@ class ImageProcessor {
         val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
         val phash = dctPhash(bitmap)
 
-        val year = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR).toString()
         val prefix = "${sha256.take(8)}_${entryNameSlug}"
 
-        // Thumbnail only — 200x200, EXIF UserComment = hokedex:original_sha256={hash}
-        val thumbDir = File(collectionRoot, "thumbnails/$year").also { it.mkdirs() }
-        val thumbFile = File(thumbDir, "${prefix}_thumb.jpg")
+        // Write to staging/ — caller moves to thumbnails/$year/ on confirm
+        val stagingDir = File(collectionRoot, "staging").also { it.mkdirs() }
+        val thumbFile = File(stagingDir, "${prefix}_thumb.jpg")
         val thumbWidth = 200
         val thumbHeight = (bitmap.height * thumbWidth.toFloat() / bitmap.width).toInt()
         val thumb = Bitmap.createScaledBitmap(bitmap, thumbWidth, thumbHeight, true)
@@ -50,7 +49,7 @@ class ImageProcessor {
         exif.setAttribute(ExifInterface.TAG_USER_COMMENT, "hokedex:original_sha256=$sha256")
         exif.saveAttributes()
 
-        val thumbRelPath = "thumbnails/$year/${prefix}_thumb.jpg"
+        val thumbRelPath = "staging/${prefix}_thumb.jpg"
 
         return IngestResult(sha256, phash, thumbRelPath)
     }

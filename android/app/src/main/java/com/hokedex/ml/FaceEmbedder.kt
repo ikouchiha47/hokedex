@@ -73,6 +73,36 @@ class FaceEmbedder(context: Context) {
         return context.contentResolver.openInputStream(uri)
     }
 
+    /**
+     * Embed a specific face crop provided by the caller (normalized 0–1 coordinates).
+     * Skips internal detection — used when the user has already selected which face to use.
+     */
+    fun embedCrop(context: Context, imageUri: String, x: Float, y: Float, width: Float, height: Float): FloatArray {
+        val stream: InputStream = openImageStream(context, imageUri)
+            ?: throw IllegalArgumentException("Cannot open image: $imageUri")
+        val full = BitmapFactory.decodeStream(stream)
+        stream.close()
+
+        val imgW = full.width.toFloat()
+        val imgH = full.height.toFloat()
+
+        val marginX = width  * imgW * FACE_MARGIN
+        val marginY = height * imgH * FACE_MARGIN
+
+        val left   = (x * imgW - marginX).coerceAtLeast(0f)
+        val top    = (y * imgH - marginY).coerceAtLeast(0f)
+        val right  = ((x + width)  * imgW + marginX).coerceAtMost(imgW)
+        val bottom = ((y + height) * imgH + marginY).coerceAtMost(imgH)
+
+        val crop = Bitmap.createBitmap(full, left.toInt(), top.toInt(), (right - left).toInt(), (bottom - top).toInt())
+        val padded = letterboxPad(crop, INPUT_SIZE)
+        val input = bitmapToBuffer(padded)
+
+        val output = Array(1) { FloatArray(512) }
+        interpreter.run(input, output)
+        return l2Normalize(output[0])
+    }
+
     fun embed(context: Context, imageUri: String): FloatArray {
         val stream: InputStream = openImageStream(context, imageUri)
             ?: throw IllegalArgumentException("Cannot open image: $imageUri")

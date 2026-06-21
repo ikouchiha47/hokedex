@@ -11,6 +11,7 @@ import {
   Pressable,
 } from 'react-native';
 import { initDatabase } from './src/db/init';
+import { wipeStagingDir } from './src/services/ingestion';
 import { getCategory } from './src/db/queries/categories';
 import { AppProvider } from './src/AppContext';
 import { RootNavigator } from './src/navigation/RootNavigator';
@@ -47,6 +48,7 @@ export default function App() {
     setBoot({ status: 'booting' });
     try {
       const root: string = await HokedexIngest.getCollectionRoot();
+      await wipeStagingDir(root);
       const db = await initDatabase(root);
       const category = getCategory(db, 'people');
       if (!category) throw new Error('People category not seeded — run migrations.');

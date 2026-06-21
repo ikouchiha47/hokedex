@@ -18,6 +18,9 @@ import type { RootStackParamList } from '../navigation/RootNavigator';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import { useApp } from '../AppContext';
 import { NewEntryController } from '../services/NewEntryController';
+import { embedCrop, type PendingIngest } from '../services/ingestion';
+import { FacePickerModal } from '../components/FacePickerModal';
+import type { BoundingBox } from '../types/ml';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Fonts } from '../theme/fonts';
@@ -57,6 +60,11 @@ export function NewEntryScreen() {
   const [nameError, setNameError] = useState('');
   const [photoError, setPhotoError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [facePicker, setFacePicker] = useState<{
+    pending: PendingIngest;
+    crops: BoundingBox[];
+  } | null>(null);
+  const [faceEmbedding, setFaceEmbedding] = useState(false);
 
   function showSourcePicker() {
     Alert.alert('Add photo', undefined, [
@@ -118,10 +126,19 @@ export function NewEntryScreen() {
     setSaving(true);
     const ctrl = new NewEntryController(db, collectionRoot, category.id, { HokedexIngest, HokedexML });
     try {
-      const result = await ctrl.save(name, selectedTags, photoUri!, originalPhotoPath);
+      const result = await ctrl.save(name, photoUri!, originalPhotoPath);
+      if (result.status === 'needs_face_selection') {
+        const det = result.pending.detection;
+        const crops: BoundingBox[] = det.type === 'MULTI_SUBJECT'
+          ? (det as any).crops
+          : (det.type === 'LOW_CONFIDENCE' || det.type === 'SUCCESS')
+            ? [(det as any).crop]
+            : [];
+        setSaving(false);
+        setFacePicker({ pending: result.pending, crops });
+        return;
+      }
       if (result.status === 'reference_only') ToastAndroid.show('No face detected — saved as reference photo.', ToastAndroid.SHORT);
-      else if (result.status === 'low_confidence_warning') ToastAndroid.show('Low confidence face — saved with warning.', ToastAndroid.SHORT);
-      else if (result.status === 'needs_face_selection') ToastAndroid.show('Multiple faces detected — only the first was used.', ToastAndroid.SHORT);
       navigation.goBack();
     } catch (e) {
       console.error('[NewEntry] save failed:', e);
@@ -132,8 +149,57 @@ export function NewEntryScreen() {
     }
   }
 
+  async function handleFaceSelect(crop: BoundingBox) {
+    if (!facePicker) return;
+    setFaceEmbedding(true);
+    try {
+      const vector = await embedCrop({ HokedexML }, {
+        imageUri: photoUri!,
+        selectedCrop: crop,
+        categoryId: category.id,
+      });
+      const ctrl = new NewEntryController(db, collectionRoot, category.id, { HokedexIngest, HokedexML });
+      await ctrl.commit(name, selectedTags, facePicker.pending, vector);
+    } catch (e) {
+      console.error('[NewEntry] face embed failed:', e);
+    } finally {
+      setFaceEmbedding(false);
+      setFacePicker(null);
+      navigation.goBack();
+    }
+  }
+
+  async function handleFaceAdd() {
+    if (!facePicker) return;
+    try {
+      const ctrl = new NewEntryController(db, collectionRoot, category.id, { HokedexIngest, HokedexML });
+      await ctrl.commit(name, selectedTags, facePicker.pending);
+    } catch (e) {
+      console.error('[NewEntry] commit failed:', e);
+    } finally {
+      setFacePicker(null);
+      navigation.goBack();
+    }
+  }
+
+  function handleFaceDismiss() {
+    setFacePicker(null);
+    navigation.goBack();
+  }
+
   return (
     <View style={styles.root}>
+      {facePicker && (
+        <FacePickerModal
+          visible
+          imageUri={photoUri!}
+          crops={facePicker.crops}
+          onSelect={handleFaceSelect}
+          onAdd={handleFaceAdd}
+          onDismiss={handleFaceDismiss}
+          loading={faceEmbedding}
+        />
+      )}
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <Pressable onPress={() => navigation.goBack()} style={styles.backBtn} accessibilityLabel="Back">
           <MaterialIcons name="arrow-back" size={24} color="#fff" />

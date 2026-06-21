@@ -2,7 +2,7 @@ import { type DB } from '@op-engineering/op-sqlite';
 import { withTransaction } from '../db/tx';
 import { getEntry, listEntriesByCategory } from '../db/queries/entries';
 import { getProfilePhoto, setProfilePhoto, unsetAllProfilePhotos } from '../db/queries/photos';
-import { ingestImage } from './ingestion';
+import { ingestImage, commitIngest } from './ingestion';
 import type { Entry } from '../db/types';
 
 export type AttachResult = {
@@ -48,9 +48,8 @@ export class SearchController {
     const entry = this.getEntry(entryId);
     if (!entry) throw new Error('Entry not found');
 
-    const outcome = await ingestImage(
-      this.db,
-      this.nativeModules as Parameters<typeof ingestImage>[1],
+    const pending = await ingestImage(
+      this.nativeModules as Parameters<typeof ingestImage>[0],
       {
         imageUri,
         originalPath: null,
@@ -61,14 +60,21 @@ export class SearchController {
       },
     );
 
+    const { photoId } = await commitIngest(this.db, entryId, pending, this.collectionRoot);
+
     const hasProfile = !!getProfilePhoto(this.db, entryId);
     if (!hasProfile) {
       withTransaction(this.db, tx => {
         unsetAllProfilePhotos(tx, entryId);
-        setProfilePhoto(tx, outcome.photoId);
+        setProfilePhoto(tx, photoId);
       });
     }
 
-    return { status: outcome.status as AttachResult['status'] };
+    const status = pending.detection.type === 'NO_SUBJECT' ? 'reference_only'
+      : pending.detection.type === 'LOW_CONFIDENCE' ? 'low_confidence_warning'
+      : pending.detection.type === 'MULTI_SUBJECT' ? 'needs_face_selection'
+      : 'ok';
+
+    return { status: status as AttachResult['status'] };
   }
 }

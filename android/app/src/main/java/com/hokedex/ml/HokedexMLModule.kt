@@ -51,6 +51,25 @@ class HokedexMLModule(private val reactContext: ReactApplicationContext) :
         }
     }
 
+    @ReactMethod
+    fun embedCrop(imageUri: String, x: Double, y: Double, width: Double, height: Double, categoryId: String, promise: Promise) {
+        if (categoryId != "people") {
+            promise.reject("UNSUPPORTED_CATEGORY", "Category '$categoryId' is not supported")
+            return
+        }
+
+        executor.execute {
+            try {
+                val embedding = embedder.embedCrop(reactContext, imageUri, x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat())
+                val arr = Arguments.createArray()
+                embedding.forEach { arr.pushDouble(it.toDouble()) }
+                promise.resolve(arr)
+            } catch (e: Exception) {
+                promise.reject("EMBEDDING_ERROR", e.message, e)
+            }
+        }
+    }
+
     private fun DetectionResult.toWritableMap(): WritableMap = when (this) {
         is DetectionResult.NoSubject -> Arguments.createMap().apply {
             putString("type", "NO_SUBJECT")
