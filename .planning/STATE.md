@@ -9,7 +9,7 @@ hokédex — Moments Redesign
 ## Phase Status
 | Phase | Status |
 |-------|--------|
-| 1 — Schema, Interfaces & Conventions | in progress (plan 01 complete) |
+| 1 — Schema, Interfaces & Conventions | in progress (plan 02 complete) |
 | 2 — Navigation Shell & Home Screen | not started |
 | 3 — Camera Capture Path | not started |
 | 4 — Voice Capture, Type Inference & Timeline | not started |
@@ -38,10 +38,13 @@ hokédex — Moments Redesign
 - saved_places created before moments in 007 DDL (FK ordering requirement)
 - backfillMoments uses data migration version 2 (version 1 taken by backfillEncounters)
 - INSERT OR IGNORE in backfill ensures idempotency
+- [Phase 01]: Result<T> defined once in moments.ts, imported by rules.ts and resolvers.ts
+- [Phase 01]: Rule.evaluate returns Result<RuleResult> | null — null means rule does not apply
+- [Phase 01]: PlaceResolver.resolve is async to support GPS/network lookups in implementations
 
 ## Session
 - Last session: 2026-06-21
-- Stopped at: Completed 01-01-PLAN.md (DB schema foundation — moments tables, query modules, data migration)
+- Stopped at: Completed 01-02-PLAN.md (type contracts: Moment, Rule, PlaceResolver, CalendarEvent interfaces)
 
 ## Notes
 - Source plan: MOMENTS_PLAN.md
