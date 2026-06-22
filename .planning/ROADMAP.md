@@ -15,6 +15,7 @@ Windows 10 Mobile-inspired: flat, gradient backgrounds, bold typography, accent 
 - [x] **Phase 1: Schema, Interfaces & Conventions Foundation** ✓ 2026-06-22
 - [ ] **Phase 2: Camera-First Nav Shell** - Camera as root tab, 4-tab nav (Camera · Moments · People · Maps), Gallery bottom sheet scaffold, camera bottom bar
 - [ ] **Phase 3: Camera Capture Path** - Full viewfinder, capture → face detection → GPS + weather auto-attach → moment saved
+- [ ] **Phase 3.5: Scene Scan Mode** - Smart camera scan: toggle mode, zoom-stop trigger, face overlay, OCR cards, OSM nearby places, Maps deep links, opt-in object detection
 - [ ] **Phase 4: Moments Tab + Moment Detail** - Today · Calendar · Planner pivot; Moment Detail page with weather, location, people, split moment
 - [ ] **Phase 5: People Tab + Voice Capture** - Cluster view, person profile with moments + map, voice STT capture path
 - [ ] **Phase 6: Maps Tab + Calendar + Place Resolver** - Life map (OSM, all moment pins), calendar integration, share intent resolver
@@ -47,7 +48,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: Tab Navigator + stub screens (Camera · Moments · People · Maps, Settings hamburger)
+- [x] 02-01: Tab Navigator + stub screens (Camera · Moments · People · Maps, Settings hamburger)
 - [ ] 02-02: Camera screen layout + Gallery bottom sheet scaffold (Moments · People · Files pivot, open/close gesture)
 
 ### Phase 3: Camera Capture Path
@@ -68,6 +69,27 @@ Plans:
 - [ ] 03-02: GPS + weather auto-attach service (location, Open-Meteo, GeocoderModule for place name, DB migration for new columns)
 - [ ] 03-03: Face detection → confirm flow → MomentCaptureService.capture() atomic write with all metadata
 - [ ] 03-04: Voice mode capture branch — GPS + weather attach, source=voice moment save (R-CAM-10 gap closure)
+
+### Phase 3.5: Scene Scan Mode
+**Goal**: The scan button turns the camera into a scene-understanding viewport. Zoom-stop auto-triggers snapshot analysis — face match overlaid on bounding boxes, ML Kit OCR reads signs/ads/text, OSM Overpass surfaces nearby POIs as tappable place cards. All processing on-device or GPS-only. No cloud vision APIs. Opt-in object detection downloads EfficientDet via ModelManager.
+**Depends on**: Phase 3
+**Requirements**: R-SCAN-01, R-SCAN-02, R-SCAN-03, R-SCAN-04, R-SCAN-05, R-SCAN-06, R-SCAN-07, R-SCAN-08, R-SCAN-09, R-SCAN-10, R-SCAN-11, R-SCAN-12
+**Success Criteria**:
+  1. Tap scan button → active indicator appears; tap again → exits smart mode
+  2. Zoom and hold → overlay appears within ~1s showing face chips, OCR card, and/or place cards
+  3. Repoint camera → overlay clears, re-arms automatically
+  4. Tapping a known face chip navigates to their People profile
+  5. Tapping a place card opens Google Maps geo deep link
+  6. Tapping OCR card opens web search with extracted text
+  7. When nothing detected: fallback "Search nearby places" Maps card shown
+  8. Object detection disabled by default; enabling in Settings downloads model and shows labels
+  9. No network request contains image data
+**Plans**: 3 plans
+
+Plans:
+- [ ] 03.5-01: Smart mode toggle + zoom-stop debounce trigger in CameraScreen
+- [ ] 03.5-02: Scan analysis service — face match + ML Kit OCR + OSM Overpass (parallel), opt-in EfficientDet
+- [ ] 03.5-03: Scan overlay UI — face chips on bounding boxes, OCR card, place cards, fallback suggestion cards, tap handlers
 
 ### Phase 4: Moments Tab + Moment Detail
 **Goal**: Moments tab has working Today · Calendar · Planner pivot with real data. Today shows live weather, today's moments, upcoming events. Moment detail page shows full rich view. Planner shows streak + heatmap + drift alerts.

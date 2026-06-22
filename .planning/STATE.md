@@ -1,16 +1,33 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: active
+last_updated: "2026-06-22T22:15:00.000Z"
+progress:
+  total_phases: 8
+  completed_phases: 1
+  total_plans: 11
+  completed_plans: 5
+  percent: 14
+---
+
 # GSD Project State
 
 ## Project
+
 hokédex — Moments Redesign
 
 ## Current Phase
+
 2 — Camera-First Nav Shell (rebuild)
 
 ## Phase Status
+
 | Phase | Status |
 |-------|--------|
 | 1 — Schema, Interfaces & Conventions | complete |
-| 2 — Camera-First Nav Shell | not started (rebuilt — old plans invalidated) |
+| 2 — Camera-First Nav Shell | in progress (1/2 plans) |
 | 3 — Camera Capture Path | not started |
 | 4 — Moments Tab + Moment Detail | not started |
 | 5 — People Tab + Voice Capture | not started |
@@ -18,6 +35,7 @@ hokédex — Moments Redesign
 | 7 — Gallery Ingestion, Memory Generation & Intelligence | not started |
 
 ## Config
+
 - mode: interactive
 - depth: standard
 - parallelization: true
@@ -28,6 +46,7 @@ hokédex — Moments Redesign
 - model_profile: balanced
 
 ## Planning Files
+
 - PROJECT.md ✓
 - REQUIREMENTS.md ✓
 - ROADMAP.md ✓
@@ -35,6 +54,7 @@ hokédex — Moments Redesign
 - STATE.md ✓
 
 ## Decisions
+
 - saved_places created before moments in 007 DDL (FK ordering requirement)
 - backfillMoments uses data migration version 2 (version 1 taken by backfillEncounters)
 - INSERT OR IGNORE in backfill ensures idempotency
@@ -48,12 +68,18 @@ hokédex — Moments Redesign
 - [Phase 02]: Added User to icons/index.ts barrel as it was missing but needed for Contact option icon
 - [Phase 02]: Easing.sin used instead of Easing.sine (correct reanimated API name)
 - [Phase 02]: RadialFAB from 02-01 preserved in HomeScreen during 02-02 replacement
+- [Phase 02/02-01]: Camera tab is first route (default) with tabBarStyle: { display: 'none' } per-route, not globally
+- [Phase 02/02-01]: Menu icon from lucide-react-native used for header hamburger
+- [Phase 02/02-01]: Image icon for Moments tab, Map icon for Maps tab — added to barrel export
+- [Phase 02/02-01]: RootNavigator.tsx required no changes — it already renders TabNavigator via Tabs stack screen
 
 ## Session
+
 - Last session: 2026-06-22
-- Stopped at: Major UX redesign — camera-first nav, 4 tabs (Camera · Moments · People · Maps), no Home screen, Planner inside Moments tab, roadmap + requirements rewritten. Phase 2 plans invalidated and need replanning.
+- Stopped at: Phase 2 executing — plan 02-01 complete (Tab Navigator + stubs), plan 02-02 (Camera screen + Gallery sheet) next
 
 ## Notes
+
 - Source plan: MOMENTS_PLAN.md
 - All decisions from MOMENTS_PLAN.md "Decisions (closed)" table are locked
 - CONVENTIONS.md must be read by all executor agents before writing code
