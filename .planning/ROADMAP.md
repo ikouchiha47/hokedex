@@ -7,7 +7,7 @@ Six phases transforming hokédex from an encounter-logger into a full relationsh
 ## Phases
 
 - [ ] **Phase 1: Schema, Interfaces & Conventions Foundation** - DB migrations, TypeScript contracts, service shells (Facade/Registry stubs)
-- [ ] **Phase 2: Navigation Shell & Home Screen** - 4-tab nav, weather cover, radial FAB, event strip
+- [x] **Phase 2: Navigation Shell & Home Screen** - 4-tab nav, weather cover, radial FAB, event strip (completed 2026-06-22)
 - [ ] **Phase 2.1: Proximity & Group Detection (INSERTED)** - GPS geofence → BLE advertise/scan → group session confirmation — parallel with Phases 3–5
 - [ ] **Phase 3: Camera Capture Path** - Camera → face detection → face picker → moment saved to DB
 - [ ] **Phase 4: Voice Capture, Type Inference & Timeline Feed** - Voice STT → type inference → Timeline chronological feed
