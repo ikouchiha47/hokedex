@@ -15,6 +15,7 @@ export {
   Home,
   List,
   MapPin,
+  Menu,
   Mic,
   Phone,
   Plus,
