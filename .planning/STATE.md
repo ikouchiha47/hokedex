@@ -4,18 +4,18 @@
 hokédex — Moments Redesign
 
 ## Current Phase
-2 — Navigation Shell & Home Screen
+2 — Camera-First Nav Shell (rebuild)
 
 ## Phase Status
 | Phase | Status |
 |-------|--------|
 | 1 — Schema, Interfaces & Conventions | complete |
-| 2 — Navigation Shell & Home Screen | in progress (plan 01 complete) |
+| 2 — Camera-First Nav Shell | not started (rebuilt — old plans invalidated) |
 | 3 — Camera Capture Path | not started |
-| 4 — Voice Capture, Type Inference & Timeline | not started |
-| 5 — People, Planner, Special Dates & Calendar | not started |
-| 6 — Map, Place Resolvers, Notifications & Gallery | not started |
-| 7 — Graph View | deferred |
+| 4 — Moments Tab + Moment Detail | not started |
+| 5 — People Tab + Voice Capture | not started |
+| 6 — Maps Tab + Calendar + Place Resolver | not started |
+| 7 — Gallery Ingestion, Memory Generation & Intelligence | not started |
 
 ## Config
 - mode: interactive
@@ -50,8 +50,8 @@ hokédex — Moments Redesign
 - [Phase 02]: RadialFAB from 02-01 preserved in HomeScreen during 02-02 replacement
 
 ## Session
-- Last session: 2026-06-21
-- Stopped at: Completed 02-01-PLAN.md (navigation shell: TabNavigator, 4 stub screens, Tabs as root)
+- Last session: 2026-06-22
+- Stopped at: Major UX redesign — camera-first nav, 4 tabs (Camera · Moments · People · Maps), no Home screen, Planner inside Moments tab, roadmap + requirements rewritten. Phase 2 plans invalidated and need replanning.
 
 ## Notes
 - Source plan: MOMENTS_PLAN.md
