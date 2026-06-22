@@ -21,6 +21,7 @@ export {
   Mic,
   Phone,
   Plus,
+  ScanFace,
   Search,
   Settings,
   Trash2,
