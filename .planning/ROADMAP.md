@@ -61,12 +61,13 @@ Plans:
   4. E2E-05 (no face) creates moment with GPS + weather, zero moment_people
   5. Moment row visible in sqlite3 with lat/lon, weather_temp, weather_condition populated
   6. Voice mode accessible from camera bottom bar — records and creates moment
-**Plans**: 3 plans
+**Plans**: 4 plans
 
 Plans:
 - [ ] 03-01: Live viewfinder + camera bottom bar (gallery thumbnail, capture button, face-scan, mode switcher)
 - [ ] 03-02: GPS + weather auto-attach service (location, Open-Meteo, GeocoderModule for place name, DB migration for new columns)
 - [ ] 03-03: Face detection → confirm flow → MomentCaptureService.capture() atomic write with all metadata
+- [ ] 03-04: Voice mode capture branch — GPS + weather attach, source=voice moment save (R-CAM-10 gap closure)
 
 ### Phase 4: Moments Tab + Moment Detail
 **Goal**: Moments tab has working Today · Calendar · Planner pivot with real data. Today shows live weather, today's moments, upcoming events. Moment detail page shows full rich view. Planner shows streak + heatmap + drift alerts.
