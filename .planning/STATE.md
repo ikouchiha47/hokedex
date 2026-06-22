@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: active
-last_updated: "2026-06-22T22:15:00.000Z"
+status: complete
+last_updated: "2026-06-22T22:45:00.000Z"
 progress:
   total_phases: 8
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 11
-  completed_plans: 5
-  percent: 14
+  completed_plans: 6
+  percent: 27
 ---
 
 # GSD Project State
@@ -27,7 +27,7 @@ hokédex — Moments Redesign
 | Phase | Status |
 |-------|--------|
 | 1 — Schema, Interfaces & Conventions | complete |
-| 2 — Camera-First Nav Shell | in progress (1/2 plans) |
+| 2 — Camera-First Nav Shell | complete |
 | 3 — Camera Capture Path | not started |
 | 4 — Moments Tab + Moment Detail | not started |
 | 5 — People Tab + Voice Capture | not started |
@@ -72,11 +72,15 @@ hokédex — Moments Redesign
 - [Phase 02/02-01]: Menu icon from lucide-react-native used for header hamburger
 - [Phase 02/02-01]: Image icon for Moments tab, Map icon for Maps tab — added to barrel export
 - [Phase 02/02-01]: RootNavigator.tsx required no changes — it already renders TabNavigator via Tabs stack screen
+- [Phase 02/02-02]: ScanFace icon from lucide-react-native added to barrel export
+- [Phase 02/02-02]: GalleryBottomSheet uses PanResponder (not Gesture Handler) — built into React Native
+- [Phase 02/02-02]: Reanimated v4: useSharedValue + useAnimatedStyle + withSpring — no useAnimatedGestureHandler (removed in v4)
+- [Phase 02/02-02]: CameraBottomBar is pure presentational — all state managed by CameraScreen
 
 ## Session
 
 - Last session: 2026-06-22
-- Stopped at: Phase 2 executing — plan 02-01 complete (Tab Navigator + stubs), plan 02-02 (Camera screen + Gallery sheet) next
+- Stopped at: Phase 2 complete — all 2 plans executed, camera-first nav shell built. Ready for Phase 3 (Camera Capture Path).
 
 ## Notes
 

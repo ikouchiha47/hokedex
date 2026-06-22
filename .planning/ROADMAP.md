@@ -13,7 +13,7 @@ Windows 10 Mobile-inspired: flat, gradient backgrounds, bold typography, accent 
 ## Phases
 
 - [x] **Phase 1: Schema, Interfaces & Conventions Foundation** ✓ 2026-06-22
-- [ ] **Phase 2: Camera-First Nav Shell** - Camera as root tab, 4-tab nav (Camera · Moments · People · Maps), Gallery bottom sheet scaffold, camera bottom bar
+- [x] **Phase 2: Camera-First Nav Shell** ✓ 2026-06-22 - Camera as root tab, 4-tab nav (Camera · Moments · People · Maps), Gallery bottom sheet scaffold, camera bottom bar
 - [ ] **Phase 3: Camera Capture Path** - Full viewfinder, capture → face detection → GPS + weather auto-attach → moment saved
 - [ ] **Phase 3.5: Scene Scan Mode** - Smart camera scan: toggle mode, zoom-stop trigger, face overlay, OCR cards, OSM nearby places, Maps deep links, opt-in object detection
 - [ ] **Phase 4: Moments Tab + Moment Detail** - Today · Calendar · Planner pivot; Moment Detail page with weather, location, people, split moment
@@ -49,7 +49,7 @@ Plans:
 
 Plans:
 - [x] 02-01: Tab Navigator + stub screens (Camera · Moments · People · Maps, Settings hamburger)
-- [ ] 02-02: Camera screen layout + Gallery bottom sheet scaffold (Moments · People · Files pivot, open/close gesture)
+- [x] 02-02: Camera screen layout + Gallery bottom sheet scaffold (Moments · People · Files pivot, open/close gesture)
 
 ### Phase 3: Camera Capture Path
 **Goal**: Full camera capture flow on device. Viewfinder live. Capture → GPS + weather auto-attach → face detection → face picker → person confirm/create → moment saved. E2E-01 through E2E-05 pass manually.
