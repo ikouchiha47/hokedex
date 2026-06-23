@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Phase 02 complete
-last_updated: "2026-06-23T14:10:11.765Z"
+status: Phase 03 complete
+last_updated: "2026-06-23T14:17:33.741Z"
 progress:
   total_phases: 8
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 9
-  completed_plans: 5
-  percent: 25
+  completed_plans: 9
+  percent: 38
 ---
 
 # GSD Project State
@@ -20,7 +20,7 @@ hokédex — Moments Redesign
 
 ## Current Phase
 
-2 — Camera-First Nav Shell (rebuild)
+3 — Camera Capture Path
 
 ## Phase Status
 
@@ -28,7 +28,7 @@ hokédex — Moments Redesign
 |-------|--------|
 | 1 — Schema, Interfaces & Conventions | complete |
 | 2 — Camera-First Nav Shell | complete |
-| 3 — Camera Capture Path | not started |
+| 3 — Camera Capture Path | complete |
 | 4 — Moments Tab + Moment Detail | not started |
 | 5 — People Tab + Voice Capture | not started |
 | 6 — Maps Tab + Calendar + Place Resolver | not started |
@@ -55,6 +55,12 @@ hokédex — Moments Redesign
 
 ## Decisions
 
+- [Phase 03]: Migration 012 creates 4 tables (moment_faces, processing_queue, moment_groups, moment_group_members) with FKs and indexes
+- [Phase 03]: GapClusterService.GAP_THRESHOLD_MS = 3600000 (1 hour) for session clustering
+- [Phase 03]: RegroupService uses idle/running/queued state machine — merge-only, never deletes groups
+- [Phase 03]: Capture path enqueues processing job inside moment transaction — non-blocking by design
+- [Phase 03]: Face annotation moved from capture to Moments screen — face chips link to EntryDetail or NewEntry
+- [Phase 03]: FaceProcessingWorker drains queue on idle+charging every 6 hours — registered with KEEP policy
 - saved_places created before moments in 007 DDL (FK ordering requirement)
 - backfillMoments uses data migration version 2 (version 1 taken by backfillEncounters)
 - INSERT OR IGNORE in backfill ensures idempotency
@@ -79,8 +85,8 @@ hokédex — Moments Redesign
 
 ## Session
 
-- Last session: 2026-06-22
-- Stopped at: Phase 2 complete — all 2 plans executed, camera-first nav shell built. Ready for Phase 3 (Camera Capture Path).
+- Last session: 2026-06-23
+- Stopped at: Phase 3 complete — all 4 plans executed, full camera capture path built. Ready for Phase 4 (Moments Tab + Moment Detail).
 
 ## Notes
 
