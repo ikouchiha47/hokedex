@@ -13,11 +13,14 @@ module.exports = {
         '@op-engineering/op-sqlite': '<rootDir>/src/db/__tests__/helpers/op-sqlite-mock.ts',
       },
     },
-    // Service unit tests — pure TS logic, no RN deps
+    // Pure TS unit tests (services + procedural helpers, no RN deps)
     {
       displayName: 'services',
       testEnvironment: 'node',
-      testMatch: ['<rootDir>/src/services/__tests__/**/*.test.ts'],
+      testMatch: [
+        '<rootDir>/src/services/__tests__/**/*.test.ts',
+        '<rootDir>/src/components/weather/scene/__tests__/**/*.test.ts',
+      ],
       transform: {
         '^.+\\.sql$': '<rootDir>/jest-transform-sql.js',
         '^.+\\.(ts|tsx)$': 'babel-jest',

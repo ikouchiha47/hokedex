@@ -82,13 +82,7 @@ export default function App() {
     return () => sub.remove();
   }, []);
 
-  // Update check — runs once when app becomes ready
-  useEffect(() => {
-    if (boot.status !== 'ready') return;
-    checkForUpdate()
-      .then(info => { if (info.available) setUpdateAvailable(info.latestVersion); })
-      .catch(() => {});
-  }, [boot.status]);
+  // Update check moved to CollectionListScreen notification banner
 
   // Hot-launch share intent: navigate directly when app already running
   useEffect(() => {
@@ -137,17 +131,6 @@ export default function App() {
           navigationRef={navigationRef}
           initialSharedImageUri={pendingSharedUri ?? undefined}
         />
-        {updateAvailable && (
-          <Pressable
-            style={styles.updateBanner}
-            onPress={() => Linking.openURL(APK_DOWNLOAD_URL)}
-          >
-            <Text style={styles.updateText}>↑ {updateAvailable} available — tap to download</Text>
-            <Pressable onPress={() => setUpdateAvailable(null)} hitSlop={12}>
-              <Text style={styles.updateDismiss}>✕</Text>
-            </Pressable>
-          </Pressable>
-        )}
       </AppProvider>
     );
   }

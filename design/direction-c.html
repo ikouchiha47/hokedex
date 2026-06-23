@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>hokédex — Gradient Depth</title>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #060608;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  padding: 48px 40px 80px;
+  color: #fff;
+}
+
+h1 { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #444; margin-bottom: 6px; }
+.page-title { font-size: 36px; font-weight: 900; color: #fff; letter-spacing: -0.03em; margin-bottom: 6px; }
+.page-sub { font-size: 13px; color: #444; margin-bottom: 52px; }
+
+.row { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 60px; }
+.col { display: flex; flex-direction: column; gap: 10px; }
+.screen-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: #444; padding-left: 4px; }
+
+/* ── PHONE ── */
+.phone {
+  width: 295px; height: 636px;
+  border-radius: 48px;
+  overflow: hidden;
+  background: #090a1c;
+  border: 1.5px solid #14163a;
+  display: flex; flex-direction: column;
+  position: relative; flex-shrink: 0;
+}
+
+.sb {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 24px 0;
+  font-size: 10px; font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  position: relative; z-index: 10; flex-shrink: 0;
+}
+
+/* ── WEATHER COVER ── */
+.weather-cover {
+  flex-shrink: 0;
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* sunny */
+.weather-sunny {
+  background: linear-gradient(180deg, #1a3a6e 0%, #2d6abf 40%, #f59e0b 100%);
+}
+
+/* rainy */
+.weather-rainy {
+  background: linear-gradient(180deg, #1a1a2e 0%, #2d3561 50%, #3d4a6b 100%);
+}
+
+/* sunny elements */
+.sun {
+  position: absolute;
+  width: 70px; height: 70px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fde68a 30%, #f59e0b 60%, transparent 80%);
+  top: 30px; right: 40px;
+  box-shadow: 0 0 40px rgba(245,158,11,0.8), 0 0 80px rgba(245,158,11,0.3);
+  animation: pulse-sun 3s ease-in-out infinite;
+}
+
+@keyframes pulse-sun {
+  0%, 100% { box-shadow: 0 0 40px rgba(245,158,11,0.8), 0 0 80px rgba(245,158,11,0.3); }
+  50% { box-shadow: 0 0 60px rgba(245,158,11,1), 0 0 120px rgba(245,158,11,0.5); }
+}
+
+.sun-ray {
+  position: absolute;
+  background: rgba(253,230,138,0.3);
+  border-radius: 2px;
+  transform-origin: center;
+}
+
+.clouds {
+  position: absolute;
+  bottom: 20px; left: 0; right: 0;
+}
+
+.cloud {
+  position: absolute;
+  background: rgba(255,255,255,0.15);
+  border-radius: 40px;
+  backdrop-filter: blur(2px);
+}
+
+/* flowers */
+.flowers {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 30px;
+  display: flex; gap: 6px;
+  padding: 0 16px;
+  align-items: flex-end;
+}
+
+.flower {
+  font-size: 18px;
+  animation: sway 2s ease-in-out infinite;
+}
+
+.flower:nth-child(2) { animation-delay: 0.3s; }
+.flower:nth-child(3) { animation-delay: 0.6s; }
+.flower:nth-child(4) { animation-delay: 0.9s; }
+.flower:nth-child(5) { animation-delay: 0.2s; }
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+/* rain */
+.rain-container {
+  position: absolute; inset: 0; overflow: hidden;
+}
+
+.raindrop {
+  position: absolute;
+  width: 1px;
+  background: linear-gradient(transparent, rgba(147,197,253,0.6));
+  border-radius: 1px;
+  animation: fall linear infinite;
+}
+
+@keyframes fall {
+  0% { transform: translateY(-20px); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(210px); opacity: 0; }
+}
+
+/* weather info overlay */
+.weather-info {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 10px 20px 12px;
+  background: linear-gradient(transparent, rgba(9,10,28,0.7));
+  display: flex; align-items: flex-end; justify-content: space-between;
+  z-index: 5;
+}
+
+.weather-temp-big {
+  font-size: 38px; font-weight: 900; color: #fff;
+  line-height: 1; letter-spacing: -0.03em;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+.weather-right { text-align: right; }
+.weather-loc { font-size: 11px; color: rgba(255,255,255,0.8); font-weight: 600; }
+.weather-desc { font-size: 9px; color: rgba(255,255,255,0.55); margin-top: 2px; }
+
+/* ── EVENT STRIP ── */
+.event-strip {
+  flex-shrink: 0;
+  padding: 9px 20px;
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; gap: 6px;
+}
+
+.event-strip-label {
+  font-size: 9px; font-weight: 800;
+  color: #c0170d; text-transform: uppercase;
+  letter-spacing: 0.08em; flex-shrink: 0;
+}
+
+.event-strip-text {
+  font-size: 11px; color: rgba(255,255,255,0.8);
+  font-weight: 600; flex: 1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.event-strip-more {
+  font-size: 9px; color: rgba(255,255,255,0.4);
+  flex-shrink: 0; display: flex; align-items: center; gap: 2px;
+}
+
+.event-strip-more i { width: 10px; height: 10px; stroke: rgba(255,255,255,0.4); }
+
+/* ── CAPTURE AREA ── */
+.capture-area {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  position: relative; gap: 28px;
+}
+
+.what-is-on {
+  font-size: 13px; font-weight: 600;
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+
+/* FAB + radial icons */
+.fab-wrap {
+  position: relative;
+  width: 120px; height: 120px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.fab-center {
+  width: 54px; height: 54px; border-radius: 50%;
+  background: linear-gradient(135deg, #c0170d, #e8372a);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 0 6px rgba(192,23,13,0.12), 0 4px 24px rgba(192,23,13,0.55);
+  z-index: 5; position: relative;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.fab-center i { width: 22px; height: 22px; stroke: #fff; }
+
+/* radial children — shown in expanded state */
+.fab-option {
+  position: absolute;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 2px;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fab-option i { width: 16px; height: 16px; stroke: rgba(255,255,255,0.85); }
+.fab-option span { font-size: 7px; color: rgba(255,255,255,0.6); }
+
+/* collapsed state — all options at center, invisible */
+.fab-wrap.collapsed .fab-option {
+  transform: translate(0, 0) scale(0);
+  opacity: 0;
+}
+
+/* expanded state — fan out in circle */
+.fab-wrap.expanded .fab-option { opacity: 1; }
+
+/* phone — top-left ~210° */
+.fab-opt-contact {
+  top: 50%; left: 50%;
+  margin-top: -21px; margin-left: -21px;
+}
+.fab-wrap.expanded .fab-opt-contact {
+  transform: translate(-58px, -30px) scale(1);
+}
+
+/* mic — bottom ~270° (below center) */
+.fab-opt-mic {
+  top: 50%; left: 50%;
+  margin-top: -21px; margin-left: -21px;
+}
+.fab-wrap.expanded .fab-opt-mic {
+  transform: translate(-21px, 54px) scale(1);
+}
+
+/* camera — top-right ~330° */
+.fab-opt-camera {
+  top: 50%; left: 50%;
+  margin-top: -21px; margin-left: -21px;
+}
+.fab-wrap.expanded .fab-opt-camera {
+  transform: translate(22px, -30px) scale(1);
+}
+
+/* memory card */
+.memory-card {
+  margin: 0 20px;
+  flex-shrink: 0;
+  background: rgba(192,23,13,0.08);
+  border: 1px solid rgba(192,23,13,0.2);
+  border-radius: 14px;
+  padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+
+.memory-thumb {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: linear-gradient(135deg, #1a0808, #2d0c0c);
+  flex-shrink: 0; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+
+.memory-label { font-size: 11px; font-weight: 700; color: #fff; }
+.memory-sub { font-size: 9px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+.memory-actions { display: flex; gap: 6px; margin-left: auto; }
+.memory-btn {
+  font-size: 9px; font-weight: 700; padding: 4px 8px;
+  border-radius: 8px; border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.05);
+}
+.memory-btn.primary { background: #c0170d; border-color: #c0170d; color: #fff; }
+
+/* ── NAV ── */
+.nav {
+  height: 58px;
+  background: rgba(6,6,14,0.97);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; justify-content: space-around;
+  flex-shrink: 0; padding: 0 8px;
+  position: relative; z-index: 10;
+}
+
+.nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  opacity: 0.4; flex: 1;
+}
+.nav-item.on { opacity: 1; }
+.nav-item i { width: 20px; height: 20px; stroke: #fff; }
+.nav-item.on i { stroke: #c0170d; }
+.nav-item span { font-size: 8px; color: rgba(255,255,255,0.6); }
+.nav-item.on span { color: #c0170d; }
+
+/* ── SHARED ── */
+.orb { position: absolute; border-radius: 50%; pointer-events: none; }
+.orb-a { width: 260px; height: 260px; top: -80px; left: -60px;
+  background: radial-gradient(circle, rgba(192,23,13,0.3) 0%, transparent 65%); }
+.orb-b { width: 180px; height: 180px; top: 10px; right: -50px;
+  background: radial-gradient(circle, rgba(80,0,160,0.15) 0%, transparent 70%); }
+
+.section-label {
+  font-size: 9px; text-transform: uppercase; letter-spacing: 0.13em;
+  color: rgba(255,255,255,0.6); margin-bottom: 8px;
+}
+
+.card {
+  background: rgba(255,255,255,0.045);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px; padding: 12px 14px;
+}
+
+.card-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.card-time { font-size: 8px; color: rgba(255,255,255,0.5); margin-left: auto; }
+.card-text { font-size: 11px; color: rgba(255,255,255,0.75); line-height: 1.5; }
+.card-people { display: flex; align-items: center; gap: 4px; margin-top: 8px; }
+.av-xs {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #1a1f3a; border: 1px solid rgba(255,255,255,0.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px; font-weight: 700; color: rgba(255,255,255,0.6);
+  margin-right: -4px;
+}
+.card-names { font-size: 9px; color: rgba(255,255,255,0.55); margin-left: 8px; }
+
+.pill { font-size: 8px; font-weight: 800; border-radius: 7px; padding: 3px 8px; }
+.p-dinner { background: #78350f; color: #fde68a; }
+.p-coffee { background: #1c1917; color: #a8a29e; }
+.p-work   { background: #1e3a5f; color: #93c5fd; }
+.p-gym    { background: #14532d; color: #86efac; }
+.p-party  { background: #3b1c6e; color: #c4b5fd; }
+.p-call   { background: #0c3244; color: #7dd3fc; }
+
+.av {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: #141630;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; font-weight: 900; color: #fff;
+  border: 2px solid rgba(255,255,255,0.07);
+}
+.av.glow { border-color: #c0170d; box-shadow: 0 0 0 3px rgba(192,23,13,0.15), 0 0 14px rgba(192,23,13,0.4); }
+.person { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.av-label { font-size: 9px; color: rgba(255,255,255,0.55); margin-top: 4px; }
+.av-count { font-size: 8px; color: #c0170d; }
+
+.heatmap { display: grid; grid-template-columns: repeat(14, 1fr); gap: 3px; }
+.hm { aspect-ratio: 1; border-radius: 3px; background: rgba(255,255,255,0.05); }
+.hm-1 { background: rgba(192,23,13,0.2); }
+.hm-2 { background: rgba(192,23,13,0.5); }
+.hm-3 { background: rgba(192,23,13,0.85); box-shadow: 0 0 5px rgba(192,23,13,0.4); }
+
+.streak-card {
+  background: rgba(192,23,13,0.1);
+  border: 1px solid rgba(192,23,13,0.22);
+  border-radius: 18px; padding: 12px 14px;
+  display: flex; align-items: center; gap: 12px;
+}
+.streak-num { font-size: 40px; font-weight: 900; color: #c0170d; line-height: 1; text-shadow: 0 0 20px rgba(192,23,13,0.5); }
+.streak-label { font-size: 13px; font-weight: 800; color: #fff; }
+.streak-sub { font-size: 9px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+.date-card {
+  background: rgba(192,23,13,0.08);
+  border: 1px solid rgba(192,23,13,0.2);
+  border-radius: 14px; padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.date-label { font-size: 11px; font-weight: 700; color: #fff; }
+.date-sub { font-size: 9px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+.date-badge { margin-left: auto; font-size: 8px; font-weight: 800; background: #c0170d; color: #fff; border-radius: 6px; padding: 3px 7px; }
+
+.body { flex: 1; overflow: hidden; padding: 0 20px; position: relative; z-index: 2; display: flex; flex-direction: column; gap: 10px; }
+
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.cal-day { aspect-ratio: 1; border-radius: 6px; background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; font-size: 8px; color: rgba(255,255,255,0.4); position: relative; }
+.cal-day.has { background: rgba(192,23,13,0.18); color: rgba(255,255,255,0.8); }
+.cal-day.has.many { background: rgba(192,23,13,0.5); color: #fff; }
+.cal-day.today { border: 1.5px solid #c0170d; color: #fff; }
+.cal-dot { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 3px; height: 3px; border-radius: 50%; background: #c0170d; }
+
+.drift-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px; padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.drift-av {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: #141630; border: 1.5px solid rgba(255,255,255,0.05);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.3);
+  flex-shrink: 0;
+}
+.drift-name { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.55); }
+.drift-meta { font-size: 9px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+
+/* ── TIMELINE FEED ── */
+.feed-card {
+  background: rgba(255,255,255,0.045);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.feed-photo {
+  width: 100%; height: 120px;
+  object-fit: cover;
+  background: linear-gradient(135deg, #1a1040, #0d1a40);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px;
+}
+
+.feed-carousel {
+  display: flex; gap: 2px; height: 100px;
+}
+
+.feed-carousel-item {
+  flex: 1; background: linear-gradient(135deg, #1a1040, #0d1a40);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+}
+
+.feed-meta { padding: 10px 12px 12px; }
+.feed-top { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.feed-text { font-size: 11px; color: rgba(255,255,255,0.7); line-height: 1.4; }
+.feed-people { display: flex; align-items: center; gap: 4px; margin-top: 7px; }
+
+/* ── MAP PLACEHOLDER ── */
+.map-screen {
+  flex: 1; position: relative; overflow: hidden;
+  background: #0d1020;
+}
+
+.map-bg {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.map-road-h {
+  position: absolute; left: 0; right: 0; height: 2px;
+  background: rgba(255,255,255,0.08);
+}
+
+.map-road-v {
+  position: absolute; top: 0; bottom: 0; width: 2px;
+  background: rgba(255,255,255,0.08);
+}
+
+.map-pin {
+  position: absolute;
+  display: flex; flex-direction: column; align-items: center;
+}
+
+.map-pin-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: #c0170d;
+  box-shadow: 0 0 0 3px rgba(192,23,13,0.2), 0 0 12px rgba(192,23,13,0.6);
+}
+
+.map-pin-label {
+  margin-top: 4px;
+  background: rgba(9,10,28,0.9);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px; padding: 2px 6px;
+  font-size: 8px; color: rgba(255,255,255,0.8);
+  white-space: nowrap;
+}
+
+.map-toggle {
+  position: absolute; top: 10px; right: 10px; z-index: 5;
+  display: flex; background: rgba(9,10,28,0.9); border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1); overflow: hidden;
+}
+
+.map-toggle-btn {
+  padding: 5px 10px; font-size: 8px; font-weight: 700;
+  color: rgba(255,255,255,0.4);
+}
+
+.map-toggle-btn.on {
+  background: rgba(192,23,13,0.2); color: #fff;
+}
+
+/* ── CLUSTER ── */
+.cluster-wrap { position: relative; height: 210px; flex-shrink: 0; }
+.cluster-center {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50px; height: 50px; border-radius: 50%;
+  background: linear-gradient(135deg, #c0170d, #e8372a);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10;
+  box-shadow: 0 0 0 6px rgba(192,23,13,0.1), 0 0 24px rgba(192,23,13,0.55);
+}
+.cluster-center i { width: 22px; height: 22px; stroke: #fff; }
+.cp { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.cp-av { border-radius: 50%; background: #141630; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #fff; }
+.cp-name { font-size: 9px; color: rgba(255,255,255,0.55); }
+.cp-dots { display: flex; gap: 2px; }
+.cp-dot { width: 4px; height: 4px; border-radius: 50%; background: rgba(255,255,255,0.15); }
+.cp-dot.on { background: #c0170d; }
+
+</style>
+</head>
+<body>
+
+<h1>hokédex</h1>
+<div class="page-title">Gradient depth</div>
+<div class="page-sub">Contacts · Timeline · People · Planner</div>
+
+<!-- ════════════════════════════════
+     ROW 1 — HOME (2 states) + TIMELINE
+════════════════════════════════ -->
+<div class="row">
+
+  <!-- HOME — sunny, event today, FAB collapsed -->
+  <div class="col">
+    <div class="screen-label">Home — sunny, event today</div>
+    <div class="phone">
+      <div class="orb orb-a"></div><div class="orb orb-b"></div>
+      <div class="sb" style="position:absolute;top:0;left:0;right:0;z-index:20"><span style="color:rgba(255,255,255,0.6)">9:41</span><span style="color:rgba(255,255,255,0.4)">●●●</span></div>
+
+      <!-- weather cover -->
+      <div class="weather-cover weather-sunny" style="height:220px">
+        <div class="sun"></div>
+        <!-- sun rays -->
+        <div class="sun-ray" style="width:2px;height:30px;top:10px;right:72px;transform:rotate(0deg)"></div>
+        <div class="sun-ray" style="width:2px;height:24px;top:20px;right:95px;transform:rotate(-45deg)"></div>
+        <div class="sun-ray" style="width:2px;height:24px;top:42px;right:108px;transform:rotate(-90deg)"></div>
+        <!-- clouds -->
+        <div class="cloud" style="width:70px;height:22px;bottom:70px;left:20px"></div>
+        <div class="cloud" style="width:44px;height:16px;bottom:80px;left:50px;opacity:0.6"></div>
+        <!-- flowers -->
+        <div class="flowers">
+          <div class="flower">🌸</div>
+          <div class="flower">🌼</div>
+          <div class="flower">🌸</div>
+          <div class="flower">🌻</div>
+          <div class="flower">🌼</div>
+          <div class="flower">🌸</div>
+        </div>
+        <div class="weather-info">
+          <div class="weather-temp-big">28°</div>
+          <div class="weather-right">
+            <div class="weather-loc">Bengaluru</div>
+            <div class="weather-desc">Sunny · feels like 31°</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- event strip — has event today -->
+      <div class="event-strip">
+        <div class="event-strip-label">Today</div>
+        <div class="event-strip-text">Dinner with Aarav at Toit</div>
+        <div class="event-strip-more">
+          See more <i data-lucide="chevron-right"></i>
+        </div>
+      </div>
+
+      <!-- capture area -->
+      <div class="capture-area">
+        <div class="what-is-on">What is on?</div>
+
+        <!-- FAB collapsed -->
+        <div class="fab-wrap collapsed">
+          <div class="fab-option fab-opt-contact">
+            <i data-lucide="phone"></i>
+            <span>Contact</span>
+          </div>
+          <div class="fab-option fab-opt-mic">
+            <i data-lucide="mic"></i>
+            <span>Voice</span>
+          </div>
+          <div class="fab-option fab-opt-camera">
+            <i data-lucide="camera"></i>
+            <span>Camera</span>
+          </div>
+          <div class="fab-center">
+            <i data-lucide="plus"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav">
+        <div class="nav-item"><i data-lucide="book-user"></i><span>Contacts</span></div>
+        <div class="nav-item"><i data-lucide="clock"></i><span>Timeline</span></div>
+        <div class="nav-item"><i data-lucide="users"></i><span>People</span></div>
+        <div class="nav-item"><i data-lucide="calendar"></i><span>Planner</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOME — rainy, FAB expanded, memory card -->
+  <div class="col">
+    <div class="screen-label">Home — rainy, FAB open, memory card</div>
+    <div class="phone">
+      <div class="orb orb-a"></div><div class="orb orb-b"></div>
+      <div class="sb" style="position:absolute;top:0;left:0;right:0;z-index:20"><span style="color:rgba(255,255,255,0.6)">9:41</span><span style="color:rgba(255,255,255,0.4)">●●●</span></div>
+
+      <!-- weather — rainy -->
+      <div class="weather-cover weather-rainy" style="height:220px">
+        <div class="rain-container">
+          <div class="raindrop" style="left:10%;height:18px;animation-duration:0.9s;animation-delay:0s"></div>
+          <div class="raindrop" style="left:20%;height:14px;animation-duration:1.1s;animation-delay:0.2s"></div>
+          <div class="raindrop" style="left:33%;height:20px;animation-duration:0.8s;animation-delay:0.1s"></div>
+          <div class="raindrop" style="left:45%;height:16px;animation-duration:1.0s;animation-delay:0.4s"></div>
+          <div class="raindrop" style="left:57%;height:18px;animation-duration:0.85s;animation-delay:0.05s"></div>
+          <div class="raindrop" style="left:67%;height:14px;animation-duration:1.2s;animation-delay:0.3s"></div>
+          <div class="raindrop" style="left:78%;height:20px;animation-duration:0.95s;animation-delay:0.15s"></div>
+          <div class="raindrop" style="left:88%;height:16px;animation-duration:1.0s;animation-delay:0.25s"></div>
+          <div class="raindrop" style="left:25%;height:12px;animation-duration:0.75s;animation-delay:0.5s"></div>
+          <div class="raindrop" style="left:52%;height:22px;animation-duration:1.1s;animation-delay:0.35s"></div>
+          <div class="raindrop" style="left:72%;height:14px;animation-duration:0.9s;animation-delay:0.45s"></div>
+        </div>
+        <div class="weather-info">
+          <div class="weather-temp-big">19°</div>
+          <div class="weather-right">
+            <div class="weather-loc">Bengaluru</div>
+            <div class="weather-desc">Raining · feels like 17°</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- event strip — nothing today, something tomorrow -->
+      <div class="event-strip">
+        <div class="event-strip-label">Tomrw</div>
+        <div class="event-strip-text">Sneha's birthday</div>
+        <div class="event-strip-more">
+          See more <i data-lucide="chevron-right"></i>
+        </div>
+      </div>
+
+      <!-- capture area — FAB expanded -->
+      <div class="capture-area" style="gap:20px">
+        <div class="what-is-on">What is on?</div>
+
+        <div class="fab-wrap expanded">
+          <div class="fab-option fab-opt-contact">
+            <i data-lucide="phone"></i>
+            <span>Contact</span>
+          </div>
+          <div class="fab-option fab-opt-mic">
+            <i data-lucide="mic"></i>
+            <span>Voice</span>
+          </div>
+          <div class="fab-option fab-opt-camera">
+            <i data-lucide="camera"></i>
+            <span>Camera</span>
+          </div>
+          <div class="fab-center" style="transform:rotate(45deg)">
+            <i data-lucide="plus"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- memory card -->
+      <div class="memory-card" style="margin-bottom:12px">
+        <div class="memory-thumb">🎬</div>
+        <div style="flex:1">
+          <div class="memory-label">Yesterday's memory ready</div>
+          <div class="memory-sub">6 photos · Aarav, Sneha</div>
+        </div>
+        <div class="memory-actions">
+          <div class="memory-btn">Edit</div>
+          <div class="memory-btn primary">Share</div>
+        </div>
+      </div>
+
+      <div class="nav">
+        <div class="nav-item"><i data-lucide="book-user"></i><span>Contacts</span></div>
+        <div class="nav-item"><i data-lucide="clock"></i><span>Timeline</span></div>
+        <div class="nav-item"><i data-lucide="users"></i><span>People</span></div>
+        <div class="nav-item"><i data-lucide="calendar"></i><span>Planner</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="col">
+    <div class="screen-label">Timeline</div>
+    <div class="phone">
+      <div class="orb orb-a"></div><div class="orb orb-b"></div>
+      <div class="sb"><span>9:41</span><span>●●●</span></div>
+
+      <div style="padding:10px 20px 8px;flex-shrink:0;position:relative;z-index:2;display:flex;align-items:center">
+        <div style="font-size:28px;font-weight:900;letter-spacing:-0.03em;color:#fff;flex:1">Timeline</div>
+        <div style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center">
+          <i data-lucide="map-pin" style="width:15px;height:15px;stroke:rgba(255,255,255,0.5)"></i>
+        </div>
+      </div>
+
+      <div style="flex:1;overflow:hidden;padding:0 16px;display:flex;flex-direction:column;gap:8px;padding-top:8px;position:relative;z-index:2">
+
+        <!-- card with carousel (group photo) -->
+        <div class="feed-card">
+          <div class="feed-carousel">
+            <div class="feed-carousel-item">🍽️</div>
+            <div class="feed-carousel-item">🥂</div>
+            <div class="feed-carousel-item">😄</div>
+            <div class="feed-carousel-item" style="background:rgba(0,0,0,0.5);font-size:13px;font-weight:800;color:rgba(255,255,255,0.7)">+3</div>
+          </div>
+          <div class="feed-meta">
+            <div class="feed-top">
+              <span class="pill p-dinner">Dinner</span>
+              <span style="font-size:8px;color:rgba(255,255,255,0.4);margin-left:auto">8:30 pm · Toit</span>
+            </div>
+            <div class="feed-text">The usual table. Long overdue.</div>
+            <div class="feed-people">
+              <div class="av-xs">A</div><div class="av-xs">S</div>
+              <span class="card-names">Aarav, Sneha</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- text-only moment -->
+        <div class="feed-card">
+          <div class="feed-meta" style="padding:12px">
+            <div class="feed-top">
+              <span class="pill p-coffee">Coffee</span>
+              <span style="font-size:8px;color:rgba(255,255,255,0.4);margin-left:auto">11:00 am</span>
+            </div>
+            <div class="feed-text">Blue Tokai. She just moved to Bengaluru.</div>
+            <div class="feed-people">
+              <div class="av-xs">P</div>
+              <span class="card-names">Priya — first time ✨</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- single photo moment -->
+        <div class="feed-card">
+          <div class="feed-photo">🏋️</div>
+          <div class="feed-meta">
+            <div class="feed-top">
+              <span class="pill p-gym">Gym</span>
+              <span style="font-size:8px;color:rgba(255,255,255,0.4);margin-left:auto">7:00 am</span>
+            </div>
+            <div class="feed-people">
+              <div class="av-xs">M</div>
+              <span class="card-names">Meera</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="nav">
+        <div class="nav-item"><i data-lucide="book-user"></i><span>Contacts</span></div>
+        <div class="nav-item on"><i data-lucide="clock"></i><span>Timeline</span></div>
+        <div class="nav-item"><i data-lucide="users"></i><span>People</span></div>
+        <div class="nav-item"><i data-lucide="calendar"></i><span>Planner</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════
+     ROW 2 — PEOPLE + PLANNER
+════════════════════════════════ -->
+<div class="row">
+
+  <!-- PEOPLE — cluster -->
+  <div class="col">
+    <div class="screen-label">People — cluster</div>
+    <div class="phone">
+      <div class="orb orb-a"></div><div class="orb orb-b"></div>
+      <div class="sb"><span>9:41</span><span>●●●</span></div>
+
+      <div style="padding:10px 20px 8px;flex-shrink:0">
+        <div style="font-size:28px;font-weight:900;letter-spacing:-0.03em;color:#fff;margin-bottom:8px">People</div>
+        <div style="display:flex;gap:4px">
+          <div style="flex:1;text-align:center;font-size:9px;font-weight:700;padding:5px 0;border-radius:8px;background:rgba(192,23,13,0.15);border:1px solid rgba(192,23,13,0.35);color:#fff">Cluster</div>
+          <div style="flex:1;text-align:center;font-size:9px;font-weight:700;padding:5px 0;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:rgba(255,255,255,0.4)">Contacts</div>
+        </div>
+      </div>
+
+      <div class="cluster-wrap">
+        <div class="cluster-center"><i data-lucide="plus"></i></div>
+        <div class="cp" style="top:6px;left:50%;transform:translateX(-50%)">
+          <div class="cp-av" style="width:50px;height:50px;font-size:19px;border:2.5px solid #c0170d;box-shadow:0 0 0 3px rgba(192,23,13,0.15),0 0 16px rgba(192,23,13,0.4)">A</div>
+          <div class="cp-name">Aarav</div>
+          <div class="cp-dots"><div class="cp-dot on"></div><div class="cp-dot on"></div><div class="cp-dot on"></div></div>
+        </div>
+        <div class="cp" style="top:50%;right:18px;transform:translateY(-50%)">
+          <div class="cp-av" style="width:42px;height:42px;font-size:15px;border:1.5px solid #f59e0b;box-shadow:0 0 8px rgba(245,158,11,0.3)">S</div>
+          <div class="cp-name">Sneha</div>
+          <div class="cp-dots"><div class="cp-dot on"></div><div class="cp-dot on"></div><div class="cp-dot"></div></div>
+        </div>
+        <div class="cp" style="bottom:14px;right:46px">
+          <div class="cp-av" style="width:36px;height:36px;font-size:13px;border:1.5px solid rgba(255,255,255,0.15)">M</div>
+          <div class="cp-name">Meera</div>
+          <div class="cp-dots"><div class="cp-dot on"></div><div class="cp-dot"></div><div class="cp-dot"></div></div>
+        </div>
+        <div class="cp" style="bottom:14px;left:46px;opacity:0.28">
+          <div class="cp-av" style="width:32px;height:32px;font-size:12px;border:1.5px solid rgba(255,255,255,0.08)">R</div>
+          <div class="cp-name">Rohan</div>
+        </div>
+        <div class="cp" style="top:50%;left:18px;transform:translateY(-50%)">
+          <div class="cp-av" style="width:38px;height:38px;font-size:14px;border:1.5px solid rgba(255,255,255,0.12)">P</div>
+          <div class="cp-name">Priya</div>
+          <div class="cp-dots"><div class="cp-dot on"></div><div class="cp-dot"></div><div class="cp-dot"></div></div>
+        </div>
+      </div>
+
+      <div class="body">
+        <div class="section-label">Recent</div>
+        <div class="card" style="display:flex;align-items:center;gap:10px;padding:10px 14px">
+          <div class="av glow" style="width:36px;height:36px;font-size:13px;flex-shrink:0">A</div>
+          <div style="flex:1"><div style="font-size:11px;font-weight:700;color:#fff">Aarav M.</div><div style="font-size:9px;color:rgba(255,255,255,0.5);margin-top:2px">3 days ago · 12 moments</div></div>
+          <i data-lucide="chevron-right" style="width:13px;height:13px;stroke:rgba(255,255,255,0.2)"></i>
+        </div>
+        <div class="drift-card">
+          <div class="drift-av">R</div>
+          <div style="flex:1"><div class="drift-name">Rohan D.</div><div class="drift-meta">28 days — drifting</div></div>
+          <i data-lucide="alert-circle" style="width:13px;height:13px;stroke:rgba(192,23,13,0.6)"></i>
+        </div>
+      </div>
+
+      <div class="nav">
+        <div class="nav-item"><i data-lucide="book-user"></i><span>Contacts</span></div>
+        <div class="nav-item"><i data-lucide="clock"></i><span>Timeline</span></div>
+        <div class="nav-item on"><i data-lucide="users"></i><span>People</span></div>
+        <div class="nav-item"><i data-lucide="calendar"></i><span>Planner</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PEOPLE — contacts view -->
+  <div class="col">
+    <div class="screen-label">People — contacts</div>
+    <div class="phone">
+      <div class="orb orb-a"></div><div class="orb orb-b"></div>
+      <div class="sb"><span>9:41</span><span>●●●</span></div>
+
+      <div style="padding:10px 20px 8px;flex-shrink:0">
+        <div style="font-size:28px;font-weight:900;letter-spacing:-0.03em;color:#fff;margin-bottom:8px">People</div>
+        <div style="display:flex;gap:4px;margin-bottom:10px">
+          <div style="flex:1;text-align:center;font-size:9px;font-weight:700;padding:5px 0;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:rgba(255,255,255,0.4)">Cluster</div>
+          <div style="flex:1;text-align:center;font-size:9px;font-weight:700;padding:5px 0;border-radius:8px;background:rgba(192,23,13,0.15);border:1px solid rgba(192,23,13,0.35);color:#fff">Contacts</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:7px 12px;display:flex;align-items:center;gap:8px">
+          <i data-lucide="search" style="width:13px;height:13px;stroke:rgba(255,255,255,0.35)"></i>
+          <span style="font-size:11px;color:rgba(255,255,255,0.3)">Search people…</span>
+        </div>
+      </div>
+
+      <div style="flex:1;overflow:hidden;padding:0 20px">
+        <div style="font-size:9px;color:rgba(255,255,255,0.3);font-weight:700;padding:8px 0 4px">A</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+          <div class="av glow" style="width:36px;height:36px;font-size:13px;flex-shrink:0">A</div>
+          <div style="flex:1"><div style="font-size:12px;font-weight:700;color:#fff">Aarav M.</div><div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:1px">Friend · 12 moments</div></div>
+          <i data-lucide="chevron-right" style="width:13px;height:13px;stroke:rgba(255,255,255,0.2)"></i>
+        </div>
+
+        <div style="font-size:9px;color:rgba(255,255,255,0.3);font-weight:700;padding:8px 0 4px">M</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+          <div class="av" style="width:36px;height:36px;font-size:13px;flex-shrink:0">M</div>
+          <div style="flex:1"><div style="font-size:12px;font-weight:700;color:#fff">Meera K.</div><div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:1px">Colleague · 4 moments</div></div>
+          <i data-lucide="chevron-right" style="width:13px;height:13px;stroke:rgba(255,255,255,0.2)"></i>
+        </div>
+
+        <div style="font-size:9px;color:rgba(255,255,255,0.3);font-weight:700;padding:8px 0 4px">P</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+          <div class="av" style="width:36px;height:36px;font-size:13px;flex-shrink:0;border-color:rgba(255,255,255,0.15)">P</div>
+          <div style="flex:1"><div style="font-size:12px;font-weight:700;color:#fff">Priya S.</div><div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:1px">New · 1 moment</div></div>
+          <i data-lucide="chevron-right" style="width:13px;height:13px;stroke:rgba(255,255,255,0.2)"></i>
+        </div>
+
+        <div style="font-size:9px;color:rgba(255,255,255,0.3);font-weight:700;padding:8px 0 4px">R</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;opacity:0.35">
+          <div class="av" style="width:36px;height:36px;font-size:13px;flex-shrink:0">R</div>
+          <div style="flex:1"><div style="font-size:12px;font-weight:700;color:#fff">Rohan D.</div><div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:1px">Drifting · 28 days ago</div></div>
+          <i data-lucide="chevron-right" style="width:13px;height:13px;stroke:rgba(255,255,255,0.2)"></i>
+        </div>
+
+        <div style="font-size:9px;color:rgba(255,255,255,0.3);font-weight:700;padding:8px 0 4px">S</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0">
+          <div class="av" style="width:36px;height:36px;font-size:13px;flex-shrink:0;border-color:#f59e0b;box-shadow:0 0 8px rgba(245,158,11,0.3)">S</div>
+          <div style="flex:1"><div style="font-size:12px;font-weight:700;color:#fff">Sneha R.</div><div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:1px">Friend · 7 moments</div></div>
+          <i data-lucide="chevron-right" style="width:13px;height:13px;stroke:rgba(255,255,255,0.2)"></i>
+        </div>
+      </div>
+
+      <div class="nav">
+        <div class="nav-item"><i data-lucide="book-user"></i><span>Contacts</span></div>
+        <div class="nav-item"><i data-lucide="clock"></i><span>Timeline</span></div>
+        <div class="nav-item on"><i data-lucide="users"></i><span>People</span></div>
+        <div class="nav-item"><i data-lucide="calendar"></i><span>Planner</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLANNER -->
+  <div class="col">
+    <div class="screen-label">Planner</div>
+    <div class="phone">
+      <div class="orb orb-a"></div><div class="orb orb-b"></div>
+      <div class="sb"><span>9:41</span><span>●●●</span></div>
+
+      <div style="padding:10px 20px 12px;flex-shrink:0">
+        <div style="font-size:28px;font-weight:900;letter-spacing:-0.03em;color:#fff">Planner</div>
+      </div>
+
+      <div class="body" style="gap:12px">
+
+        <div class="streak-card">
+          <div class="streak-num">12</div>
+          <div>
+            <div class="streak-label">day streak</div>
+            <div class="streak-sub">Haven't missed since June 9.</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="section-label">June 2026</div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px">
+            <div style="font-size:7px;color:rgba(255,255,255,0.3);text-align:center">M</div><div style="font-size:7px;color:rgba(255,255,255,0.3);text-align:center">T</div><div style="font-size:7px;color:rgba(255,255,255,0.3);text-align:center">W</div><div style="font-size:7px;color:rgba(255,255,255,0.3);text-align:center">T</div><div style="font-size:7px;color:rgba(255,255,255,0.3);text-align:center">F</div><div style="font-size:7px;color:rgba(255,255,255,0.3);text-align:center">S</div><div style="font-size:7px;color:rgba(255,255,255,0.3);text-align:center">S</div>
+          </div>
+          <div class="cal-grid">
+            <div class="cal-day">1</div><div class="cal-day has">2<div class="cal-dot"></div></div><div class="cal-day">3</div><div class="cal-day has many">4<div class="cal-dot"></div></div><div class="cal-day has">5<div class="cal-dot"></div></div><div class="cal-day">6</div><div class="cal-day has">7<div class="cal-dot"></div></div>
+            <div class="cal-day">8</div><div class="cal-day has">9<div class="cal-dot"></div></div><div class="cal-day has">10<div class="cal-dot"></div></div><div class="cal-day">11</div><div class="cal-day has many">12<div class="cal-dot"></div></div><div class="cal-day has">13<div class="cal-dot"></div></div><div class="cal-day">14</div>
+            <div class="cal-day has">15<div class="cal-dot"></div></div><div class="cal-day">16</div><div class="cal-day has">17<div class="cal-dot"></div></div><div class="cal-day has many">18<div class="cal-dot"></div></div><div class="cal-day has">19<div class="cal-dot"></div></div><div class="cal-day has">20<div class="cal-dot"></div></div><div class="cal-day today">21<div class="cal-dot"></div></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="section-label">Coming up</div>
+          <div class="date-card" style="margin-bottom:7px">
+            <div style="font-size:18px">🎂</div>
+            <div><div class="date-label">Sneha's Birthday</div><div class="date-sub">Tomorrow · Jul 3</div></div>
+            <div class="date-badge">1d</div>
+          </div>
+          <div class="date-card">
+            <div style="font-size:18px">🎂</div>
+            <div><div class="date-label">Aarav's Birthday</div><div class="date-sub">Aug 12 · turning 29</div></div>
+            <div class="date-badge">52d</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="section-label">Drifting</div>
+          <div class="drift-card">
+            <div class="drift-av">R</div>
+            <div style="flex:1"><div class="drift-name">Rohan D.</div><div class="drift-meta">28 days without a moment</div></div>
+            <i data-lucide="alert-circle" style="width:13px;height:13px;stroke:rgba(192,23,13,0.6)"></i>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="nav">
+        <div class="nav-item"><i data-lucide="book-user"></i><span>Contacts</span></div>
+        <div class="nav-item"><i data-lucide="clock"></i><span>Timeline</span></div>
+        <div class="nav-item"><i data-lucide="users"></i><span>People</span></div>
+        <div class="nav-item on"><i data-lucide="calendar"></i><span>Planner</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

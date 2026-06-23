@@ -15,17 +15,6 @@ data class ModelSpec(
     val fallbackUrl: String? = null,
 )
 
-val MODELS = listOf(
-    ModelSpec(
-        filename = "blaze_face_full_range.tflite",
-        url = "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_full_range/float16/1/blaze_face_full_range.tflite",
-    ),
-    ModelSpec(
-        filename = "facenet_512.tflite",
-        url = "https://github.com/parodevstudios/hokedex/releases/download/v1.5.0/facenet_512.tflite",
-    ),
-)
-
 val MODEL_SPECS: Map<String, List<ModelSpec>> = mapOf(
     "people" to listOf(
         ModelSpec(
@@ -48,7 +37,7 @@ object ModelManager {
         File(modelsDir(context), filename).absolutePath
 
     fun modelsReady(context: Context): Boolean =
-        MODELS.all { File(modelsDir(context), it.filename).exists() }
+        MODEL_SPECS.values.flatten().distinctBy { it.filename }.all { File(modelsDir(context), it.filename).exists() }
 
     fun modelsReady(context: Context, categoryId: String): Boolean =
         MODEL_SPECS[categoryId]?.all { File(modelsDir(context), it.filename).exists() } ?: false
@@ -64,7 +53,7 @@ object ModelManager {
         onDone: () -> Unit,
         onError: (msg: String) -> Unit,
     ) {
-        val missing = MODELS.filter { !File(modelsDir(context), it.filename).exists() }
+        val missing = MODEL_SPECS.values.flatten().distinctBy { it.filename }.filter { !File(modelsDir(context), it.filename).exists() }
         if (missing.isEmpty()) { onDone(); return }
 
         Thread {

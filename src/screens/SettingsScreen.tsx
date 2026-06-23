@@ -1,8 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
   Pressable,
+  Switch,
   StyleSheet,
   StatusBar,
   TextInput,
@@ -17,8 +18,9 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useApp } from '../AppContext';
 import { clearPin, verifyPin, setPin } from '../services/pin';
 import { checkForUpdate } from '../services/updateCheck';
-import { APP_VERSION, APK_DOWNLOAD_URL } from '../config';
+import { APP_VERSION, apkUrlForVersion } from '../config';
 import { Fonts } from '../theme/fonts';
+import { getWeatherSettings, setSettingValue } from '../db/queries/app_settings';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -30,7 +32,11 @@ export function SettingsScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const { onReset } = route.params ?? {};
-  const { collectionRoot } = useApp();
+  const { collectionRoot, db } = useApp();
+
+  // Weather state
+  const [weatherEnabled, setWeatherEnabled] = useState(true);
+  const [loadingWeatherSetting, setLoadingWeatherSetting] = useState(true);
 
   // Change PIN state
   const [showChangePIN, setShowChangePIN] = useState(false);
@@ -48,6 +54,22 @@ export function SettingsScreen() {
   const [updateStatus, setUpdateStatus] = useState<'idle' | 'latest' | 'available'>('idle');
   const [latestVersion, setLatestVersion] = useState('');
 
+
+  useEffect(() => {
+    getWeatherSettings(db)
+      .then(settings => setWeatherEnabled(settings.enabled))
+      .finally(() => setLoadingWeatherSetting(false));
+  }, [db]);
+
+  const handleWeatherToggle = useCallback(async (enabled: boolean) => {
+    setWeatherEnabled(enabled);
+    try {
+      await setSettingValue(db, 'weather_enabled', enabled ? 'true' : 'false');
+    } catch {
+      setWeatherEnabled(!enabled);
+      Alert.alert('Setting failed', 'Could not update weather setting.');
+    }
+  }, [db]);
 
   const handleChangePIN = useCallback(async () => {
     setPinError('');
@@ -92,7 +114,7 @@ export function SettingsScreen() {
         },
       ],
     );
-  }, [resetPhrase, collectionRoot]);
+  }, [resetPhrase, collectionRoot, onReset]);
 
   return (
     <View style={styles.root}>
@@ -106,6 +128,26 @@ export function SettingsScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+
+        {/* Weather */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Weather</Text>
+          <View style={styles.settingRow}>
+            <View style={styles.settingCopy}>
+              <Text style={styles.settingTitle}>Show weather</Text>
+              <Text style={styles.settingDescription}>
+                Uses rounded location only. Exact GPS coordinates stay on this device.
+              </Text>
+            </View>
+            <Switch
+              value={weatherEnabled}
+              onValueChange={handleWeatherToggle}
+              disabled={loadingWeatherSetting}
+              trackColor={{ false: '#333', true: '#7c3aed' }}
+              thumbColor="#fff"
+            />
+          </View>
+        </View>
 
         {/* Change PIN */}
         <View style={styles.section}>
@@ -179,7 +221,7 @@ export function SettingsScreen() {
               style={({ pressed }) => [styles.dangerBtn, pressed && styles.dangerBtnPressed]}
               onPress={() => setShowReset(true)}
             >
-              <Text style={styles.dangerBtnText}>Reset app &amp; delete collection</Text>
+              <Text style={styles.dangerBtnText}>Reset app & delete collection</Text>
             </Pressable>
           ) : (
             <View style={styles.form}>
@@ -220,7 +262,7 @@ export function SettingsScreen() {
           <View style={styles.versionRow}>
             <Text style={styles.versionText}>hokédex v{APP_VERSION}</Text>
             {updateStatus === 'available' && (
-              <Pressable onPress={() => Linking.openURL(APK_DOWNLOAD_URL)}>
+              <Pressable onPress={() => Linking.openURL(apkUrlForVersion(latestVersion))}>
                 <Text style={styles.updateLink}>↑ {latestVersion} — download</Text>
               </Pressable>
             )}
@@ -283,6 +325,31 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   dangerTitle: { color: '#dc2626' },
+  settingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#111',
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  settingCopy: {
+    flex: 1,
+    marginRight: 12,
+  },
+  settingTitle: {
+    fontSize: 15,
+    color: '#ffffff',
+    fontFamily: Fonts.inter.regular,
+  },
+  settingDescription: {
+    fontSize: 11,
+    color: '#777',
+    fontFamily: Fonts.inter.regular,
+    marginTop: 2,
+    lineHeight: 15,
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',

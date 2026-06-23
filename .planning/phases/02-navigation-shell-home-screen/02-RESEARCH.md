@@ -1,22 +1,34 @@
-# Phase 2: Navigation Shell & Home Screen - Research
+# Phase 02: Camera-First Nav Shell - Research
 
-**Researched:** 2026-06-21
-**Domain:** React Navigation v7 bottom tabs, SVG/CSS animation in React Native, radial FAB, Lucide icons
+**Researched:** 2026-06-22
+**Domain:** React Navigation v7 bottom tabs, Reanimated v4 bottom sheet, pivot control, camera layout
 **Confidence:** HIGH
 
 ---
 
 ## Summary
 
-The existing codebase uses `@react-navigation/native` v7.3.3 and `@react-navigation/native-stack` v7.17.5 but does NOT have `@react-navigation/bottom-tabs` installed. Adding the bottom tab navigator requires installing that package and restructuring `RootNavigator.tsx` to nest a tab navigator inside the existing stack navigator.
+Phase 2 replaces the existing 4-tab navigator (Home · Timeline · People · Planner) with a
+new 4-tab navigator (Camera · Moments · People · Maps). The Camera tab becomes the default
+(index 0) and shows a full-screen viewfinder layout with an overlaid bottom bar. The
+existing `HomeScreen`, `PlannerScreen`, and `TimelineScreen` are either deleted or kept as
+stubs renamed for the new tabs. No external dependencies need to be installed — everything
+required is already present in `package.json`.
 
-`lucide-react-native` is NOT installed. Phase 1 is expected to create `src/components/icons/index.ts` as a re-export barrel — Phase 2 consumes that barrel and must not import lucide directly in screens.
+The Gallery bottom sheet must be built with RN's `PanResponder` + `react-native-reanimated`
+`useSharedValue`/`useAnimatedStyle` because `@gorhom/bottom-sheet` and
+`react-native-gesture-handler` are NOT installed. The pivot (Moments · People · Files) is
+built with a `ScrollView` + manual `useState` tab tracking — `react-native-pager-view` is
+also not installed.
 
-`react-native-reanimated` v4.4.1 and `react-native-svg` v15.15.5 are already installed. These are the correct tools for the FAB radial animation and the SVG weather cover respectively. No new animation library is needed.
+The Windows 10 Mobile design language calls for flat backgrounds, no card shadows, bold
+text labels, and an accent-coloured underline indicator on the active pivot item. This is
+fully achievable with core RN `StyleSheet` — no additional styling library needed beyond
+what is already in the project.
 
-The design mockup (`design/direction-c.html`) is the authoritative visual spec. All pixel values, colors, and animation transforms are taken directly from it.
-
-**Primary recommendation:** Install `@react-navigation/bottom-tabs` v7.x (matching existing nav v7 suite), wrap the four tab screens in a bottom tab navigator nested inside the existing stack, and build the weather cover as a pure `react-native-svg` + `react-native-reanimated` component with no external dependency.
+**Primary recommendation:** Wire the new `TabNavigator` first (plan 02-01), then build the
+Camera screen layout and Gallery bottom sheet (plan 02-02). Both plans can proceed in
+sequence on the same branch because they touch non-overlapping files.
 
 ---
 
@@ -25,223 +37,234 @@ The design mockup (`design/direction-c.html`) is the authoritative visual spec. 
 
 | ID | Description | Research Support |
 |----|-------------|-----------------|
-| R-NAV-01 | 4 bottom tabs: Home · Timeline · People · Planner | @react-navigation/bottom-tabs createBottomTabNavigator |
-| R-NAV-02 | + FAB toggles radial arc of 3 capture icons, 200ms collapse/expand | react-native-reanimated useSharedValue + withTiming for translate/scale/opacity |
-| R-NAV-03 | Timeline tab header includes map-pin icon button (in-screen toggle, not a tab) | Stack screenOptions headerRight prop or custom header component |
-| R-NAV-04 | Memories and Settings NOT in bottom nav; Settings via header icon | Top-level stack handles Settings; tabs contain only the 4 screens |
-| R-HOME-01 | Full-bleed animated weather cover — sun/rain/snow/storm, SVG/CSS only | react-native-svg Svg/Circle/Rect + reanimated for pulse/fall animations |
-| R-HOME-02 | Event strip: Today/Tomrw label + event title → Planner; hidden if no events in 2 days | Pure RN View, service function returns next event or null |
-| R-HOME-03 | "What is on?" center-aligned label when no memory card active | Static Text component, rendered conditionally by service result |
-| R-HOME-04 | Memory card when eventful day scorer flags threshold: thumbnail + CTA | Conditional render, scorer is a service pure function |
+| R-NAV-01 | 4 bottom tabs: Camera · Moments · People · Maps. Camera is default (index 0). | Tab order is controlled by declaration order in `<Tab.Navigator>`. First declared = default. |
+| R-NAV-02 | Camera tab shows full-screen viewfinder. No Home screen. No weather cover. | `HomeScreen` is replaced. Camera tab `headerShown: false` + `tabBarStyle: { display: 'none' }` on the Camera screen hides the tab bar for full-bleed layout. |
+| R-NAV-03 | Bottom bar on Camera screen: gallery thumbnail · capture button · face-scan button. Mode labels: video · voice · contact above. | Absolute-positioned `View` at bottom of Camera screen — sits inside the tab content area, outside the tab bar. |
+| R-NAV-04 | Settings NOT in bottom nav — accessed via hamburger in top-right. | Settings screen stays in `RootStackParamList`. Tab navigator `screenOptions` removes the Settings tab icon. Each tab screen gets a `headerRight` hamburger. |
+| R-NAV-05 | Gallery bottom sheet: tap gallery thumbnail or swipe up. Pivot: Moments · People · Files. Swipe down to collapse. | Built with `PanResponder` + Reanimated `useSharedValue`. No third-party sheet library available. |
 </phase_requirements>
 
 ---
 
 ## Standard Stack
 
-### Core
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| @react-navigation/bottom-tabs | ^7.x | Bottom tab navigator | Matches existing nav v7 suite; official package |
-| react-native-reanimated | 4.4.1 (already installed) | FAB arc animation, weather pulse | Native driver, works on New Architecture |
-| react-native-svg | 15.15.5 (already installed) | Weather SVG elements (sun, raindrops) | Already a dependency, zero install cost |
-| lucide-react-native | latest (Phase 1 installs) | Tab icons + FAB icons | Locked decision; consumed via src/components/icons/index.ts |
+### Core (all already installed — zero new dependencies)
 
-### Supporting
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| react-native-safe-area-context | ^5.8.0 (already installed) | Tab bar safe area insets | Always; prevents tab bar content under home indicator |
+| Library | Installed Version | Purpose | Notes |
+|---------|------------------|---------|-------|
+| `@react-navigation/bottom-tabs` | 7.18.2 | 4-tab navigator | Already in use; just reconfigure |
+| `@react-navigation/native-stack` | 7.17.5 | Root stack (Settings, modals) | Unchanged |
+| `react-native-reanimated` | 4.4.1 | Bottom sheet animation | `useSharedValue`, `useAnimatedStyle`, `withSpring` |
+| `react-native-safe-area-context` | 5.8.0 | Safe area insets for bottom bar | `useSafeAreaInsets` |
+| `lucide-react-native` | 1.21.0 | Icons (via `src/components/icons/index.ts`) | Add `Menu`, `Video`, `Contact`, `Image` if not present |
 
-### Not Needed
-- `react-native-gesture-handler`: not required for simple Pressable-based FAB
-- Any third-party weather or animation library: design calls for SVG/CSS — banned by R-HOME-01
+### NOT Available (do not attempt to use)
 
-**Installation required:**
-```bash
-npm install @react-navigation/bottom-tabs
-```
+| Library | Status | Impact |
+|---------|--------|--------|
+| `@gorhom/bottom-sheet` | NOT installed | Cannot use — build custom sheet |
+| `react-native-gesture-handler` | NOT installed | No `GestureDetector`/`Gesture.Pan()` — use `PanResponder` |
+| `react-native-pager-view` | NOT installed | No native page swipe — use `ScrollView` pivot |
 
-No native rebuild required — bottom-tabs is JS-only; it uses already-installed `react-native-screens` and `react-native-safe-area-context`.
+**Installation:** No new packages required.
 
 ---
 
 ## Architecture Patterns
 
-### Navigator Structure
-
-```
-App.tsx
-└── RootNavigator (NavigationContainer + Stack.Navigator)
-    ├── TabNavigator (screen: "Tabs") ← new
-    │   ├── HomeScreen       (tab: Home)
-    │   ├── TimelineScreen   (tab: Timeline)
-    │   ├── PeopleScreen     (tab: People)
-    │   └── PlannerScreen    (tab: Planner)
-    ├── NewEntry             (modal/stack push)
-    ├── EntryDetail          (stack push)
-    ├── Settings             (stack push — NOT a tab)
-    ├── SearchResult
-    └── ShareIntake
-```
-
-The tab navigator is a single screen named `"Tabs"` in the root stack. Navigating to Settings is `navigation.navigate('Settings')` from any tab screen — same as any other modal.
-
-### Pattern 1: Bottom Tab Navigator Setup
-
-**What:** createBottomTabNavigator with custom tabBarIcon, tabBarStyle, and headerRight.
-**When to use:** Exactly as defined in R-NAV-01/04.
-
-```typescript
-// Source: @react-navigation/bottom-tabs official docs
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-
-const Tab = createBottomTabNavigator<TabParamList>();
-
-export type TabParamList = {
-  Home: undefined;
-  Timeline: undefined;
-  People: undefined;
-  Planner: undefined;
-};
-
-function TabNavigator() {
-  return (
-    <Tab.Navigator
-      screenOptions={{
-        tabBarStyle: {
-          backgroundColor: 'rgba(6,6,14,0.97)',
-          borderTopColor: 'rgba(255,255,255,0.06)',
-          height: 58,
-        },
-        tabBarActiveTintColor: '#c0170d',
-        tabBarInactiveTintColor: 'rgba(255,255,255,0.4)',
-        headerShown: false,
-      }}
-    >
-      <Tab.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{ tabBarIcon: ({ color, size }) => <HomeIcon color={color} size={size} /> }}
-      />
-      {/* ... remaining tabs */}
-    </Tab.Navigator>
-  );
-}
-```
-
-### Pattern 2: Radial FAB with Reanimated
-
-**What:** Three child `Pressable` items positioned at center of FAB container, animated to translated positions on press.
-**When to use:** R-NAV-02. The mockup specifies exact translate values.
-
-```typescript
-// Source: react-native-reanimated docs — useSharedValue + withTiming
-import { useSharedValue, withTiming, useAnimatedStyle } from 'react-native-reanimated';
-
-const expanded = useSharedValue(false);
-
-const contactStyle = useAnimatedStyle(() => ({
-  transform: [
-    { translateX: withTiming(expanded.value ? -58 : 0, { duration: 200 }) },
-    { translateY: withTiming(expanded.value ? -30 : 0, { duration: 200 }) },
-    { scale: withTiming(expanded.value ? 1 : 0, { duration: 200 }) },
-  ],
-  opacity: withTiming(expanded.value ? 1 : 0, { duration: 200 }),
-}));
-// mic: translateX -21, translateY 54
-// camera: translateX 22, translateY -30
-```
-
-All three options start collapsed at center (scale 0, opacity 0). FAB center `Pressable` toggles `expanded.value`. The + icon rotates 45deg to X on expand (optional but matches common pattern).
-
-### Pattern 3: SVG Weather Cover
-
-**What:** `react-native-svg` Svg element as full-width fixed-height (200px) cover. Animated elements use `Animated.Value` from `react-native` or reanimated `useSharedValue`.
-**When to use:** R-HOME-01.
-
-```typescript
-// Source: react-native-svg docs
-import Svg, { Circle, Rect, Defs, LinearGradient, Stop } from 'react-native-svg';
-import Animated from 'react-native-reanimated';
-
-// Sun: animated Circle with pulsing shadow via Animated style on wrapping View
-// Raindrops: array of Animated.Rect elements with staggered translateY animations
-// Clouds: semi-transparent Rect/Path elements
-```
-
-Weather state (`'sunny' | 'rainy' | 'snow' | 'thunderstorm'`) is a prop to `WeatherCover`. In Phase 2 this is hardcoded/placeholder (static prop). The actual weather API integration is a later phase.
-
-### Pattern 4: Event Strip Service
-
-**What:** Pure function `getNextEvent(db, today): NextEvent | null`.
-**When to use:** R-HOME-02. Strip renders only when function returns non-null.
-
-```typescript
-// src/services/homeService.ts
-export type NextEvent = {
-  label: 'Today' | 'Tomrw';
-  title: string;
-};
-
-export function getNextEvent(db: DB, today: Date): NextEvent | null {
-  // query events within next 2 days
-  // return null if none found
-}
-```
-
-HomeScreen calls `getNextEvent`, renders strip conditionally. No if-logic in the component.
-
-### Pattern 5: Timeline Header with Map Pin
-
-**What:** Custom header for Timeline tab with map-pin icon in `headerRight`. Toggle in-screen (local state in TimelineScreen), not a navigation action.
-**When to use:** R-NAV-03.
-
-```typescript
-// In Tab.Screen options for Timeline:
-options={({ navigation }) => ({
-  headerShown: true,
-  headerRight: () => (
-    <Pressable onPress={() => {/* trigger map toggle via ref or context */}}>
-      <MapPinIcon color="#fff" size={20} />
-    </Pressable>
-  ),
-  headerStyle: { backgroundColor: '#090a1c' },
-  headerTintColor: '#fff',
-})}
-```
-
-Because the map toggle is in-screen state, the header button should call a callback exposed by TimelineScreen. Use a `useImperativeHandle` ref or a simple context scoped to the tab.
-
-### Recommended File Structure
+### Recommended File Structure (new/changed files only)
 
 ```
 src/
 ├── navigation/
-│   ├── RootNavigator.tsx      # existing — add Tabs screen
-│   ├── TabNavigator.tsx       # NEW — createBottomTabNavigator
-│   └── types.ts               # TabParamList + updated RootStackParamList
+│   ├── types.ts                    # MODIFY: rename tabs
+│   ├── TabNavigator.tsx            # REWRITE: new 4 tabs, Camera default
+│   └── RootNavigator.tsx          # MINOR: remove dead screen imports if needed
 ├── screens/
-│   ├── HomeScreen.tsx         # NEW
-│   ├── TimelineScreen.tsx     # NEW (placeholder)
-│   ├── PeopleScreen.tsx       # NEW (placeholder)
-│   └── PlannerScreen.tsx      # NEW (placeholder)
-├── components/
-│   ├── icons/
-│   │   └── index.ts           # Phase 1 output — consumed here
-│   ├── WeatherCover.tsx       # NEW — SVG weather animation
-│   ├── RadialFAB.tsx          # NEW — FAB + 3 radial options
-│   └── EventStrip.tsx         # NEW — event strip row
-└── services/
-    └── homeService.ts         # NEW — getNextEvent, isEventfulDay
+│   ├── CameraScreen.tsx            # NEW: full-screen viewfinder + bottom bar
+│   ├── MomentsScreen.tsx           # NEW stub
+│   ├── PeopleScreen.tsx            # KEEP: already a stub, no change needed
+│   └── MapsScreen.tsx              # NEW stub
+└── components/
+    ├── GalleryBottomSheet.tsx      # NEW: PanResponder + Reanimated sheet
+    ├── GalleryPivot.tsx            # NEW: Moments · People · Files pivot
+    └── CameraBottomBar.tsx         # NEW: gallery · capture · face-scan bar
 ```
+
+### Pattern 1: Camera Tab as Default with Hidden Tab Bar
+
+The tab bar must be hidden on the Camera screen so the viewfinder fills the full display.
+In `@react-navigation/bottom-tabs` v7, set `tabBarStyle: { display: 'none' }` in the
+screen's `options`. This is verified in the library source at
+`src/unstable/NativeBottomTabView.native.tsx` which checks `tabBarStyle?.display === 'none'`.
+
+```typescript
+// Source: verified in node_modules/@react-navigation/bottom-tabs/src/types.tsx
+// and src/unstable/NativeBottomTabView.native.tsx
+<Tab.Screen
+  name="Camera"
+  component={CameraScreen}
+  options={{
+    headerShown: false,
+    tabBarStyle: { display: 'none' },  // hides tab bar for full-bleed camera
+    tabBarIcon: ({ color }) => <Camera color={color} size={ICON_SIZE} />,
+  }}
+/>
+```
+
+The Camera screen then renders its own bottom control bar as an absolutely-positioned
+overlay inside the screen content.
+
+### Pattern 2: TypeScript Tab Param List
+
+`types.ts` must be updated. The existing `TabParamList` references `Home`, `Timeline`,
+`People`, `Planner` — rename to the new tabs.
+
+```typescript
+// src/navigation/types.ts
+import type { NavigatorScreenParams } from '@react-navigation/native';
+
+export type TabParamList = {
+  Camera: undefined;
+  Moments: undefined;
+  People: undefined;
+  Maps: undefined;
+};
+
+export type RootStackParamList = {
+  Tabs: NavigatorScreenParams<TabParamList> | undefined;
+  NewEntry: { prefillImageUri?: string };
+  EntryDetail: { entryId: string; prefillImageUri?: string };
+  SearchResult: { preloadedImageUri?: string } | undefined;
+  Insights: undefined;
+  Settings: { onReset?: () => void };
+  ShareIntake: { imageUri: string };
+};
+```
+
+### Pattern 3: Bottom Sheet with PanResponder + Reanimated v4
+
+Since `react-native-gesture-handler` is not installed, the Gallery bottom sheet uses
+RN's built-in `PanResponder` for drag tracking and Reanimated's `useSharedValue` /
+`useAnimatedStyle` for smooth animation.
+
+Key implementation notes:
+- Sheet has two states: COLLAPSED (translateY = SHEET_HEIGHT) and EXPANDED (translateY = 0)
+- `PanResponder.onPanResponderMove` updates the shared value directly
+- On release (`onPanResponderRelease`), snap to nearest state using `withSpring`
+- Reanimated v4 does NOT have `useAnimatedGestureHandler` — that was removed in v3/v4
+
+```typescript
+// Source: react-native-reanimated v4.4.1 — useSharedValue, useAnimatedStyle, withSpring
+// all confirmed exported from node_modules/react-native-reanimated/src/index.ts
+import { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
+import { PanResponder, useEffect } from 'react-native';
+
+const SHEET_HEIGHT = 480;
+const SNAP_THRESHOLD = 80;
+
+export function GalleryBottomSheet({ visible, onClose }: Props) {
+  const translateY = useSharedValue(SHEET_HEIGHT);
+
+  const open = () => { translateY.value = withSpring(0, { damping: 20 }); };
+  const close = () => { translateY.value = withSpring(SHEET_HEIGHT, { damping: 20 }); };
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
+
+  const panResponder = PanResponder.create({
+    onMoveShouldSetPanResponder: (_, { dy }) => dy > 5,
+    onPanResponderMove: (_, { dy }) => {
+      if (dy > 0) translateY.value = dy;
+    },
+    onPanResponderRelease: (_, { dy }) => {
+      if (dy > SNAP_THRESHOLD) { close(); onClose(); }
+      else { open(); }
+    },
+  });
+
+  useEffect(() => {
+    if (visible) open(); else close();
+  }, [visible]);
+
+  return (
+    <Animated.View style={[styles.sheet, animatedStyle]} {...panResponder.panHandlers}>
+      {/* drag handle + GalleryPivot */}
+    </Animated.View>
+  );
+}
+```
+
+### Pattern 4: Windows 10 Mobile Pivot Control
+
+No native swipe between pivot sections — this is a stub scaffold phase. Implement as a
+tab-strip with accent underline. Full swipe paging is deferred to a later phase.
+
+```typescript
+// GalleryPivot.tsx
+const SECTIONS = ['Moments', 'People', 'Files'] as const;
+type Section = typeof SECTIONS[number];
+const ACCENT = '#c0170d';
+
+function GalleryPivot() {
+  const [active, setActive] = useState<Section>('Moments');
+
+  return (
+    <View>
+      <View style={styles.pivotStrip}>
+        {SECTIONS.map(section => (
+          <Pressable key={section} onPress={() => setActive(section)} style={styles.pivotTab}>
+            <Text style={[styles.pivotLabel, active === section && styles.pivotLabelActive]}>
+              {section.toUpperCase()}
+            </Text>
+            {active === section && <View style={styles.accentUnderline} />}
+          </Pressable>
+        ))}
+      </View>
+      <View style={styles.content}>
+        <Text style={styles.stubText}>{active} — coming soon</Text>
+      </View>
+    </View>
+  );
+}
+
+// Key style values
+// accentUnderline: { height: 2, backgroundColor: ACCENT, borderRadius: 1 }
+// pivotLabel inactive: color: 'rgba(255,255,255,0.45)', fontWeight: '600'
+// pivotLabelActive: color: '#ffffff'
+// No border lines between tabs — spacing + contrast only
+```
+
+### Pattern 5: Camera Bottom Bar Layout
+
+The bottom bar is an absolutely-positioned view inside the Camera screen's root `View`
+(which is `flex: 1`). It sits above the safe area bottom inset. The tab bar is hidden
+via `tabBarStyle: { display: 'none' }` so there is no overlap.
+
+```
+CameraScreen root (flex: 1, backgroundColor: '#000')
+├── ViewfinderPlaceholder (flex: 1, dark bg + text placeholder)
+└── CameraBottomBar (position: 'absolute', bottom: insets.bottom, left: 0, right: 0)
+    ├── Mode labels row:  [Video]  [Voice]  [Contact]   <- small caps text, centered
+    └── Icon row:  [Gallery thumb]  [Capture btn]  [FaceScan icon]
+                    flexDirection: 'row', justifyContent: 'space-around'
+```
+
+`CameraBottomBar` receives `onGalleryPress`, `onCapturePress`, `onFaceScanPress` as props.
+Mode label taps are internal state only (no navigation at this phase).
 
 ### Anti-Patterns to Avoid
 
-- **Inline navigation in tabBarIcon:** Never call `navigation.navigate()` from `tabBarIcon`. Use screen `options` with `tabBarButton` only if customizing touch behavior.
-- **Decision logic in HomeScreen:** The `if (nextEvent)` check belongs in `homeService.ts`. HomeScreen receives `nextEvent: NextEvent | null` from the service call and renders accordingly.
-- **Flowers as emoji:** The mockup HTML uses emoji flowers in the CSS. The project convention is no emoji. Render flowers as SVG Path or simple colored Circle/Ellipse elements.
-- **Absolute positioning FAB over tab bar:** The FAB should be inside the HomeScreen content area, not absolutely positioned over the navigator. The design shows it in the capture area, not overlapping the tab bar.
-- **Using `react-native` Animated API instead of reanimated:** On New Architecture, use reanimated v4 `useSharedValue`/`withTiming`. The older `Animated.Value` works but does not run on the UI thread natively.
+- **`tabBarVisible: false`:** This is the React Navigation v5 API. In v7, it does nothing.
+  Use `tabBarStyle: { display: 'none' }`.
+- **Registering Settings as a tab:** R-NAV-04 forbids it. Settings stays in root stack only.
+- **Importing lucide-react-native directly:** R-CONV-05 requires all icon imports go
+  through `src/components/icons/index.ts`. New icons must be added there first.
+- **`useAnimatedGestureHandler`:** Removed in Reanimated v3/v4. Do not use.
+- **Inline mode-switching logic in CameraScreen:** Mode state (video/voice/contact) belongs
+  in a hook or the `CameraBottomBar` component, not spread across the screen.
 
 ---
 
@@ -249,159 +272,205 @@ src/
 
 | Problem | Don't Build | Use Instead | Why |
 |---------|-------------|-------------|-----|
-| Tab bar with icon + label | Custom View with Pressable tabs | createBottomTabNavigator | Handles safe area, active state, accessibility, deep link integration |
-| Animated value interpolation | Manual lerp/requestAnimationFrame | reanimated withTiming | Runs on UI thread natively, no JS bridge jank |
-| SVG rendering | Canvas/image-based weather art | react-native-svg (already installed) | Vector, resolution-independent, supports animation |
+| Tab navigation | Custom animated tab switcher | `@react-navigation/bottom-tabs` v7 | Handles Android back, TypeScript types, accessibility |
+| Safe area padding | Hardcoded pixel offsets | `useSafeAreaInsets()` | Bottom inset varies by device (gesture nav vs button nav) |
+| Spring animations | Custom easing | `withSpring` from Reanimated | Correct physics, interruptible mid-gesture |
 
 ---
 
 ## Common Pitfalls
 
-### Pitfall 1: bottom-tabs version mismatch
-**What goes wrong:** Installing `@react-navigation/bottom-tabs` v6 when everything else is v7 causes peer dependency errors and type incompatibilities.
-**Why it happens:** npm may resolve an older version if not pinned.
-**How to avoid:** `npm install @react-navigation/bottom-tabs@^7` — match the major version of `@react-navigation/native`.
+### Pitfall 1: Tab Bar Visible Behind Camera Viewfinder
 
-### Pitfall 2: Tab bar overlapping content
-**What goes wrong:** Content at the bottom of a tab screen is hidden behind the tab bar.
-**Why it happens:** Tab bar does not automatically add bottom padding to screen content.
-**How to avoid:** Wrap screen content in `<SafeAreaView edges={['bottom']}>` from `react-native-safe-area-context`, or use `useSafeAreaInsets()` to add `paddingBottom`.
+**What goes wrong:** The tab bar renders below the camera view, creating a black stripe or
+clipping the viewfinder to less than full screen.
 
-### Pitfall 3: Reanimated worklet rules violated
-**What goes wrong:** Runtime crash "Calling back into JS from a worklet is not allowed" or similar.
-**Why it happens:** Accessing non-serializable JS values (closures, class instances) inside a worklet.
-**How to avoid:** `useAnimatedStyle` callbacks must reference only shared values and primitive constants. Pass data as derived shared values, not closures over component state.
+**Why it happens:** Default bottom-tabs renders the tab bar at all times unless explicitly
+hidden per-screen.
 
-### Pitfall 4: RootStackParamList missing `Tabs`
-**What goes wrong:** TypeScript errors when navigating from a tab screen to a stack screen (e.g. Settings).
-**Why it happens:** `Tabs` is not declared in `RootStackParamList`.
-**How to avoid:** Add `Tabs: undefined` to `RootStackParamList` before creating `TabNavigator`.
+**How to avoid:** Set `tabBarStyle: { display: 'none' }` in Camera screen's `options` in
+`TabNavigator`. Verified in `@react-navigation/bottom-tabs` v7 source:
+`NativeBottomTabView.native.tsx` checks `currentOptions.tabBarStyle?.display === 'none'`.
 
-### Pitfall 5: SVG animation using wrong Animated import
-**What goes wrong:** `Animated.createAnimatedComponent` from `react-native` does not work with reanimated v4 shared values.
-**Why it happens:** Two separate animation systems.
-**How to avoid:** Import `Animated` from `react-native-reanimated`, not `react-native`, and use `createAnimatedComponent` from reanimated.
+**Warning signs:** Camera screen does not fill full height; coloured bar visible at bottom.
 
-### Pitfall 6: Weather cover height on different screen sizes
-**What goes wrong:** Fixed `height: 200` clips or leaves gaps on non-standard devices.
-**Why it happens:** Hardcoded pixel value.
-**How to avoid:** Use `Dimensions.get('window').width * 0.54` for a proportional height, or use a constant at file top. Do not hardcode in StyleSheet inline.
+### Pitfall 2: TypeScript Errors from Stale TabParamList References
+
+**What goes wrong:** After renaming tabs in `types.ts`, existing screens that reference
+`TabParamList['Home']` or `BottomTabNavigationProp<TabParamList>` with old key names fail
+to compile.
+
+**Why it happens:** `HomeScreen.tsx` imports `TabParamList` and uses it. `TabNavigator.tsx`
+references `Home`, `Timeline`, `Planner` by name.
+
+**How to avoid:** Before editing `types.ts`, grep for all files importing `TabParamList`.
+Files currently affected: `HomeScreen.tsx`, `TabNavigator.tsx`, `types.ts`.
+
+### Pitfall 3: PanResponder Conflicts with ScrollView Inside Bottom Sheet
+
+**What goes wrong:** The pivot content area cannot scroll — the sheet's `PanResponder`
+intercepts the touch before the `ScrollView` receives it.
+
+**Why it happens:** `onMoveShouldSetPanResponder: () => true` captures all vertical moves.
+
+**How to avoid:** Only claim the responder when the `ScrollView` is at `scrollOffset === 0`
+AND `dy > dx` (vertical drag). In this stub phase, content does not scroll, so defer this.
+Leave a `TODO` comment flagging the conflict for a future phase.
+
+### Pitfall 4: Reanimated v4 API Changes
+
+**What goes wrong:** Code written for Reanimated v2/v3 (e.g., `useAnimatedGestureHandler`,
+`withDecay` from worklet context) silently fails or throws in v4.
+
+**Why it happens:** v4 has breaking changes from v2/v3. Most Stack Overflow answers and
+blog posts target older versions.
+
+**How to avoid:** Only use APIs confirmed exported from
+`node_modules/react-native-reanimated/src/index.ts`: `useSharedValue`, `useAnimatedStyle`,
+`withSpring`, `withTiming`, `runOnJS`. Do not use `useAnimatedGestureHandler`.
+
+### Pitfall 5: Menu Icon Not Exported from Icons Index
+
+**What goes wrong:** `<Menu />` icon import from `src/components/icons/index.ts` fails
+because `Menu` is not currently in the export list.
+
+**Why it happens:** R-CONV-05 requires all icons go through the index. `Menu` was never
+needed before.
+
+**How to avoid:** In plan 02-01, add `Menu` to `src/components/icons/index.ts` before
+using it in `TabNavigator.tsx`. Verify it exists in lucide-react-native 1.21.0.
 
 ---
 
 ## Code Examples
 
-### Bottom Tabs Installation and Basic Setup
-```typescript
-// Source: https://reactnavigation.org/docs/bottom-tab-navigator
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+### Full TabNavigator Skeleton
 
-export type TabParamList = {
-  Home: undefined;
-  Timeline: undefined;
-  People: undefined;
-  Planner: undefined;
-};
+```typescript
+// src/navigation/TabNavigator.tsx
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Camera, Clock, Users, MapPin, Menu } from '../components/icons';
+import type { TabParamList, RootStackParamList } from './types';
 
 const Tab = createBottomTabNavigator<TabParamList>();
-```
+const BG_DARK = '#090a1c';
+const ACCENT = '#c0170d';
+const TAB_BAR_BG = 'rgba(6,6,14,0.97)';
+const TAB_BAR_BORDER = 'rgba(255,255,255,0.06)';
+const TAB_INACTIVE = 'rgba(255,255,255,0.4)';
+const TAB_BAR_HEIGHT = 58;
+const ICON_SIZE = 22;
+const HEADER_ICON_SIZE = 20;
 
-### Reanimated Radial Fan (verified pattern)
-```typescript
-// Source: https://docs.swmansion.com/react-native-reanimated/docs/core/useSharedValue
-import {
-  useSharedValue,
-  withTiming,
-  useAnimatedStyle,
-  Easing,
-} from 'react-native-reanimated';
+export function TabNavigator() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const insets = useSafeAreaInsets();
 
-const DURATION = 200;
-const EASING = Easing.out(Easing.ease);
+  const hamburger = () => (
+    <Pressable onPress={() => navigation.navigate('Settings', {})} style={{ marginRight: 16 }}>
+      <Menu color={TAB_INACTIVE} size={HEADER_ICON_SIZE} />
+    </Pressable>
+  );
 
-const expanded = useSharedValue(false);
-
-function makeFanStyle(tx: number, ty: number) {
-  return useAnimatedStyle(() => ({
-    transform: [
-      { translateX: withTiming(expanded.value ? tx : 0, { duration: DURATION, easing: EASING }) },
-      { translateY: withTiming(expanded.value ? ty : 0, { duration: DURATION, easing: EASING }) },
-      { scale: withTiming(expanded.value ? 1 : 0, { duration: DURATION, easing: EASING }) },
-    ],
-    opacity: withTiming(expanded.value ? 1 : 0, { duration: DURATION }),
-  }));
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        tabBarStyle: {
+          backgroundColor: TAB_BAR_BG,
+          borderTopColor: TAB_BAR_BORDER,
+          height: TAB_BAR_HEIGHT + insets.bottom,
+          paddingBottom: insets.bottom,
+        },
+        tabBarActiveTintColor: ACCENT,
+        tabBarInactiveTintColor: TAB_INACTIVE,
+        headerStyle: { backgroundColor: BG_DARK },
+        headerTintColor: '#ffffff',
+        headerShown: true,
+        headerRight: hamburger,
+      }}
+    >
+      <Tab.Screen name="Camera" component={CameraScreen}
+        options={{
+          headerShown: false,
+          tabBarStyle: { display: 'none' },
+          tabBarIcon: ({ color }) => <Camera color={color} size={ICON_SIZE} />,
+        }}
+      />
+      <Tab.Screen name="Moments" component={MomentsScreen}
+        options={{ tabBarIcon: ({ color }) => <Clock color={color} size={ICON_SIZE} /> }}
+      />
+      <Tab.Screen name="People" component={PeopleScreen}
+        options={{ tabBarIcon: ({ color }) => <Users color={color} size={ICON_SIZE} /> }}
+      />
+      <Tab.Screen name="Maps" component={MapsScreen}
+        options={{ tabBarIcon: ({ color }) => <MapPin color={color} size={ICON_SIZE} /> }}
+      />
+    </Tab.Navigator>
+  );
 }
-// contact: tx=-58, ty=-30
-// mic:     tx=-21, ty=54
-// camera:  tx=22,  ty=-30
-```
-
-Note: `useAnimatedStyle` cannot be called inside a helper function conditionally — extract to individual named calls per option button.
-
-### Raindrop SVG Animation
-```typescript
-// Each raindrop is an Animated Rect with staggered start delay
-import Svg, { Rect } from 'react-native-svg';
-import Animated, { useSharedValue, withRepeat, withDelay, withTiming } from 'react-native-reanimated';
-
-const AnimatedRect = Animated.createAnimatedComponent(Rect);
-
-// In a loop over raindrop config array, each gets its own sharedValue
-// with withRepeat(withTiming(...), -1) and withDelay(index * stagger, ...)
 ```
 
 ---
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| `Animated` API from `react-native` | `react-native-reanimated` v4 `useSharedValue` | RN New Architecture adoption (~2024) | Animations run on UI thread natively; no bridge latency |
-| Class-based navigator config | Function-based with typed param lists | React Navigation v6+ | Cleaner types, hooks-based screen options |
-| `react-native-vector-icons` (already in deps) | `lucide-react-native` | This project decision | SVG-based, consistent set; vector-icons remains for legacy screens if needed |
+| Old Approach | Current Approach | Impact on Phase 2 |
+|--------------|------------------|-------------------|
+| `tabBarVisible: false` (RN Navigation v5) | `tabBarStyle: { display: 'none' }` (v7) | Must use v7 API |
+| `useAnimatedGestureHandler` (Reanimated v2/v3) | `PanResponder` + `useSharedValue` (v4) | No gesture handler library available |
+| Home screen as default tab | Camera screen as default tab (index 0) | First `<Tab.Screen>` declared = default |
+| `RadialFAB` + Weather cover | Removed | HomeScreen deleted, no FAB |
 
 ---
 
 ## Open Questions
 
-1. **Settings header button placement**
-   - What we know: R-NAV-04 says Settings via "profile/hamburger icon in header." The mockup shows a hamburger in the top-right of the home screen header area.
-   - What's unclear: Should each tab show a Settings header button, or only Home? Is it a `headerRight` inside the tab navigator's `screenOptions`, or per-tab?
-   - Recommendation: Add `headerRight` at the Tab.Navigator `screenOptions` level so all tabs show it uniformly. Navigate to the `Settings` stack screen on press.
+1. **CollectionList screen:** Registered in `RootStackParamList` and imported in
+   `RootNavigator.tsx`. With `HomeScreen` removed, nothing navigates to it. Keep the
+   registration (it's harmless) but confirm whether the import can be removed to avoid
+   dead-code lint warnings. Recommendation: keep for now, mark as deferred.
 
-2. **Weather data source in Phase 2**
-   - What we know: Phase 2 goal is "static/placeholder data." R-HOME-01 describes the animation states but not data fetching.
-   - What's unclear: Which state should display by default? Should it read device location or use a hardcoded state?
-   - Recommendation: Accept a `weatherState: 'sunny' | 'rainy' | 'snow' | 'thunderstorm'` prop. Default to `'sunny'` in Phase 2. Weather service integration is a later phase.
+2. **Camera permission prompt:** R-NAV-02 says "full-screen viewfinder (or permission
+   prompt)". Neither `react-native-camera` nor `@react-native-camera/camera` is installed.
+   The stub uses a dark `View` with "Camera — coming soon" text. No permission request
+   needed at this phase.
 
-3. **eventful day scorer threshold**
-   - What we know: R-HOME-04 mentions a "scorer" but no scorer service exists yet.
-   - What's unclear: Does Phase 2 implement the scorer or stub it?
-   - Recommendation: Stub it as `isEventfulDay(): boolean` returning `false` in Phase 2. The memory card path renders as if `false` (hidden) until a later phase implements the real scorer.
+3. **Menu icon availability:** `Menu` is not currently in `src/components/icons/index.ts`.
+   Lucide 1.21.0 should include it, but verify the exact export name before using it.
+   Alternative if missing: use `AlignJustify` or `MoreVertical` from the same library.
 
 ---
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- Codebase inspection: `package.json`, `src/navigation/RootNavigator.tsx`, `App.tsx`, `node_modules/@react-navigation/native/package.json` — confirmed installed versions and missing bottom-tabs
-- `node_modules/react-native-reanimated/package.json` — v4.4.1 confirmed
-- `node_modules/react-native-svg/package.json` — v15.15.5 confirmed
-- `design/direction-c.html` — authoritative pixel values, colors, FAB transform values
+- `node_modules/@react-navigation/bottom-tabs/src/types.tsx` — `tabBarStyle` option verified
+- `node_modules/@react-navigation/bottom-tabs/src/unstable/NativeBottomTabView.native.tsx` — `display: 'none'` logic confirmed in source
+- `node_modules/react-native-reanimated/src/index.ts` — `useSharedValue`, `useAnimatedStyle`, `withSpring`, `withTiming` exports confirmed; `GoBackGesture` (only gesture export, no PanGesture class)
+- `package.json` — exact installed versions: bottom-tabs 7.18.2, reanimated 4.4.1; confirmed absence of gesture-handler, pager-view, gorhom/bottom-sheet
+- `src/navigation/types.ts` — current `TabParamList` and `RootStackParamList` shapes
+- `src/navigation/TabNavigator.tsx` — existing tab wiring, constants, patterns
+- `src/navigation/RootNavigator.tsx` — stack structure, screen registrations
+- `src/components/icons/index.ts` — confirmed icon exports; `Menu` NOT currently exported
 
 ### Secondary (MEDIUM confidence)
-- React Navigation v7 bottom-tabs docs pattern — consistent with v6 API; only major version differences known
-- react-native-reanimated v4 API — `useSharedValue`/`withTiming` stable since v3; v4 removes legacy API
+- `src/screens/HomeScreen.tsx` — confirms `RadialFAB`, `WeatherCover` present (deleted in this phase)
+- `src/screens/PeopleScreen.tsx` — confirmed already a minimal stub (no changes needed for tab rename)
 
 ---
 
 ## Metadata
 
 **Confidence breakdown:**
-- Standard stack: HIGH — all versions confirmed from installed node_modules
-- Architecture: HIGH — pattern derived directly from existing codebase structure and design file
-- FAB transforms: HIGH — exact pixel values from `design/direction-c.html` lines 254–274
-- Pitfalls: MEDIUM — derived from known RN/reanimated behavior patterns
+- Standard stack: HIGH — all packages verified in node_modules with exact versions
+- Architecture: HIGH — patterns verified against installed library source code
+- Pitfalls: HIGH — verified against library source (tabBarStyle v7, Reanimated v4 exports)
+- Bottom sheet approach: MEDIUM — PanResponder + Reanimated pattern is well-established but
+  not tested against a running build; the scroll-conflict pitfall is a known issue flagged
+  as deferred for a future phase
 
-**Research date:** 2026-06-21
-**Valid until:** 2026-07-21 (stable libraries, 30-day window)
+**Research date:** 2026-06-22
+**Valid until:** 2026-07-22

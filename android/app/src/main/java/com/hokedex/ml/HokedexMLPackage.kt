@@ -7,7 +7,7 @@ import com.facebook.react.uimanager.ViewManager
 
 class HokedexMLPackage : ReactPackage {
     override fun createNativeModules(ctx: ReactApplicationContext): List<NativeModule> =
-        listOf(HokedexMLModule(ctx))
+        listOf(HokedexMLModule(ctx), GeocoderModule(ctx))
 
     override fun createViewManagers(ctx: ReactApplicationContext): List<ViewManager<*, *>> =
         emptyList()

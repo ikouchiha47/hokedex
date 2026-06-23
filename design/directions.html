@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>hokédex — concepts</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #0c0c0c;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Helvetica Neue', sans-serif;
+  padding: 48px 32px 80px;
+  color: #fff;
+}
+
+h1 {
+  font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: #444; margin-bottom: 6px;
+}
+.intro { font-size: 32px; font-weight: 800; color: #fff; margin-bottom: 56px; letter-spacing: -0.02em; }
+
+/* ── CONCEPT SECTION ── */
+.concept { margin-bottom: 80px; }
+
+.concept-label {
+  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: #444; margin-bottom: 8px;
+}
+.concept-title { font-size: 24px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.concept-desc { font-size: 14px; color: #555; margin-bottom: 32px; line-height: 1.5; }
+
+.phones { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+
+/* ── PHONE SHELL ── */
+.phone {
+  width: 280px;
+  border-radius: 42px;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1.5px solid #222;
+  position: relative;
+}
+
+.screen-label {
+  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: #444; margin-bottom: 10px;
+}
+
+.status {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 20px 0; flex-shrink: 0;
+  font-size: 10px; font-weight: 600;
+  position: relative; z-index: 5;
+}
+
+/* ═══════════════════════════════════
+   CONCEPT A — EDITORIAL / RED DOMINANT
+   bg: #0f0000 to #1a0000
+   accent: #e8372a (crimson)
+   feel: bold, photo-forward, dark editorial
+═══════════════════════════════════ */
+
+.a { background: #0e0606; color: #fff; }
+.a .status { color: rgba(255,255,255,0.5); }
+
+/* hero — color takes top 45% */
+.a-hero {
+  background: linear-gradient(170deg, #c0170d 0%, #6b0a06 40%, #1a0303 70%, #0e0606 100%);
+  padding: 8px 22px 28px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.a-hero-label {
+  font-size: 10px; color: rgba(255,255,255,0.45);
+  letter-spacing: 0.06em; margin-bottom: 4px;
+}
+
+.a-hero-title {
+  font-size: 42px; font-weight: 900; color: #fff;
+  letter-spacing: -0.03em; line-height: 0.95;
+  margin-bottom: 20px;
+}
+
+.a-avatars {
+  display: flex; gap: 0;
+}
+
+.a-av {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 2.5px solid #c0170d;
+  background: #2a0808;
+  margin-right: -10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800; color: #fff;
+  position: relative; z-index: 1;
+}
+.a-av:nth-child(1) { z-index: 5; }
+.a-av:nth-child(2) { z-index: 4; }
+.a-av:nth-child(3) { z-index: 3; }
+.a-av:nth-child(4) { z-index: 2; }
+
+.a-av-plus {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 2.5px dashed rgba(255,255,255,0.3);
+  background: transparent;
+  margin-left: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: rgba(255,255,255,0.4);
+}
+
+.a-stats {
+  display: flex; gap: 0;
+  padding: 0 22px;
+  border-bottom: 1px solid #1f0808;
+  flex-shrink: 0;
+}
+
+.a-stat {
+  flex: 1; padding: 12px 0; text-align: center;
+  border-right: 1px solid #1f0808;
+}
+.a-stat:last-child { border-right: none; }
+
+.a-stat-n { font-size: 22px; font-weight: 800; color: #fff; display: block; }
+.a-stat-l { font-size: 8px; color: #554; letter-spacing: 0.08em; text-transform: uppercase; }
+
+.a-streak-n { color: #e8372a !important; }
+
+.a-feed { padding: 16px 22px; flex: 1; overflow: hidden; }
+
+.a-day-label {
+  font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: #443; margin-bottom: 10px;
+}
+
+.a-card {
+  background: #160808;
+  border: 1px solid #2a0c0c;
+  border-radius: 16px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+
+.a-card-top {
+  display: flex; align-items: center; gap: 6px; margin-bottom: 8px;
+}
+
+.a-pill {
+  font-size: 8px; font-weight: 800; border-radius: 6px;
+  padding: 3px 8px; letter-spacing: 0.04em;
+}
+
+.a-card-time { font-size: 8px; color: #443; margin-left: auto; }
+
+.a-card-people {
+  display: flex; align-items: center; gap: 4px; margin-bottom: 6px;
+}
+
+.a-cav {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #2a0a0a; border: 1.5px solid #3a0c0c;
+  font-size: 8px; font-weight: 700; color: #ccc;
+  display: flex; align-items: center; justify-content: center;
+  margin-right: -6px;
+}
+
+.a-card-names { font-size: 9px; color: #886; margin-left: 10px; }
+.a-card-note { font-size: 9px; color: #554; line-height: 1.5; }
+
+.a-nav {
+  height: 56px; background: #0a0404;
+  border-top: 1px solid #1f0808;
+  display: flex; align-items: center; justify-content: space-around;
+  flex-shrink: 0; padding: 0 10px;
+}
+
+.a-nav-icon { font-size: 20px; opacity: 0.25; }
+.a-nav-icon.on { opacity: 1; }
+
+.a-fab {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: #e8372a;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; margin-top: -22px;
+  box-shadow: 0 0 24px rgba(232,55,42,0.6);
+}
+
+/* ═══════════════════════════════════
+   CONCEPT B — NEOBRUTALIST
+   bg: #f0ebe0 (cream)
+   accent: #111 (black) + color pops
+   feel: bold, flat, printed
+═══════════════════════════════════ */
+
+.b { background: #f0ebe0; color: #111; border-color: #c8c0b0; }
+.b .status { color: #888; }
+
+.b-header {
+  padding: 12px 22px 0;
+  flex-shrink: 0;
+}
+
+.b-title {
+  font-size: 40px; font-weight: 900; color: #111;
+  letter-spacing: -0.03em; line-height: 0.95;
+  margin-bottom: 14px;
+}
+
+.b-tabs {
+  display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: nowrap; overflow: hidden;
+}
+
+.b-tab {
+  font-size: 10px; font-weight: 700; padding: 5px 12px;
+  border-radius: 20px; border: 1.5px solid #c0b8a8;
+  color: #888; background: transparent; white-space: nowrap;
+}
+
+.b-tab.on {
+  background: #111; color: #f0ebe0; border-color: #111;
+}
+
+.b-cards { padding: 0 22px; flex: 1; overflow: hidden; }
+
+.b-card {
+  border-radius: 18px; padding: 14px 16px; margin-bottom: 10px;
+  position: relative; overflow: hidden;
+}
+
+.b-card-label {
+  font-size: 9px; font-weight: 800; letter-spacing: 0.1em;
+  text-transform: uppercase; margin-bottom: 4px; opacity: 0.7;
+}
+
+.b-card-title {
+  font-size: 15px; font-weight: 800; line-height: 1.2; margin-bottom: 8px;
+}
+
+.b-card-meta { font-size: 9px; opacity: 0.6; }
+
+.b-card-people { display: flex; gap: -4px; margin-top: 8px; }
+
+.b-cav {
+  width: 24px; height: 24px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 800; color: #fff;
+  margin-right: -6px; border: 2px solid transparent;
+}
+
+.b-streak {
+  background: #111; color: #f0ebe0;
+  border-radius: 18px; padding: 14px 16px;
+  margin: 0 22px 10px; display: flex; align-items: center; gap: 10px;
+}
+
+.b-streak-num {
+  font-size: 40px; font-weight: 900; color: #fff;
+  line-height: 1;
+}
+
+.b-streak-text { font-size: 10px; color: #aaa; line-height: 1.5; }
+.b-streak-label { font-size: 9px; color: #555; }
+
+.b-nav {
+  height: 56px; background: #e8e0d0;
+  border-top: 1.5px solid #c8c0b0;
+  display: flex; align-items: center; justify-content: space-around;
+  flex-shrink: 0; padding: 0 10px;
+}
+
+.b-nav-icon { font-size: 20px; opacity: 0.2; }
+.b-nav-icon.on { opacity: 1; }
+
+.b-fab {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: #111;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: #f0ebe0;
+  margin-top: -22px;
+}
+
+/* ═══════════════════════════════════
+   CONCEPT C — GRADIENT DEPTH
+   bg: deep navy + color gradient from top
+   feel: premium, spatial, Oscar-like
+═══════════════════════════════════ */
+
+.c { background: #08091a; color: #fff; border-color: #1a1f3a; }
+.c .status { color: rgba(255,255,255,0.4); }
+
+.c-hero {
+  padding: 8px 22px 0;
+  position: relative; flex-shrink: 0;
+}
+
+.c-gradient-orb {
+  position: absolute; top: -40px; left: -40px;
+  width: 240px; height: 240px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(232,55,42,0.35) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.c-gradient-orb2 {
+  position: absolute; top: 20px; right: -60px;
+  width: 180px; height: 180px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(100,0,200,0.2) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.c-greeting { font-size: 10px; color: rgba(255,255,255,0.35); margin-bottom: 4px; position: relative; z-index: 2; }
+
+.c-title {
+  font-size: 36px; font-weight: 900; color: #fff;
+  letter-spacing: -0.03em; line-height: 1;
+  margin-bottom: 20px; position: relative; z-index: 2;
+}
+
+.c-cards-row { display: flex; gap: 8px; padding: 0 22px; margin-bottom: 12px; flex-shrink: 0; }
+
+.c-mini-card {
+  flex: 1; border-radius: 16px; padding: 12px 10px; text-align: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(10px);
+}
+
+.c-mini-num { font-size: 22px; font-weight: 800; color: #fff; display: block; }
+.c-mini-label { font-size: 7px; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.08em; }
+.c-mini-accent { color: #e8372a !important; }
+
+.c-body { flex: 1; overflow: hidden; padding: 0 22px; }
+
+.c-section-label {
+  font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.25); margin-bottom: 8px;
+}
+
+.c-people-row {
+  display: flex; gap: 12px; margin-bottom: 14px;
+}
+
+.c-person { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+
+.c-pav {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: #1a1f3a;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 800; color: #fff;
+  border: 2px solid rgba(255,255,255,0.08);
+}
+
+.c-pav.hot { border-color: #e8372a; box-shadow: 0 0 12px rgba(232,55,42,0.4); }
+
+.c-pname { font-size: 8px; color: rgba(255,255,255,0.4); }
+.c-pcount { font-size: 7px; color: #e8372a; }
+
+.c-add-btn {
+  width: 46px; height: 46px; border-radius: 50%;
+  border: 1.5px dashed rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: rgba(255,255,255,0.2);
+}
+
+.c-moment {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px; padding: 12px 14px; margin-bottom: 8px;
+}
+
+.c-moment-top { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.c-moment-time { font-size: 8px; color: rgba(255,255,255,0.25); margin-left: auto; }
+.c-moment-names { font-size: 9px; color: rgba(255,255,255,0.5); }
+.c-moment-note { font-size: 9px; color: rgba(255,255,255,0.3); line-height: 1.4; }
+
+.c-nav {
+  height: 56px; background: rgba(8,9,26,0.95);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; justify-content: space-around;
+  flex-shrink: 0; padding: 0 10px;
+}
+
+.c-nav-icon { font-size: 20px; opacity: 0.2; }
+.c-nav-icon.on { opacity: 1; }
+
+.c-fab {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: linear-gradient(135deg, #e8372a, #ff6b35);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; margin-top: -22px;
+  box-shadow: 0 0 28px rgba(232,55,42,0.5);
+}
+
+/* ═══════════════════════════════════
+   CONCEPT D — WARM MINIMAL
+   bg: #fafaf8 / #ffffff
+   accent: deep amber #d97706
+   feel: Fitplan + LinkedIn — clean, warm, readable
+═══════════════════════════════════ */
+
+.d { background: #fafaf7; color: #111; border-color: #e0dcd0; }
+.d .status { color: #aaa; }
+
+.d-header {
+  background: #fff;
+  padding: 12px 22px 14px;
+  border-bottom: 1px solid #ece8e0;
+  flex-shrink: 0;
+}
+
+.d-greeting { font-size: 10px; color: #aaa; margin-bottom: 2px; }
+
+.d-title {
+  font-size: 26px; font-weight: 900; color: #111;
+  letter-spacing: -0.02em;
+}
+
+.d-body { flex: 1; overflow: hidden; padding: 14px 22px; }
+
+.d-streak-row {
+  display: flex; align-items: center; gap: 10px;
+  background: #111; border-radius: 16px;
+  padding: 14px 16px; margin-bottom: 14px;
+}
+
+.d-streak-num {
+  font-size: 36px; font-weight: 900; color: #d97706; line-height: 1;
+}
+
+.d-streak-right { display: flex; flex-direction: column; gap: 2px; }
+.d-streak-label { font-size: 13px; font-weight: 800; color: #fff; }
+.d-streak-sub { font-size: 9px; color: #555; }
+
+.d-section { margin-bottom: 14px; }
+
+.d-section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.d-section-title { font-size: 13px; font-weight: 800; color: #111; }
+.d-section-see { font-size: 9px; color: #d97706; font-weight: 600; }
+
+.d-person {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid #ece8e0;
+}
+
+.d-pav {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: #f0ece0; font-size: 13px; font-weight: 800; color: #111;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+
+.d-pinfo { flex: 1; min-width: 0; }
+.d-pname { font-size: 11px; font-weight: 700; color: #111; }
+.d-pmeta { font-size: 9px; color: #aaa; margin-top: 1px; }
+
+.d-badge {
+  font-size: 8px; font-weight: 800; border-radius: 6px;
+  padding: 3px 7px; background: #d97706; color: #fff;
+}
+
+.d-heatmap-row { display: grid; grid-template-columns: repeat(14, 1fr); gap: 3px; }
+.d-hm { aspect-ratio: 1; border-radius: 2px; background: #ece8e0; }
+.d-hm-1 { background: #fde68a; }
+.d-hm-2 { background: #f59e0b; }
+.d-hm-3 { background: #d97706; }
+
+.d-nav {
+  height: 56px; background: #fff;
+  border-top: 1px solid #ece8e0;
+  display: flex; align-items: center; justify-content: space-around;
+  flex-shrink: 0; padding: 0 10px;
+}
+
+.d-nav-icon { font-size: 20px; opacity: 0.2; }
+.d-nav-icon.on { opacity: 1; }
+
+.d-fab {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: #d97706;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: #fff; margin-top: -22px;
+  box-shadow: 0 4px 16px rgba(217,119,6,0.4);
+}
+
+/* ── SHARED PILLS ── */
+.pill { font-size: 8px; font-weight: 800; border-radius: 6px; padding: 3px 8px; }
+.p-dinner { background: #92400e; color: #fde68a; }
+.p-coffee { background: #292524; color: #d6d3d1; }
+.p-work   { background: #1e3a8a; color: #bfdbfe; }
+.p-gym    { background: #14532d; color: #bbf7d0; }
+.p-party  { background: #4c1d95; color: #ddd6fe; }
+.p-call   { background: #164e63; color: #a5f3fc; }
+
+</style>
+</head>
+<body>
+
+<h1>hokédex</h1>
+<div class="intro">4 design concepts</div>
+
+<!-- ═══════════════════ CONCEPT A ═══════════════════ -->
+<div class="concept">
+  <div class="concept-label">Concept A</div>
+  <div class="concept-title">Editorial dark</div>
+  <div class="concept-desc">Personality color owns the top half. Bold numbers. Feed of moments below. Feels like a private media app — dark, cinematic, unapologetic.</div>
+
+  <div class="phones">
+
+    <!-- A: Home -->
+    <div>
+      <div class="screen-label">Home</div>
+      <div class="phone a">
+        <div class="status" style="color:rgba(255,255,255,0.4)">
+          <span>9:41</span><span>●●●</span>
+        </div>
+
+        <div class="a-hero">
+          <div class="a-hero-label">Saturday, 21 June</div>
+          <div class="a-hero-title">Your<br>week.</div>
+          <div class="a-avatars">
+            <div class="a-av">A</div>
+            <div class="a-av" style="background:#1a0a0a">S</div>
+            <div class="a-av" style="background:#200a0a">P</div>
+            <div class="a-av" style="background:#160808">R</div>
+            <div class="a-av-plus">+</div>
+          </div>
+        </div>
+
+        <div class="a-stats">
+          <div class="a-stat">
+            <span class="a-stat-n">7</span>
+            <span class="a-stat-l">moments</span>
+          </div>
+          <div class="a-stat">
+            <span class="a-stat-n">3</span>
+            <span class="a-stat-l">new</span>
+          </div>
+          <div class="a-stat">
+            <span class="a-stat-n a-streak-n">12</span>
+            <span class="a-stat-l">streak</span>
+          </div>
+        </div>
+
+        <div class="a-feed">
+          <div class="a-day-label">Today</div>
+          <div class="a-card">
+            <div class="a-card-top">
+              <span class="a-pill p-dinner">Dinner</span>
+              <span class="a-card-time">8:30 pm</span>
+            </div>
+            <div class="a-card-people">
+              <div class="a-cav">A</div>
+              <div class="a-cav" style="background:#1a1020">S</div>
+              <span class="a-card-names">Aarav, Sneha</span>
+            </div>
+            <div class="a-card-note">Toit. The usual table.</div>
+          </div>
+          <div class="a-card">
+            <div class="a-card-top">
+              <span class="a-pill p-coffee">Coffee</span>
+              <span class="a-card-time">11:00 am</span>
+            </div>
+            <div class="a-card-people">
+              <div class="a-cav">P</div>
+              <span class="a-card-names">Priya — first time</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="a-nav">
+          <div class="a-nav-icon on">⌂</div>
+          <div class="a-fab">📷</div>
+          <div class="a-nav-icon">👤</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- A: People -->
+    <div>
+      <div class="screen-label">People</div>
+      <div class="phone a">
+        <div class="status" style="color:rgba(255,255,255,0.4)">
+          <span>9:41</span><span>●●●</span>
+        </div>
+
+        <div style="padding:16px 22px 10px;flex-shrink:0">
+          <div style="font-size:36px;font-weight:900;letter-spacing:-0.03em;color:#fff;margin-bottom:14px">People</div>
+          <div style="background:#160808;border:1px solid #2a0808;border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <span style="font-size:10px;color:#443">🔍</span>
+            <span style="font-size:10px;color:#332">Search by name or face…</span>
+          </div>
+        </div>
+
+        <div style="flex:1;overflow:hidden;padding:0 22px">
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #1f0808">
+            <div style="width:40px;height:40px;border-radius:50%;background:#2a0808;border:2px solid #e8372a;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0">A</div>
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:700;color:#fff">Aarav M.</div>
+              <div style="font-size:9px;color:#554;margin-top:2px">3 days ago · 12 moments</div>
+            </div>
+            <span class="pill p-dinner" style="font-size:7px">frequent</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #1f0808">
+            <div style="width:40px;height:40px;border-radius:50%;background:#0a0a1a;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0">S</div>
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:700;color:#fff">Sneha R.</div>
+              <div style="font-size:9px;color:#554;margin-top:2px">2 weeks ago · 7 moments</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #1f0808">
+            <div style="width:40px;height:40px;border-radius:50%;background:#0a1a0a;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0">P</div>
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:700;color:#fff">Priya K.</div>
+              <div style="font-size:9px;color:#554;margin-top:2px">Yesterday · first time</div>
+            </div>
+            <span class="pill p-gym" style="font-size:7px">new</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 0;opacity:0.4">
+            <div style="width:40px;height:40px;border-radius:50%;background:#1a0808;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0">R</div>
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:700;color:#fff">Rohan D.</div>
+              <div style="font-size:9px;color:#554;margin-top:2px">28 days ago · drifting</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="a-nav">
+          <div class="a-nav-icon">⌂</div>
+          <div class="a-fab">📷</div>
+          <div class="a-nav-icon on">👤</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- A: Person profile -->
+    <div>
+      <div class="screen-label">Profile</div>
+      <div class="phone a">
+        <div class="status" style="color:rgba(255,255,255,0.4)">
+          <span>9:41</span><span>●●●</span>
+        </div>
+
+        <div style="background:linear-gradient(160deg,#8a0c06 0%,#2a0808 50%,#0e0606 100%);padding:14px 22px 20px;flex-shrink:0;position:relative">
+          <div style="font-size:9px;color:rgba(255,255,255,0.3);margin-bottom:12px">← Back</div>
+          <div style="width:60px;height:60px;border-radius:50%;background:#2a0808;border:3px solid #e8372a;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#fff;margin-bottom:10px">A</div>
+          <div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:-0.02em">Aarav M.</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px">12 moments · first met Mar 2024</div>
+        </div>
+
+        <div style="display:flex;border-bottom:1px solid #1f0808;flex-shrink:0">
+          <div style="flex:1;padding:10px;text-align:center;border-right:1px solid #1f0808">
+            <div style="font-size:20px;font-weight:900;color:#e8372a">12</div>
+            <div style="font-size:7px;color:#443;text-transform:uppercase;letter-spacing:0.08em">moments</div>
+          </div>
+          <div style="flex:1;padding:10px;text-align:center;border-right:1px solid #1f0808">
+            <div style="font-size:20px;font-weight:900;color:#fff">3d</div>
+            <div style="font-size:7px;color:#443;text-transform:uppercase;letter-spacing:0.08em">last seen</div>
+          </div>
+          <div style="flex:1;padding:10px;text-align:center">
+            <div style="font-size:20px;font-weight:900;color:#fff">4</div>
+            <div style="font-size:7px;color:#443;text-transform:uppercase;letter-spacing:0.08em">shared</div>
+          </div>
+        </div>
+
+        <div style="flex:1;overflow:hidden;padding:14px 22px">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:#443;margin-bottom:8px">Recent moments</div>
+          <div class="a-card">
+            <div class="a-card-top"><span class="pill p-dinner">Dinner</span><span class="a-card-time">3 days ago</span></div>
+            <div class="a-card-note">Toit with Sneha.</div>
+          </div>
+          <div class="a-card">
+            <div class="a-card-top"><span class="pill p-work">Work</span><span class="a-card-time">1 week ago</span></div>
+            <div class="a-card-note">Sprint planning.</div>
+          </div>
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:#443;margin:10px 0 8px">Special dates</div>
+          <div style="display:flex;align-items:center;gap:8px;background:#160808;border:1px solid #2a0808;border-radius:12px;padding:10px 12px">
+            <span style="font-size:16px">🎂</span>
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#fff">Birthday</div>
+              <div style="font-size:9px;color:#554">Aug 12 · turning 29</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="a-nav">
+          <div class="a-nav-icon">⌂</div>
+          <div class="a-fab">📷</div>
+          <div class="a-nav-icon on">👤</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════ CONCEPT B ═══════════════════ -->
+<div class="concept">
+  <div class="concept-label">Concept B</div>
+  <div class="concept-title">Neobrutalist</div>
+  <div class="concept-desc">Cream base. Black heavy type. Color lives in the cards, not the chrome. Feels printed — confident and unusual for a mobile app.</div>
+
+  <div class="phones">
+
+    <!-- B: Home -->
+    <div>
+      <div class="screen-label">Home</div>
+      <div class="phone b">
+        <div class="status"><span style="color:#888">9:41</span><span style="color:#888">●●●</span></div>
+
+        <div style="padding:12px 22px 0;flex-shrink:0">
+          <div style="font-size:9px;color:#aaa;margin-bottom:2px">Saturday, 21 June</div>
+          <div class="b-title">Your<br>week.</div>
+        </div>
+
+        <div class="b-streak">
+          <div class="b-streak-num">12</div>
+          <div>
+            <div class="b-streak-label">day streak 🔥</div>
+            <div class="b-streak-text">Haven't missed since June 9.</div>
+          </div>
+        </div>
+
+        <div style="padding:0 22px;flex:1;overflow:hidden">
+          <!-- terracotta card -->
+          <div class="b-card" style="background:#c4602a;color:#fff;margin-bottom:10px">
+            <div class="b-card-label">This week</div>
+            <div class="b-card-title">7 moments.<br>3 new people.</div>
+            <div class="b-card-people">
+              <div class="b-cav" style="background:#8a3010;border:2px solid #c4602a">A</div>
+              <div class="b-cav" style="background:#7a2808;border:2px solid #c4602a">S</div>
+              <div class="b-cav" style="background:#6a2006;border:2px solid #c4602a">P</div>
+              <span style="font-size:9px;color:rgba(255,255,255,0.6);margin-left:10px">+4 others</span>
+            </div>
+          </div>
+          <!-- yellow card -->
+          <div class="b-card" style="background:#e8c200;color:#111">
+            <div class="b-card-label" style="color:#6b5800">Drifting</div>
+            <div class="b-card-title">Rohan D.</div>
+            <div class="b-card-meta">28 days since last moment.</div>
+          </div>
+
+          <div style="margin-top:10px">
+            <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:#aaa;margin-bottom:8px">Past 4 weeks</div>
+            <div class="d-heatmap-row">
+              <div class="d-hm"></div><div class="d-hm d-hm-1"></div><div class="d-hm d-hm-2"></div><div class="d-hm"></div><div class="d-hm d-hm-1"></div><div class="d-hm d-hm-3"></div><div class="d-hm d-hm-1"></div>
+              <div class="d-hm d-hm-1"></div><div class="d-hm"></div><div class="d-hm d-hm-1"></div><div class="d-hm d-hm-2"></div><div class="d-hm d-hm-1"></div><div class="d-hm"></div><div class="d-hm d-hm-2"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="b-nav">
+          <div class="b-nav-icon on">⌂</div>
+          <div class="b-fab">📷</div>
+          <div class="b-nav-icon">👤</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- B: Moments feed -->
+    <div>
+      <div class="screen-label">Moments</div>
+      <div class="phone b">
+        <div class="status"><span style="color:#888">9:41</span><span style="color:#888">●●●</span></div>
+
+        <div class="b-header">
+          <div class="b-title">Moments</div>
+          <div class="b-tabs">
+            <div class="b-tab on">All</div>
+            <div class="b-tab">Dinner</div>
+            <div class="b-tab">Work</div>
+            <div class="b-tab">Coffee</div>
+          </div>
+        </div>
+
+        <div class="b-cards">
+          <div class="b-card" style="background:#c4602a;color:#fff">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span class="pill" style="background:rgba(0,0,0,0.3);color:#fde68a">Dinner</span>
+              <span style="font-size:8px;color:rgba(255,255,255,0.5)">Today, 8:30 pm</span>
+            </div>
+            <div style="font-size:14px;font-weight:800;margin-bottom:6px">Toit. The usual table.</div>
+            <div style="display:flex;gap:0">
+              <div class="b-cav" style="background:#8a3010;border-color:#c4602a">A</div>
+              <div class="b-cav" style="background:#7a2808;border-color:#c4602a">S</div>
+              <span style="font-size:9px;color:rgba(255,255,255,0.6);margin-left:10px">Aarav, Sneha</span>
+            </div>
+          </div>
+
+          <div class="b-card" style="background:#e8e0d0;border:1.5px solid #c8c0b0">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span class="pill p-coffee">Coffee</span>
+              <span style="font-size:8px;color:#aaa">Today, 11 am</span>
+            </div>
+            <div style="font-size:14px;font-weight:800;color:#111;margin-bottom:4px">Blue Tokai.</div>
+            <div style="font-size:9px;color:#888">Priya — first time.</div>
+          </div>
+
+          <div class="b-card" style="background:#1a3a1a;color:#fff">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span class="pill p-gym">Gym</span>
+              <span style="font-size:8px;color:rgba(255,255,255,0.3)">Yesterday, 7 am</span>
+            </div>
+            <div style="font-size:14px;font-weight:800;margin-bottom:4px">Morning session.</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.4)">Meera</div>
+          </div>
+        </div>
+
+        <div class="b-nav">
+          <div class="b-nav-icon">⌂</div>
+          <div class="b-fab">📷</div>
+          <div class="b-nav-icon on">👤</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- B: People cluster -->
+    <div>
+      <div class="screen-label">People</div>
+      <div class="phone b">
+        <div class="status"><span style="color:#888">9:41</span><span style="color:#888">●●●</span></div>
+
+        <div style="padding:12px 22px 10px;flex-shrink:0">
+          <div class="b-title">People</div>
+        </div>
+
+        <!-- cluster -->
+        <div style="display:flex;justify-content:center;align-items:center;padding:10px 0;flex-shrink:0;position:relative;height:180px">
+          <!-- center + -->
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:50px;height:50px;border-radius:50%;background:#111;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:300;color:#f0ebe0;z-index:10;box-shadow:0 4px 20px rgba(0,0,0,0.3)">+</div>
+          <!-- top -->
+          <div style="position:absolute;top:8px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:3px">
+            <div style="width:44px;height:44px;border-radius:50%;background:#c4602a;border:3px solid #f0ebe0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#fff">A</div>
+            <span style="font-size:8px;color:#555">Aarav</span>
+          </div>
+          <!-- right -->
+          <div style="position:absolute;right:36px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:3px">
+            <div style="width:38px;height:38px;border-radius:50%;background:#1a3a5a;border:3px solid #f0ebe0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff">S</div>
+            <span style="font-size:8px;color:#555">Sneha</span>
+          </div>
+          <!-- bottom right -->
+          <div style="position:absolute;bottom:12px;right:56px;display:flex;flex-direction:column;align-items:center;gap:3px">
+            <div style="width:34px;height:34px;border-radius:50%;background:#1a3a1a;border:3px solid #f0ebe0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff">P</div>
+            <span style="font-size:8px;color:#555">Priya</span>
+          </div>
+          <!-- bottom left — faded, drifting -->
+          <div style="position:absolute;bottom:12px;left:56px;display:flex;flex-direction:column;align-items:center;gap:3px;opacity:0.35">
+            <div style="width:34px;height:34px;border-radius:50%;background:#aaa;border:3px solid #f0ebe0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff">R</div>
+            <span style="font-size:8px;color:#aaa">Rohan</span>
+          </div>
+          <!-- left -->
+          <div style="position:absolute;left:36px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:3px">
+            <div style="width:38px;height:38px;border-radius:50%;background:#e8c200;border:3px solid #f0ebe0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#111">M</div>
+            <span style="font-size:8px;color:#555">Meera</span>
+          </div>
+        </div>
+
+        <div style="margin:0 22px 8px;background:#111;border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0">
+          <span style="font-size:12px">🔍</span>
+          <span style="font-size:10px;color:#555">Search…</span>
+        </div>
+
+        <div style="flex:1;overflow:hidden;padding:0 22px">
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1.5px solid #d8d0c0">
+            <div style="width:36px;height:36px;border-radius:50%;background:#c4602a;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff">A</div>
+            <div style="flex:1"><div style="font-size:11px;font-weight:700;color:#111">Aarav M.</div><div style="font-size:9px;color:#aaa">3 days ago · 12 moments</div></div>
+            <span style="font-size:8px;font-weight:800;background:#c4602a;color:#fff;border-radius:6px;padding:2px 7px">12×</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1.5px solid #d8d0c0">
+            <div style="width:36px;height:36px;border-radius:50%;background:#1a3a5a;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff">S</div>
+            <div style="flex:1"><div style="font-size:11px;font-weight:700;color:#111">Sneha R.</div><div style="font-size:9px;color:#aaa">2 weeks ago · 7 moments</div></div>
+            <span style="font-size:8px;font-weight:800;background:#111;color:#f0ebe0;border-radius:6px;padding:2px 7px">7×</span>
+          </div>
+        </div>
+
+        <div class="b-nav">
+          <div class="b-nav-icon">⌂</div>
+          <div class="b-fab">📷</div>
+          <div class="b-nav-icon on">👤</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════ CONCEPT C ═══════════════════ -->
+<div class="concept">
+  <div class="concept-label">Concept C</div>
+  <div class="concept-title">Gradient depth</div>
+  <div class="concept-desc">Deep navy, not pure black. Color glows from radial orbs in the header — soft, spatial, premium. Cards float on the dark field. Closest to Oscar.</div>
+
+  <div class="phones">
+
+    <!-- C: Home -->
+    <div>
+      <div class="screen-label">Home</div>
+      <div class="phone c">
+        <div class="status"><span>9:41</span><span>●●●</span></div>
+
+        <div class="c-hero">
+          <div class="c-gradient-orb"></div>
+          <div class="c-gradient-orb2"></div>
+          <div class="c-greeting">Saturday, 21 June</div>
+          <div class="c-title">Your<br>week.</div>
+        </div>
+
+        <div class="c-cards-row">
+          <div class="c-mini-card">
+            <span class="c-mini-num">7</span>
+            <span class="c-mini-label">moments</span>
+          </div>
+          <div class="c-mini-card">
+            <span class="c-mini-num">3</span>
+            <span class="c-mini-label">new</span>
+          </div>
+          <div class="c-mini-card">
+            <span class="c-mini-num c-mini-accent">12</span>
+            <span class="c-mini-label">streak</span>
+          </div>
+        </div>
+
+        <div class="c-body">
+          <div style="background:rgba(232,55,42,0.1);border:1px solid rgba(232,55,42,0.25);border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <span style="font-size:16px">🔥</span>
+            <div style="font-size:9px;color:rgba(255,255,255,0.6);line-height:1.5"><strong style="color:#fff">12 day streak.</strong><br>Haven't missed since June 9.</div>
+          </div>
+
+          <div class="c-section-label">Most seen</div>
+          <div class="c-people-row">
+            <div class="c-person">
+              <div class="c-pav hot">A</div>
+              <div class="c-pname">Aarav</div>
+              <div class="c-pcount">12×</div>
+            </div>
+            <div class="c-person">
+              <div class="c-pav">S</div>
+              <div class="c-pname">Sneha</div>
+              <div class="c-pcount" style="color:#7a8faa">7×</div>
+            </div>
+            <div class="c-person">
+              <div class="c-pav">M</div>
+              <div class="c-pname">Meera</div>
+              <div class="c-pcount" style="color:#7a8faa">4×</div>
+            </div>
+            <div class="c-person">
+              <div class="c-add-btn">+</div>
+              <div class="c-pname">add</div>
+            </div>
+          </div>
+
+          <div class="c-section-label">Today</div>
+          <div class="c-moment">
+            <div class="c-moment-top">
+              <span class="pill p-dinner">Dinner</span>
+              <span class="c-moment-time">8:30 pm</span>
+            </div>
+            <div class="c-moment-names">Aarav, Sneha</div>
+            <div class="c-moment-note">Toit. The usual table.</div>
+          </div>
+          <div class="c-moment">
+            <div class="c-moment-top">
+              <span class="pill p-coffee">Coffee</span>
+              <span class="c-moment-time">11:00 am</span>
+            </div>
+            <div class="c-moment-names">Priya — first time</div>
+          </div>
+        </div>
+
+        <div class="c-nav">
+          <div class="c-nav-icon on">⌂</div>
+          <div class="c-fab">📷</div>
+          <div class="c-nav-icon">👤</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C: People -->
+    <div>
+      <div class="screen-label">People</div>
+      <div class="phone c">
+        <div class="status"><span>9:41</span><span>●●●</span></div>
+
+        <div style="padding:14px 22px 10px;position:relative;flex-shrink:0">
+          <div style="position:absolute;top:-20px;right:-20px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(232,55,42,0.2) 0%,transparent 70%);pointer-events:none"></div>
+          <div style="font-size:32px;font-weight:900;color:#fff;letter-spacing:-0.02em;position:relative;z-index:2">People</div>
+        </div>
+
+        <!-- cluster -->
+        <div style="position:relative;height:190px;flex-shrink:0">
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#e8372a,#ff6b35);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;z-index:10;box-shadow:0 0 24px rgba(232,55,42,0.5)">+</div>
+          <div style="position:absolute;top:8px;left:50%;transform:translateX(-50%);text-align:center">
+            <div style="width:48px;height:48px;border-radius:50%;background:#1a1f3a;border:2px solid #e8372a;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;box-shadow:0 0 16px rgba(232,55,42,0.3);margin:0 auto">A</div>
+            <div style="font-size:8px;color:rgba(255,255,255,0.4);margin-top:3px">Aarav</div>
+          </div>
+          <div style="position:absolute;right:32px;top:50%;transform:translateY(-50%);text-align:center">
+            <div style="width:42px;height:42px;border-radius:50%;background:#1a1f3a;border:1.5px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;margin:0 auto">S</div>
+            <div style="font-size:8px;color:rgba(255,255,255,0.3);margin-top:3px">Sneha</div>
+          </div>
+          <div style="position:absolute;bottom:10px;right:50px;text-align:center">
+            <div style="width:36px;height:36px;border-radius:50%;background:#1a1f3a;border:1.5px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;margin:0 auto">P</div>
+            <div style="font-size:8px;color:rgba(255,255,255,0.3);margin-top:3px">Priya</div>
+          </div>
+          <div style="position:absolute;bottom:10px;left:50px;text-align:center;opacity:0.3">
+            <div style="width:36px;height:36px;border-radius:50%;background:#1a1f3a;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;margin:0 auto">R</div>
+            <div style="font-size:8px;color:rgba(255,255,255,0.3);margin-top:3px">Rohan</div>
+          </div>
+          <div style="position:absolute;left:32px;top:50%;transform:translateY(-50%);text-align:center">
+            <div style="width:42px;height:42px;border-radius:50%;background:#1a1f3a;border:1.5px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;margin:0 auto">M</div>
+            <div style="font-size:8px;color:rgba(255,255,255,0.3);margin-top:3px">Meera</div>
+          </div>
+        </div>
+
+        <div style="flex:1;overflow:hidden;padding:0 22px">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.2);margin-bottom:8px">Most recent</div>
+          <div class="c-moment">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="width:28px;height:28px;border-radius:50%;background:#1a1f3a;border:1.5px solid #e8372a;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff">A</div>
+              <div>
+                <div style="font-size:10px;font-weight:700;color:#fff">Aarav M.</div>
+                <div style="font-size:8px;color:rgba(255,255,255,0.3)">3 days ago · 12 moments</div>
+              </div>
+            </div>
+          </div>
+          <div class="c-moment">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="width:28px;height:28px;border-radius:50%;background:#1a1f3a;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff">S</div>
+              <div>
+                <div style="font-size:10px;font-weight:700;color:#fff">Sneha R.</div>
+                <div style="font-size:8px;color:rgba(255,255,255,0.3)">2 weeks ago · 7 moments</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="c-nav">
+          <div class="c-nav-icon">⌂</div>
+          <div class="c-fab">📷</div>
+          <div class="c-nav-icon on">👤</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C: Profile -->
+    <div>
+      <div class="screen-label">Profile</div>
+      <div class="phone c">
+        <div class="status"><span>9:41</span><span>●●●</span></div>
+
+        <div style="position:relative;flex-shrink:0;padding-bottom:16px">
+          <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(160deg,rgba(232,55,42,0.25) 0%,transparent 60%);pointer-events:none"></div>
+          <div style="padding:10px 22px 0;font-size:9px;color:rgba(255,255,255,0.3);position:relative;z-index:2">← People</div>
+          <div style="padding:12px 22px 0;position:relative;z-index:2">
+            <div style="width:64px;height:64px;border-radius:50%;background:#1a1f3a;border:3px solid #e8372a;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#fff;margin-bottom:10px;box-shadow:0 0 20px rgba(232,55,42,0.4)">A</div>
+            <div style="font-size:26px;font-weight:900;color:#fff;letter-spacing:-0.02em">Aarav M.</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:3px">First met March 2024</div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-shrink:0">
+          <div style="flex:1;padding:10px;text-align:center;border-right:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06)">
+            <div style="font-size:22px;font-weight:900;color:#e8372a">12</div>
+            <div style="font-size:7px;color:rgba(255,255,255,0.2);text-transform:uppercase;letter-spacing:0.08em">moments</div>
+          </div>
+          <div style="flex:1;padding:10px;text-align:center;border-right:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06)">
+            <div style="font-size:22px;font-weight:900;color:#fff">3d</div>
+            <div style="font-size:7px;color:rgba(255,255,255,0.2);text-transform:uppercase;letter-spacing:0.08em">last seen</div>
+          </div>
+          <div style="flex:1;padding:10px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.06)">
+            <div style="font-size:22px;font-weight:900;color:#fff">4</div>
+            <div style="font-size:7px;color:rgba(255,255,255,0.2);text-transform:uppercase;letter-spacing:0.08em">shared</div>
+          </div>
+        </div>
+
+        <div style="flex:1;overflow:hidden;padding:14px 22px">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.2);margin-bottom:8px">Moments together</div>
+          <div class="c-moment" style="margin-bottom:6px">
+            <div class="c-moment-top"><span class="pill p-dinner">Dinner</span><span class="c-moment-time">3 days ago</span></div>
+            <div class="c-moment-note">Toit with Sneha.</div>
+          </div>
+          <div class="c-moment">
+            <div class="c-moment-top"><span class="pill p-work">Work</span><span class="c-moment-time">1 week ago</span></div>
+            <div class="c-moment-note">Sprint planning.</div>
+          </div>
+          <div style="margin-top:10px;background:rgba(232,55,42,0.08);border:1px solid rgba(232,55,42,0.2);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:8px">
+            <span style="font-size:16px">🎂</span>
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#fff">Birthday — Aug 12</div>
+              <div style="font-size:9px;color:rgba(255,255,255,0.3)">Turning 29 · in 52 days</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="c-nav">
+          <div class="c-nav-icon">⌂</div>
+          <div class="c-fab">📷</div>
+          <div class="c-nav-icon on">👤</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════ CONCEPT D ═══════════════════ -->
+<div class="concept">
+  <div class="concept-label">Concept D</div>
+  <div class="concept-title">Warm minimal</div>
+  <div class="concept-desc">White/cream base. Deep amber accent. Clean sections. Closest to Fitplan and the LinkedIn redesign — feels trustworthy, readable, everyday.</div>
+
+  <div class="phones">
+
+    <!-- D: Home -->
+    <div>
+      <div class="screen-label">Home</div>
+      <div class="phone d">
+        <div class="status"><span style="color:#aaa">9:41</span><span style="color:#aaa">●●●</span></div>
+
+        <div class="d-header">
+          <div class="d-greeting">Saturday, 21 June</div>
+          <div class="d-title">Your week.</div>
+        </div>
+
+        <div class="d-body">
+          <div class="d-streak-row">
+            <div class="d-streak-num">12</div>
+            <div class="d-streak-right">
+              <div class="d-streak-label">day streak 🔥</div>
+              <div class="d-streak-sub">Haven't missed since June 9.</div>
+            </div>
+          </div>
+
+          <div class="d-section">
+            <div class="d-section-header">
+              <div class="d-section-title">Most seen</div>
+              <div class="d-section-see">See all →</div>
+            </div>
+            <div class="d-person">
+              <div class="d-pav" style="background:#fde68a;color:#92400e">A</div>
+              <div class="d-pinfo">
+                <div class="d-pname">Aarav M.</div>
+                <div class="d-pmeta">3 days ago · 12 moments</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:4px">
+                <div style="width:50px;height:4px;background:#f0ece0;border-radius:2px;overflow:hidden">
+                  <div style="width:90%;height:100%;background:#d97706;border-radius:2px"></div>
+                </div>
+                <span style="font-size:8px;color:#aaa">12×</span>
+              </div>
+            </div>
+            <div class="d-person">
+              <div class="d-pav" style="background:#dbeafe;color:#1e3a8a">S</div>
+              <div class="d-pinfo">
+                <div class="d-pname">Sneha R.</div>
+                <div class="d-pmeta">2 weeks ago · 7 moments</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:4px">
+                <div style="width:50px;height:4px;background:#f0ece0;border-radius:2px;overflow:hidden">
+                  <div style="width:55%;height:100%;background:#d97706;border-radius:2px"></div>
+                </div>
+                <span style="font-size:8px;color:#aaa">7×</span>
+              </div>
+            </div>
+            <div class="d-person" style="opacity:0.4">
+              <div class="d-pav">R</div>
+              <div class="d-pinfo">
+                <div class="d-pname">Rohan D.</div>
+                <div class="d-pmeta">28 days ago · drifting</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-section">
+            <div class="d-section-header">
+              <div class="d-section-title">Past 4 weeks</div>
+            </div>
+            <div class="d-heatmap-row">
+              <div class="d-hm"></div><div class="d-hm d-hm-1"></div><div class="d-hm d-hm-2"></div><div class="d-hm"></div><div class="d-hm d-hm-1"></div><div class="d-hm d-hm-3"></div><div class="d-hm d-hm-1"></div>
+              <div class="d-hm d-hm-1"></div><div class="d-hm"></div><div class="d-hm d-hm-1"></div><div class="d-hm d-hm-2"></div><div class="d-hm d-hm-1"></div><div class="d-hm"></div><div class="d-hm d-hm-2"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-nav">
+          <div class="d-nav-icon on">⌂</div>
+          <div class="d-fab">📷</div>
+          <div class="d-nav-icon">👤</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D: Moments -->
+    <div>
+      <div class="screen-label">Moments</div>
+      <div class="phone d">
+        <div class="status"><span style="color:#aaa">9:41</span><span style="color:#aaa">●●●</span></div>
+
+        <div class="d-header">
+          <div class="d-greeting">Today</div>
+          <div class="d-title">Moments</div>
+        </div>
+
+        <div style="display:flex;gap:6px;padding:10px 22px;flex-shrink:0;overflow:hidden">
+          <div style="font-size:9px;font-weight:700;padding:4px 10px;border-radius:16px;background:#111;color:#fafaf7">All</div>
+          <div style="font-size:9px;font-weight:700;padding:4px 10px;border-radius:16px;border:1px solid #ddd;color:#aaa">Dinner</div>
+          <div style="font-size:9px;font-weight:700;padding:4px 10px;border-radius:16px;border:1px solid #ddd;color:#aaa">Work</div>
+          <div style="font-size:9px;font-weight:700;padding:4px 10px;border-radius:16px;border:1px solid #ddd;color:#aaa">Coffee</div>
+        </div>
+
+        <div style="flex:1;overflow:hidden;padding:0 22px">
+          <div style="background:#fff;border:1px solid #ece8e0;border-radius:16px;padding:12px 14px;margin-bottom:8px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+              <span class="pill p-dinner">Dinner</span>
+              <span style="font-size:8px;color:#aaa;margin-left:auto">8:30 pm</span>
+            </div>
+            <div style="font-size:13px;font-weight:800;color:#111;margin-bottom:6px">Toit. The usual table.</div>
+            <div style="display:flex;align-items:center;gap:4px">
+              <div style="width:24px;height:24px;border-radius:50%;background:#fde68a;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#92400e;margin-right:-6px">A</div>
+              <div style="width:24px;height:24px;border-radius:50%;background:#dbeafe;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#1e3a8a">S</div>
+              <span style="font-size:9px;color:#aaa;margin-left:8px">Aarav, Sneha</span>
+            </div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #ece8e0;border-radius:16px;padding:12px 14px;margin-bottom:8px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+              <span class="pill p-coffee">Coffee</span>
+              <span style="font-size:8px;color:#aaa;margin-left:auto">11:00 am</span>
+            </div>
+            <div style="font-size:13px;font-weight:800;color:#111;margin-bottom:4px">Blue Tokai.</div>
+            <div style="font-size:9px;color:#aaa">Priya — first time ✨</div>
+          </div>
+
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:#aaa;margin:8px 0 6px">Yesterday</div>
+
+          <div style="background:#fff;border:1px solid #ece8e0;border-radius:16px;padding:12px 14px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+              <span class="pill p-gym">Gym</span>
+              <span style="font-size:8px;color:#aaa;margin-left:auto">7:00 am</span>
+            </div>
+            <div style="font-size:9px;color:#aaa">Meera</div>
+          </div>
+        </div>
+
+        <div class="d-nav">
+          <div class="d-nav-icon">⌂</div>
+          <div class="d-fab">📷</div>
+          <div class="d-nav-icon on">👤</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D: Profile -->
+    <div>
+      <div class="screen-label">Profile</div>
+      <div class="phone d">
+        <div class="status"><span style="color:#aaa">9:41</span><span style="color:#aaa">●●●</span></div>
+
+        <div style="background:#fff;padding:14px 22px 16px;border-bottom:1px solid #ece8e0;flex-shrink:0">
+          <div style="font-size:9px;color:#aaa;margin-bottom:12px">← People</div>
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="width:56px;height:56px;border-radius:50%;background:#fde68a;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#92400e;flex-shrink:0">A</div>
+            <div>
+              <div style="font-size:20px;font-weight:900;color:#111;letter-spacing:-0.02em">Aarav M.</div>
+              <div style="font-size:9px;color:#aaa;margin-top:2px">First met March 2024</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;background:#fff;border-bottom:1px solid #ece8e0;flex-shrink:0">
+          <div style="flex:1;padding:10px;text-align:center;border-right:1px solid #ece8e0">
+            <div style="font-size:22px;font-weight:900;color:#d97706">12</div>
+            <div style="font-size:7px;color:#aaa;text-transform:uppercase;letter-spacing:0.08em">moments</div>
+          </div>
+          <div style="flex:1;padding:10px;text-align:center;border-right:1px solid #ece8e0">
+            <div style="font-size:22px;font-weight:900;color:#111">3d</div>
+            <div style="font-size:7px;color:#aaa;text-transform:uppercase;letter-spacing:0.08em">last seen</div>
+          </div>
+          <div style="flex:1;padding:10px;text-align:center">
+            <div style="font-size:22px;font-weight:900;color:#111">4</div>
+            <div style="font-size:7px;color:#aaa;text-transform:uppercase;letter-spacing:0.08em">shared</div>
+          </div>
+        </div>
+
+        <div style="flex:1;overflow:hidden;padding:14px 22px">
+          <div style="font-size:11px;font-weight:800;color:#111;margin-bottom:8px">Recent moments</div>
+
+          <div style="background:#fff;border:1px solid #ece8e0;border-radius:14px;padding:10px 12px;margin-bottom:6px">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span class="pill p-dinner">Dinner</span>
+              <span style="font-size:8px;color:#aaa;margin-left:auto">3 days ago</span>
+            </div>
+            <div style="font-size:9px;color:#aaa;margin-top:4px">Toit with Sneha.</div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #ece8e0;border-radius:14px;padding:10px 12px;margin-bottom:10px">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span class="pill p-work">Work</span>
+              <span style="font-size:8px;color:#aaa;margin-left:auto">1 week ago</span>
+            </div>
+            <div style="font-size:9px;color:#aaa;margin-top:4px">Sprint planning.</div>
+          </div>
+
+          <div style="font-size:11px;font-weight:800;color:#111;margin-bottom:8px">Special dates</div>
+          <div style="background:#fff;border:1px solid #ece8e0;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px">
+            <span style="font-size:18px">🎂</span>
+            <div>
+              <div style="font-size:10px;font-weight:800;color:#111">Birthday · Aug 12</div>
+              <div style="font-size:9px;color:#aaa">Turning 29 · in 52 days</div>
+            </div>
+            <div style="margin-left:auto;font-size:8px;font-weight:800;background:#d97706;color:#fff;border-radius:6px;padding:3px 7px">remind</div>
+          </div>
+        </div>
+
+        <div class="d-nav">
+          <div class="d-nav-icon">⌂</div>
+          <div class="d-fab">📷</div>
+          <div class="d-nav-icon on">👤</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

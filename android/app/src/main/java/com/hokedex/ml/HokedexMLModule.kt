@@ -14,7 +14,8 @@ class HokedexMLModule(private val reactContext: ReactApplicationContext) :
     private val executor = Executors.newSingleThreadExecutor()
 
     init {
-        MLRegistry.register("people", PeoplePipeline(reactContext))
+        MLRegistry.register("people") { PeoplePipeline(reactContext) }
+        MLRegistry.register("ocr") { OcrPipeline(reactContext) }
     }
 
     @ReactMethod
@@ -95,13 +96,12 @@ class HokedexMLModule(private val reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun detect(imageUri: String, categoryId: String, promise: Promise) {
-        val pipeline = MLRegistry.get(categoryId)
+        val pipeline = MLRegistry.get<MLResult>(categoryId)
             ?: run { promise.reject("UNSUPPORTED_CATEGORY", "No pipeline for '$categoryId'"); return }
 
         executor.execute {
             try {
-                val result = pipeline.detect(reactContext, imageUri)
-                promise.resolve(result.toWritableMap())
+                promise.resolve(pipeline.detect(reactContext, imageUri).toWritableMap())
             } catch (e: Exception) {
                 promise.reject("DETECTION_ERROR", e.message, e)
             }
@@ -110,8 +110,13 @@ class HokedexMLModule(private val reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun embed(cropUri: String, categoryId: String, promise: Promise) {
-        val pipeline = MLRegistry.get(categoryId)
+        val pipeline = MLRegistry.get<MLResult>(categoryId)
             ?: run { promise.reject("UNSUPPORTED_CATEGORY", "No pipeline for '$categoryId'"); return }
+
+        if (pipeline !is EmbeddablePipeline) {
+            promise.reject("NOT_SUPPORTED", "Category '$categoryId' does not support embedding")
+            return
+        }
 
         executor.execute {
             try {
@@ -127,8 +132,13 @@ class HokedexMLModule(private val reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun embedCrop(imageUri: String, x: Double, y: Double, width: Double, height: Double, categoryId: String, promise: Promise) {
-        val pipeline = MLRegistry.get(categoryId)
+        val pipeline = MLRegistry.get<MLResult>(categoryId)
             ?: run { promise.reject("UNSUPPORTED_CATEGORY", "No pipeline for '$categoryId'"); return }
+
+        if (pipeline !is EmbeddablePipeline) {
+            promise.reject("NOT_SUPPORTED", "Category '$categoryId' does not support embedding")
+            return
+        }
 
         executor.execute {
             try {
@@ -142,7 +152,7 @@ class HokedexMLModule(private val reactContext: ReactApplicationContext) :
         }
     }
 
-    private fun DetectionResult.toWritableMap(): WritableMap = when (this) {
+    private fun MLResult.toWritableMap(): WritableMap = when (this) {
         is DetectionResult.NoSubject -> Arguments.createMap().apply {
             putString("type", "NO_SUBJECT")
         }
@@ -161,6 +171,28 @@ class HokedexMLModule(private val reactContext: ReactApplicationContext) :
             putString("type", "SUCCESS")
             putMap("crop", crop.toWritableMap())
         }
+        is TextResult -> Arguments.createMap().apply {
+            putString("type", "TEXT_RESULT")
+            putString("fullText", fullText)
+            putArray("blocks", Arguments.createArray().also { arr ->
+                blocks.forEach { arr.pushMap(it.toWritableMap()) }
+            })
+        }
+    }
+
+    private fun TextBlock.toWritableMap(): WritableMap = Arguments.createMap().apply {
+        putString("text", text)
+        putMap("boundingBox", boundingBox.toWritableMap())
+        script?.let { putString("script", it) }
+        putArray("lines", Arguments.createArray().also { arr ->
+            lines.forEach { arr.pushMap(it.toWritableMap()) }
+        })
+    }
+
+    private fun TextLine.toWritableMap(): WritableMap = Arguments.createMap().apply {
+        putString("text", text)
+        putMap("boundingBox", boundingBox.toWritableMap())
+        putDouble("confidence", confidence.toDouble())
     }
 
     private fun BoundingBox.toWritableMap(): WritableMap = Arguments.createMap().apply {

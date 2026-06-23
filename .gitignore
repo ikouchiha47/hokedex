@@ -94,3 +94,5 @@ android/build/
 # Python bench venv
 /tmp/faceenv*
 keystore.properties
+android/app/src/main/res/drawable-mdpi/node_modules_*
+FACES_PLAN.md

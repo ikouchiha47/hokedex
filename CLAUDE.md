@@ -6,6 +6,9 @@
 - DB location on device: `/sdcard/Android/data/com.hokedex/files/hokedex.db`
 - External storage — `run-as` does NOT work on release builds; use ADB pull/push
 
+## android/settings.gradle — manual includes
+`react-native-nitro-modules` and `react-native-nitro-image` are manually included even though both ship `react-native.config.js` for autolinking. The reason: `nitro-image`'s `build.gradle` references `project(":react-native-nitro-modules")` directly, so nitro-modules must be registered as a Gradle subproject before build scripts run — autolinking order is not guaranteed. These were present since v0.1 and have never been verified against a version that fixes this. **TODO at v1.5.0:** test removing both manual includes and confirm the build resolves `:react-native-nitro-modules` correctly via autolinking alone.
+
 ## Building a Release APK
 
 Gradle caches the Metro JS bundle aggressively. Always pre-bundle manually:

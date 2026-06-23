@@ -18,6 +18,9 @@ import migration006 from './migrations/006_photo_original_path.sql';
 import migration007 from './migrations/007_moments.sql';
 import migration008 from './migrations/008_entries_is_self.sql';
 import migration009 from './migrations/009_group_sessions.sql';
+import migration010 from './migrations/010_app_settings.sql';
+import migration011 from './migrations/011_moments_metadata.sql';
+import migration012 from './migrations/012_moment_faces_queue.sql';
 import queriesMigrations from './queries/migrations.sql';
 import queriesCategories from './queries/categories.sql';
 import queriesEntries from './queries/entries.sql';
@@ -30,6 +33,10 @@ import queriesMoments from './queries/moments.sql';
 import queriesMomentPeople from './queries/moment_people.sql';
 import queriesPersonDates from './queries/person_dates.sql';
 import queriesSavedPlaces from './queries/saved_places.sql';
+import queriesAppSettings from './queries/app_settings.sql';
+import queriesMomentFaces from './queries/moment_faces.sql';
+import queriesProcessingQueue from './queries/processing_queue.sql';
+import queriesMomentGroups from './queries/moment_groups.sql';
 import queriesDataMigrations from './queries/data_migrations.sql';
 import dataMigration000BackfillEncounters from './data-migrations/000_backfill_encounters.sql';
 import dataMigration001BackfillMoments from './data-migrations/001_backfill_moments.sql';
@@ -45,6 +52,9 @@ export const SQL = {
   migration007,
   migration008,
   migration009,
+  migration010,
+  migration011,
+  migration012,
   queriesMigrations,
   queriesCategories,
   queriesEntries,
@@ -57,6 +67,10 @@ export const SQL = {
   queriesMomentPeople,
   queriesPersonDates,
   queriesSavedPlaces,
+  queriesAppSettings,
+  queriesMomentFaces,
+  queriesProcessingQueue,
+  queriesMomentGroups,
   queriesDataMigrations,
   dataMigration000BackfillEncounters,
   dataMigration001BackfillMoments,

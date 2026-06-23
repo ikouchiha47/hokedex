@@ -310,3 +310,31 @@ EARS notation throughout. Locked decisions noted inline.
 **R-NF-04** — Migrations use `executeSync` (DDL only). All other DB calls use async `execute`.
 
 **R-NF-05** — App targets Android 13+ as primary.
+
+---
+
+## Scene Scan Mode
+
+**R-SCAN-01** — The scan button on the camera bar toggles smart mode on/off; active state is visually indicated on the button.
+
+**R-SCAN-02** — In smart mode, zoom stabilising for 800ms SHALL auto-trigger a snapshot analysis (no save, no shutter sound).
+
+**R-SCAN-03** — Snapshot SHALL run face detection via existing BlazeFace + FaceNet pipeline; matched faces overlay a name chip on their bounding box; unmatched faces show an "Unknown" chip.
+
+**R-SCAN-04** — Snapshot SHALL run ML Kit on-device OCR; extracted text shown as a tappable card; tapping opens a web search intent with the text as query.
+
+**R-SCAN-05** — GPS coords at scan time SHALL query OSM Overpass for nearby POIs within 100m; top 3 results shown as place cards (name, category, distance).
+
+**R-SCAN-06** — Tapping a place card SHALL open a Google Maps geo deep link (`geo:LAT,LON?q=name`).
+
+**R-SCAN-07** — Tapping a face chip SHALL navigate to that person's profile in the People tab.
+
+**R-SCAN-08** — When no OCR text and no OSM results are found, the overlay SHALL show fallback suggestion cards: "Search nearby places" and "Find places of interest" — both Maps deep links using current GPS.
+
+**R-SCAN-09** — Object detection (EfficientDet Lite) SHALL be an opt-in feature; model (~4MB) downloads via ModelManager only when the user enables it in Settings. When disabled, no object labels are shown.
+
+**R-SCAN-10** — Repoint (significant frame motion) or pinch gesture SHALL clear the overlay and re-arm the zoom-stop trigger without leaving smart mode.
+
+**R-SCAN-11** — Tapping the scan button again SHALL exit smart mode; no analysis runs in normal mode.
+
+**R-SCAN-12** — No image data SHALL be sent to any cloud API. All vision processing is on-device (BlazeFace, FaceNet, ML Kit OCR, EfficientDet). Place lookups use GPS coords only (OSM Overpass).

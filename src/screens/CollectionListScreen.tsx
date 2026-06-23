@@ -11,6 +11,9 @@ import {
   useWindowDimensions,
   StyleSheet,
   StatusBar,
+  NativeModules,
+  NativeEventEmitter,
+  Linking,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -24,6 +27,9 @@ import { accentForEntry } from '../theme/accent';
 import { ActivityCalendar, colorFromId } from '../components/ActivityCalendar';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { Fonts } from '../theme/fonts';
+import { NotificationBanner, type BannerNotification } from '../components/NotificationBanner';
+import { checkForUpdate } from '../services/updateCheck';
+import { apkUrlForVersion } from '../config';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -151,6 +157,8 @@ function SmashablePhoto({ entryId, photoPath, name, diameter, accentColor, onPre
   );
 }
 
+const { HokedexML } = NativeModules;
+
 export function CollectionListScreen({ onReset }: { onReset?: () => void } = {}) {
   const { db, collectionRoot, category } = useApp();
   const navigation = useNavigation<Nav>();
@@ -167,6 +175,44 @@ export function CollectionListScreen({ onReset }: { onReset?: () => void } = {})
   const [encounters, setEncounters] = useState([] as ReturnType<CollectionController['load']>['encounters']);
   const [stats, setStats] = useState<ReturnType<CollectionController['load']>['stats']>({ total: 0, unique_people: 0, last_at: null, first_at: null });
   const [showAll, setShowAll] = useState(false);
+
+  const [banner, setBanner] = useState<BannerNotification | null>(null);
+
+  useEffect(() => {
+    HokedexML.checkModelsReady().then((ready: boolean) => {
+      if (!ready) {
+        setBanner({ type: 'download', message: 'Downloading face models…', progress: 0 });
+        const emitter = new NativeEventEmitter(HokedexML);
+        const progressSub = emitter.addListener('hokedex:modelProgress', ({ percent }: { percent: number }) => {
+          setBanner({ type: 'download', message: 'Downloading face models…', progress: percent });
+        });
+        const doneSub = emitter.addListener('hokedex:modelReady', () => {
+          setBanner({ type: 'download', message: 'Downloading face models…', progress: 100 });
+          setTimeout(() => setBanner(null), 800);
+          progressSub.remove();
+          doneSub.remove();
+        });
+        HokedexML.downloadModels().catch(() => {
+          progressSub.remove();
+          doneSub.remove();
+          setBanner(null);
+        });
+      } else {
+        checkForUpdate()
+          .then(info => {
+            if (info.available) {
+              setBanner({
+                type: 'update',
+                version: info.latestVersion,
+                onTap: () => Linking.openURL(apkUrlForVersion(info.latestVersion)),
+                onDismiss: () => setBanner(null),
+              });
+            }
+          })
+          .catch(() => {});
+      }
+    });
+  }, []);
 
   const loadAll = useCallback(() => {
     const state = controller.load();
@@ -307,6 +353,8 @@ export function CollectionListScreen({ onReset }: { onReset?: () => void } = {})
             <MaterialIcons name="settings" size={22} color="#aaa" />
           </Pressable>
         </View>
+
+        <NotificationBanner notification={banner} />
 
         {/* ── Body count ── */}
         <View style={styles.bodyCountWrap}>
@@ -485,4 +533,5 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingBottom: 8,
   },
+
 });

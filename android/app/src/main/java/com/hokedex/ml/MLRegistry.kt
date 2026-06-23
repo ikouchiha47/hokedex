@@ -1,16 +1,22 @@
 package com.hokedex.ml
 
 object MLRegistry {
-    private val pipelines = mutableMapOf<String, MLPipeline>()
+    private val factories = mutableMapOf<String, () -> MLPipeline<*>>()
+    private val instances = mutableMapOf<String, MLPipeline<*>>()
 
-    fun register(categoryId: String, pipeline: MLPipeline) {
-        pipelines[categoryId] = pipeline
+    fun <R : MLResult> register(categoryId: String, factory: () -> MLPipeline<R>) {
+        factories[categoryId] = factory
     }
 
-    fun get(categoryId: String): MLPipeline? = pipelines[categoryId]
+    @Suppress("UNCHECKED_CAST")
+    fun <R : MLResult> get(categoryId: String): MLPipeline<R>? {
+        instances[categoryId]?.let { return it as MLPipeline<R> }
+        val factory = factories[categoryId] ?: return null
+        return (factory() as MLPipeline<R>).also { instances[categoryId] = it }
+    }
 
     fun closeAll() {
-        pipelines.values.forEach { it.close() }
-        pipelines.clear()
+        instances.values.forEach { it.close() }
+        instances.clear()
     }
 }

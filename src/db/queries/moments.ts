@@ -9,8 +9,28 @@ export type Moment = {
   note: string | null;
   occurred_at: number;
   place_id: string | null;
+  source: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  place_name: string | null;
+  weather_temp: number | null;
+  weather_condition: string | null;
+  type: string | null;
   status: string;
   created_at: number;
+};
+
+export type InsertMomentParams = {
+  note: string | null;
+  occurredAt: number;
+  placeId?: string | null;
+  source?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  placeName?: string | null;
+  weatherTemp?: number | null;
+  weatherCondition?: string | null;
+  type?: string | null;
 };
 
 function generateId(): string {
@@ -31,13 +51,25 @@ export async function listMomentsInRange(db: DB, fromMs: number, toMs: number): 
 // Writes — tx.executeSync is correct inside a synchronous transaction callback
 export function insertMoment(
   tx: Tx,
-  note: string | null,
-  occurredAt: number,
-  placeId: string | null,
+  params: InsertMomentParams,
 ): string {
   const id = generateId();
   const now = Date.now();
-  tx.executeSync(Q.INSERT_MOMENT, [id, note, occurredAt, placeId, now]);
+  tx.executeSync(Q.INSERT_MOMENT, [
+    id,
+    params.note,
+    params.occurredAt,
+    params.placeId ?? null,
+    params.source ?? null,
+    params.latitude ?? null,
+    params.longitude ?? null,
+    params.placeName ?? null,
+    params.weatherTemp ?? null,
+    params.weatherCondition ?? null,
+    params.type ?? null,
+    'logged',
+    now,
+  ]);
   return id;
 }
 

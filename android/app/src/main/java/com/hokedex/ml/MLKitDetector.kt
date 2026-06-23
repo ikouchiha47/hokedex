@@ -1,6 +1,7 @@
 package com.hokedex.ml
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
@@ -29,10 +30,12 @@ class MLKitDetector(
     override fun detect(context: Context, imageUri: String): DetectionResult {
         val stream: InputStream = openImageStream(context, imageUri)
             ?: return DetectionResult.NoSubject
-
         val bitmap = BitmapFactory.decodeStream(stream)
         stream.close()
+        return detectBitmap(bitmap)
+    }
 
+    override fun detectBitmap(bitmap: Bitmap): DetectionResult {
         val image = InputImage.fromBitmap(bitmap, 0)
 
         val resultRef = AtomicReference<DetectionResult>(DetectionResult.NoSubject)

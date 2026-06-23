@@ -1,6 +1,6 @@
 -- name: InsertMoment :exec
-INSERT INTO moments (id, note, occurred_at, place_id, created_at)
-VALUES (?, ?, ?, ?, ?);
+INSERT INTO moments (id, note, occurred_at, place_id, source, latitude, longitude, place_name, weather_temp, weather_condition, type, status, created_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 -- name: GetMoment :one
 SELECT * FROM moments WHERE id = ?;

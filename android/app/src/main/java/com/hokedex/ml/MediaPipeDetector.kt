@@ -1,6 +1,7 @@
 package com.hokedex.ml
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
@@ -11,19 +12,27 @@ import com.google.mediapipe.tasks.vision.facedetector.FaceDetector as MediaPipeF
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
+import java.nio.channels.FileChannel
 
 class MediaPipeDetector(
     context: Context,
     modelPath: String,
     private val confidenceThreshold: Float = 0.7f,
+    fromAssets: Boolean = true,
 ) : FaceDetectionStrategy {
 
     private val detector: MediaPipeFaceDetector
 
     init {
-        val baseOptions = BaseOptions.builder()
-            .setModelAssetPath(modelPath)
-            .build()
+        val baseOptions = if (fromAssets) {
+            BaseOptions.builder().setModelAssetPath(modelPath).build()
+        } else {
+            val file = File(modelPath)
+            val buffer = FileInputStream(file).channel.map(
+                FileChannel.MapMode.READ_ONLY, 0, file.length()
+            )
+            BaseOptions.builder().setModelAssetBuffer(buffer).build()
+        }
 
         val options = MediaPipeFaceDetector.FaceDetectorOptions.builder()
             .setBaseOptions(baseOptions)
@@ -37,10 +46,12 @@ class MediaPipeDetector(
     override fun detect(context: Context, imageUri: String): DetectionResult {
         val stream: InputStream = openImageStream(context, imageUri)
             ?: return DetectionResult.NoSubject
-
         val bitmap = BitmapFactory.decodeStream(stream)
         stream.close()
+        return detectBitmap(bitmap)
+    }
 
+    override fun detectBitmap(bitmap: Bitmap): DetectionResult {
         val mpImage = BitmapImageBuilder(bitmap).build()
         val result = detector.detect(mpImage)
         val detections = result.detections()

@@ -11,6 +11,8 @@ import com.hokedex.media.HokedexMediaPackage
 import com.hokedex.ml.HokedexMLPackage
 import com.hokedex.pin.PinPackage
 import com.hokedex.share.SharePackage
+import com.swmansion.reanimated.ReanimatedPackage
+import com.swmansion.worklets.WorkletsPackage
 
 class MainApplication : Application(), ReactApplication {
 
@@ -19,6 +21,8 @@ class MainApplication : Application(), ReactApplication {
       context = applicationContext,
       packageList =
         PackageList(this).packages.apply {
+          add(WorkletsPackage())
+          add(ReanimatedPackage())
           add(HokedexMLPackage())
           add(HokedexIngestPackage())
           add(HokedexMediaPackage())
