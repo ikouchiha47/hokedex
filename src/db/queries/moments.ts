@@ -48,6 +48,11 @@ export async function listMomentsInRange(db: DB, fromMs: number, toMs: number): 
   return (r.rows ?? []) as Moment[];
 }
 
+export async function listAllMoments(db: DB): Promise<Pick<Moment, 'id' | 'occurred_at' | 'latitude' | 'longitude'>[]> {
+  const r = await db.execute(Q.LIST_ALL_MOMENTS);
+  return (r.rows ?? []) as Pick<Moment, 'id' | 'occurred_at' | 'latitude' | 'longitude'>[];
+}
+
 // Writes — tx.executeSync is correct inside a synchronous transaction callback
 export function insertMoment(
   tx: Tx,
