@@ -6,6 +6,7 @@ import { withTransaction } from '../db/tx';
 import { insertMoment } from '../db/queries/moments';
 import { insertMomentPerson } from '../db/queries/moment_people';
 import { insertEntry } from '../db/queries/entries';
+import { enqueueJob } from '../db/queries/processing_queue';
 
 let _entryIdCounter = 0;
 function generateId(): string {
@@ -25,6 +26,7 @@ export type CaptureInput = {
   weatherTemp?: number | null;
   weatherCondition?: string | null;
   type?: string | null;
+  photoUri?: string | null;
   /** Inline new-person names to create entries for inside the transaction */
   newPeople?: { name: string }[];
 };
@@ -87,6 +89,10 @@ export class MomentCaptureService {
 
         for (const eid of resolvedEntryIds) {
           insertMomentPerson(tx, id, eid);
+        }
+
+        if (input.photoUri) {
+          enqueueJob(tx, id, input.photoUri);
         }
 
         return id;
