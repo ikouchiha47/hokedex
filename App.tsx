@@ -10,57 +10,53 @@ import {
   Linking,
   Pressable,
 } from 'react-native';
-import { initDatabase } from './src/db/init';
-import { wipeStagingDir } from './src/services/ingestion';
-import { getCategory } from './src/db/queries/categories';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppProvider } from './src/AppContext';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { Fonts } from './src/theme/fonts';
-import { hasPin } from './src/services/pin';
 import { onBackground, onForeground, resetTimer } from './src/services/AppLockManager';
-import { getInitialSharedImage, onSharedImage } from './src/services/share';
+import { onSharedImage } from './src/services/share';
 import { PinSetupScreen } from './src/screens/PinSetupScreen';
 import { LockScreen } from './src/screens/LockScreen';
-import { checkForUpdate } from './src/services/updateCheck';
+import { OnboardingScreen } from './src/screens/OnboardingScreen';
 import { APK_DOWNLOAD_URL } from './src/config';
+import { setSettingValue } from './src/db/queries/app_settings';
+import { SETTINGS } from './src/constants';
+import { defaultBootstrap, type BootstrapResult } from './src/services/appBootstrap';
 import type { DB } from '@op-engineering/op-sqlite';
 import type { Category } from './src/db/types';
 
-const { HokedexIngest } = NativeModules;
-
 type BootState =
   | { status: 'booting' }
+  | { status: 'onboarding'; db: DB; collectionRoot: string; category: Category; needsPinSetup: boolean }
   | { status: 'locked'; db: DB; collectionRoot: string; category: Category; needsSetup: boolean }
   | { status: 'ready'; db: DB; collectionRoot: string; category: Category }
   | { status: 'error'; message: string };
 
-export default function App() {
+type Props = {
+  bootstrap?: () => Promise<BootstrapResult>;
+};
+
+export default function App({ bootstrap = defaultBootstrap }: Props) {
   const [boot, setBoot] = useState<BootState>({ status: 'booting' });
   const [pendingSharedUri, setPendingSharedUri] = useState<string | null>(null);
   const [updateAvailable, setUpdateAvailable] = useState<string | null>(null);
   const navigationRef = useRef<import('@react-navigation/native').NavigationContainerRef<import('./src/navigation/RootNavigator').RootStackParamList>>(null);
 
   useEffect(() => {
-    bootstrap();
+    run();
   }, []);
 
-  async function bootstrap() {
+  async function run() {
     setBoot({ status: 'booting' });
     try {
-      const root: string = await HokedexIngest.getCollectionRoot();
-      await wipeStagingDir(root);
-      const db = await initDatabase(root);
-      const category = getCategory(db, 'people');
-      if (!category) throw new Error('People category not seeded — run migrations.');
-
-      const [pinExists, sharedUri] = await Promise.all([
-        hasPin(),
-        getInitialSharedImage(),
-      ]);
-
-      if (sharedUri) setPendingSharedUri(sharedUri);
-
-      setBoot({ status: 'locked', db, collectionRoot: root, category, needsSetup: !pinExists });
+      const result = await bootstrap();
+      if (result.sharedUri) setPendingSharedUri(result.sharedUri);
+      if (!result.onboardingDone) {
+        setBoot({ status: 'onboarding', db: result.db, collectionRoot: result.collectionRoot, category: result.category, needsPinSetup: !result.pinExists });
+      } else {
+        setBoot({ status: 'locked', db: result.db, collectionRoot: result.collectionRoot, category: result.category, needsSetup: !result.pinExists });
+      }
     } catch (e: unknown) {
       setBoot({ status: 'error', message: e instanceof Error ? e.message : String(e) });
     }
@@ -92,6 +88,18 @@ export default function App() {
     });
   }, [boot.status]);
 
+  const handleOnboardingDone = useCallback(() => {
+    if (boot.status !== 'onboarding') return;
+    const { db, collectionRoot, category, needsPinSetup } = boot;
+    setSettingValue(db, SETTINGS.ONBOARDING_COMPLETE, 'true')
+      .then(() => {
+        setBoot({ status: 'locked', db, collectionRoot, category, needsSetup: needsPinSetup });
+      })
+      .catch(e => {
+        console.error('[Onboarding] failed to persist completion, staying on onboarding:', e);
+      });
+  }, [boot]);
+
   const handlePinSet = useCallback(() => {
     setBoot(prev => {
       if (prev.status !== 'locked') return prev;
@@ -109,17 +117,23 @@ export default function App() {
   }, []);
 
   const handleReset = useCallback(() => {
-    bootstrap();
+    run();
   }, []);
+
+  if (boot.status === 'onboarding') {
+    return <SafeAreaProvider><OnboardingScreen onDone={handleOnboardingDone} /></SafeAreaProvider>;
+  }
 
   if (boot.status === 'locked') {
     if (boot.needsSetup) {
-      return <PinSetupScreen onPinSet={handlePinSet} />;
+      return <SafeAreaProvider><PinSetupScreen onPinSet={handlePinSet} /></SafeAreaProvider>;
     }
     return (
-      <AppProvider value={{ db: boot.db, collectionRoot: boot.collectionRoot, category: boot.category }}>
-        <LockScreen onUnlocked={handleUnlocked} />
-      </AppProvider>
+      <SafeAreaProvider>
+        <AppProvider value={{ db: boot.db, collectionRoot: boot.collectionRoot, category: boot.category }}>
+          <LockScreen onUnlocked={handleUnlocked} />
+        </AppProvider>
+      </SafeAreaProvider>
     );
   }
 

@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>hokédex — Wireframes · direction-e</title>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+:root {
+  --bg: #0a0a12;
+  --surface: #11111c;
+  --surface-2: #161624;
+  --line: rgba(255,255,255,0.07);
+  --line-2: rgba(255,255,255,0.13);
+  --text: #fff;
+  --mute: rgba(255,255,255,0.6);
+  --dim: rgba(255,255,255,0.34);
+  --faint: rgba(255,255,255,0.19);
+  --violet: #8b5cf6;
+  --magenta: #ec4899;
+  --cyan: #22d3ee;
+  --amber: #fbbf24;
+  --emerald: #34d399;
+  --rose: #f43f5e;
+  --aurora: linear-gradient(135deg, #8b5cf6, #ec4899);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background:
+    radial-gradient(900px 560px at 8% -6%, rgba(139,92,246,0.10), transparent 60%),
+    radial-gradient(900px 520px at 96% 2%, rgba(236,72,153,0.08), transparent 60%),
+    var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', sans-serif;
+  padding: 64px 56px 140px;
+}
+.page-title { font-size: 34px; font-weight: 900; letter-spacing: -0.035em; background: var(--aurora); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 6px; }
+.page-sub { font-size: 13px; color: var(--dim); margin-bottom: 80px; line-height: 1.6; }
+
+.section { margin-bottom: 92px; }
+.section-title { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--dim); margin-bottom: 30px; padding-bottom: 12px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px; }
+.section-title .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--violet); box-shadow: 0 0 12px var(--violet); }
+.sub-title { font-size: 11px; font-weight: 700; color: var(--mute); margin: 28px 0 16px; letter-spacing: 0.02em; }
+
+.showcase { display: grid; grid-template-columns: repeat(auto-fill, minmax(262px, 1fr)); gap: 22px; }
+.cell { display: flex; flex-direction: column; gap: 11px; }
+.cell-label { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); display: flex; align-items: center; gap: 8px; }
+.pill { font-size: 8px; font-weight: 800; padding: 2px 7px; border-radius: 6px; letter-spacing: 0.04em; }
+.pill.v { background: rgba(139,92,246,0.16); color: var(--violet); }
+.pill.m { background: rgba(236,72,153,0.16); color: var(--magenta); }
+.pill.c { background: rgba(34,211,238,0.14); color: var(--cyan); }
+.pill.a { background: rgba(251,191,36,0.14); color: var(--amber); }
+.pill.e { background: rgba(52,211,153,0.14); color: var(--emerald); }
+.pill.r { background: rgba(244,63,94,0.14); color: var(--rose); }
+.cell-note { font-size: 9px; color: var(--faint); line-height: 1.55; }
+
+.mc-outer { background: rgba(255,255,255,0.035); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; position: relative; }
+.mc-outer.accent { border-color: rgba(139,92,246,0.3); }
+.mc-header { display: flex; align-items: center; gap: 9px; padding: 9px 11px 7px; }
+.mc-avatar { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--line-2); background: var(--surface-2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.mc-avatar i { width: 14px; height: 14px; stroke: var(--mute); }
+.mc-avatar.v { border-color: rgba(139,92,246,0.55); background: rgba(139,92,246,0.08); }
+.mc-avatar.v i { stroke: var(--violet); }
+.mc-avatar.c { border-color: rgba(34,211,238,0.5); background: rgba(34,211,238,0.07); }
+.mc-avatar.c i { stroke: var(--cyan); }
+.mc-avatar.m { border-color: rgba(236,72,153,0.5); background: rgba(236,72,153,0.07); }
+.mc-avatar.m i { stroke: var(--magenta); }
+.mc-avatar.r { border-color: rgba(244,63,94,0.5); background: rgba(244,63,94,0.07); }
+.mc-avatar.r i { stroke: var(--rose); }
+.mc-who { flex: 1; min-width: 0; }
+.mc-who-name { font-size: 10px; font-weight: 700; color: var(--mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mc-who-time { font-size: 7.5px; color: var(--faint); margin-top: 1px; }
+.mc-lvl { font-size: 7px; font-weight: 800; letter-spacing: 0.05em; padding: 2px 6px; border-radius: 5px; background: rgba(255,255,255,0.05); color: var(--dim); }
+.mc-lvl.l1 { color: var(--cyan); background: rgba(34,211,238,0.1); }
+.mc-lvl.l2 { color: var(--violet); background: rgba(139,92,246,0.12); }
+.mc-lvl.l3 { color: var(--magenta); background: rgba(236,72,153,0.12); }
+.mc-lvl.l4 { color: var(--amber); background: rgba(251,191,36,0.12); }
+
+.mc-body { margin: 0 9px 7px; border: 1px solid rgba(139,92,246,0.3); border-radius: 10px; overflow: hidden; background: rgba(139,92,246,0.035); }
+.mc-body.rose { border-color: rgba(244,63,94,0.35); background: rgba(244,63,94,0.04); }
+.mc-body.cyan { border-color: rgba(34,211,238,0.32); background: rgba(34,211,238,0.035); }
+.mc-body-text { padding: 9px 11px; font-size: 9.5px; color: var(--mute); line-height: 1.5; }
+.mc-chips { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 11px 9px; }
+.mc-chip { font-size: 7.5px; font-weight: 700; padding: 2px 7px; border-radius: 6px; background: rgba(255,255,255,0.05); color: var(--dim); border: 1px solid var(--line); }
+.mc-chip.v { color: var(--violet); border-color: rgba(139,92,246,0.25); background: rgba(139,92,246,0.08); }
+.mc-chip.c { color: var(--cyan); border-color: rgba(34,211,238,0.25); background: rgba(34,211,238,0.07); }
+
+.mc-body-photos { display: flex; gap: 0; height: 84px; overflow: hidden; }
+.mc-photo { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; border-right: 1px solid rgba(0,0,0,0.45); }
+.mc-photo:nth-child(1) { background: linear-gradient(135deg, #1a1030, #2a1248); }
+.mc-photo:nth-child(2) { background: linear-gradient(135deg, #0d1a30, #142448); }
+.mc-photo:nth-child(3) { background: linear-gradient(135deg, #2a0f28, #441634); }
+.mc-photo:last-child { border-right: none; }
+.mc-photo.more { background: rgba(0,0,0,0.6); font-size: 11px; font-weight: 800; color: var(--mute); flex-direction: column; gap: 2px; }
+
+.mc-body-cover { height: 96px; background: linear-gradient(135deg, #1a0f30, #0d1a40 70%, #1d0f38); display: flex; align-items: center; justify-content: center; font-size: 30px; position: relative; }
+.mc-cover-badge { position: absolute; top: 7px; right: 8px; background: rgba(10,10,18,0.7); border: 1px solid var(--line-2); border-radius: 7px; padding: 2px 7px; font-size: 7.5px; font-weight: 800; color: var(--text); }
+.mc-cover-place { position: absolute; bottom: 7px; left: 9px; display: flex; align-items: center; gap: 3px; font-size: 7.5px; color: rgba(255,255,255,0.7); background: rgba(10,10,18,0.55); padding: 2px 6px; border-radius: 6px; }
+.mc-cover-place i { width: 8px; height: 8px; stroke: var(--cyan); }
+
+.mc-body-hero { height: 116px; background: linear-gradient(160deg, #1c0f3a, #0e1640 55%, #2a0f30); position: relative; overflow: hidden; display: flex; align-items: flex-end; }
+.mc-hero-bg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 46px; opacity: 0.5; }
+.mc-hero-grad { position: absolute; inset: 0; background: linear-gradient(transparent 40%, rgba(10,10,18,0.85)); }
+.mc-hero-overlay { position: relative; z-index: 2; padding: 9px 11px; width: 100%; }
+.mc-hero-avs { display: flex; gap: 3px; margin-bottom: 5px; }
+.mc-hero-av { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid rgba(139,92,246,0.55); background: var(--surface-2); display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 800; color: var(--mute); }
+.mc-hero-av.more { background: rgba(139,92,246,0.18); color: var(--violet); border-color: rgba(139,92,246,0.4); font-size: 7px; }
+.mc-hero-title { font-size: 11px; font-weight: 800; color: var(--text); }
+.mc-hero-meta { display: flex; align-items: center; gap: 8px; margin-top: 3px; font-size: 7.5px; color: var(--dim); }
+.mc-hero-meta i { width: 8px; height: 8px; stroke: var(--dim); }
+.mc-hero-meta .w i { stroke: var(--amber); }
+.mc-hero-meta .p i { stroke: var(--cyan); }
+
+.mc-body-voice { padding: 9px 11px; }
+.mc-voice-top { display: flex; align-items: center; gap: 7px; }
+.mc-play-btn { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid rgba(244,63,94,0.4); background: rgba(244,63,94,0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.mc-play-btn i { width: 11px; height: 11px; stroke: var(--rose); }
+.mc-waveform { flex: 1; display: flex; align-items: center; gap: 2px; height: 20px; }
+.mc-wv { border-radius: 2px; background: rgba(244,63,94,0.55); width: 2px; }
+.mc-wv.played { background: var(--rose); }
+.mc-voice-dur { font-size: 7.5px; color: var(--dim); flex-shrink: 0; }
+.mc-voice-tx { margin-top: 7px; font-size: 8.5px; color: var(--mute); line-height: 1.5; font-style: italic; opacity: 0.85; }
+
+.mc-divider { height: 1px; background: var(--line); }
+.mc-footer { padding: 7px 11px 9px; display: flex; flex-direction: column; gap: 4px; }
+.mc-actions { display: flex; align-items: center; gap: 5px; }
+.mc-action-btn { width: 21px; height: 21px; border-radius: 50%; border: 1px solid var(--line); background: rgba(255,255,255,0.02); display: flex; align-items: center; justify-content: center; }
+.mc-action-btn i { width: 9.5px; height: 9.5px; stroke: var(--dim); }
+.mc-loc { display: flex; align-items: center; gap: 2px; font-size: 7.5px; color: var(--faint); margin-left: 3px; }
+.mc-loc i { width: 8px; height: 8px; stroke: var(--faint); }
+.mc-del { margin-left: auto; display: flex; align-items: center; justify-content: center; }
+.mc-del i { width: 10px; height: 10px; stroke: rgba(244,63,94,0.45); }
+.mc-timestamp { font-size: 7px; color: var(--faint); }
+
+.mc-event-banner { height: 76px; position: relative; overflow: hidden; background: linear-gradient(135deg, #2a1c08, #3a2410 60%, #1a1408); display: flex; align-items: flex-end; padding: 9px 11px; }
+.mc-event-banner.repeat { background: linear-gradient(135deg, #1a1230, #2a1c44 60%, #140e28); }
+.mc-event-banner.bday { background: linear-gradient(135deg, #2a0f28, #441634 60%, #1c0820); }
+.mc-event-banner::before { content: ''; position: absolute; top: -20px; right: -20px; width: 90px; height: 90px; border-radius: 50%; background: radial-gradient(circle, rgba(251,191,36,0.35), transparent 70%); }
+.mc-event-banner.repeat::before { background: radial-gradient(circle, rgba(139,92,246,0.35), transparent 70%); }
+.mc-event-banner.bday::before { background: radial-gradient(circle, rgba(236,72,153,0.35), transparent 70%); }
+.mc-event-top { position: absolute; top: 9px; left: 11px; right: 11px; display: flex; align-items: center; justify-content: space-between; }
+.mc-event-tag { font-size: 7.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; background: rgba(10,10,18,0.55); border: 1px solid var(--line-2); }
+.mc-event-tag.a { color: var(--amber); border-color: rgba(251,191,36,0.3); }
+.mc-event-tag.v { color: var(--violet); border-color: rgba(139,92,246,0.3); }
+.mc-event-tag.m { color: var(--magenta); border-color: rgba(236,72,153,0.3); }
+.mc-countdown { font-size: 8px; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 3px; background: rgba(10,10,18,0.55); padding: 2px 7px; border-radius: 5px; }
+.mc-countdown i { width: 9px; height: 9px; stroke: var(--amber); }
+.mc-event-title { font-size: 12px; font-weight: 800; color: var(--text); position: relative; z-index: 1; letter-spacing: -0.01em; }
+.mc-event-sub { font-size: 8px; color: var(--mute); margin-top: 2px; position: relative; z-index: 1; display: flex; align-items: center; gap: 4px; }
+.mc-event-sub i { width: 8px; height: 8px; stroke: var(--mute); }
+.mc-event-body { padding: 9px 11px 7px; }
+.mc-event-avs { display: flex; align-items: center; gap: 4px; margin-bottom: 6px; }
+.mc-event-av { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.1); background: var(--surface-2); display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 800; color: var(--mute); }
+.mc-event-av.more { background: rgba(255,255,255,0.06); color: var(--dim); font-size: 7px; }
+.mc-event-place { display: flex; align-items: center; gap: 4px; font-size: 8px; color: var(--mute); }
+.mc-event-place i { width: 9px; height: 9px; stroke: var(--cyan); }
+.mc-event-footer { padding: 7px 11px 9px; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 6px; }
+.mc-ev-btn { font-size: 8px; font-weight: 800; padding: 4px 9px; border-radius: 7px; border: 1px solid var(--line-2); color: var(--mute); display: flex; align-items: center; gap: 3px; }
+.mc-ev-btn i { width: 9px; height: 9px; stroke: var(--mute); }
+.mc-ev-btn.primary { background: var(--aurora); border-color: transparent; color: #fff; }
+.mc-ev-btn.primary i { stroke: #fff; }
+
+.flow { display: flex; align-items: flex-start; gap: 0; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 14px; }
+.flow-col { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+.flow-label { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); margin-bottom: 11px; text-align: center; min-height: 28px; display: flex; align-items: flex-end; }
+.flow-note { font-size: 9px; color: var(--faint); text-align: center; margin-top: 9px; max-width: 240px; line-height: 1.55; }
+.arrow { display: flex; align-items: center; padding: 0 6px; padding-top: 92px; flex-shrink: 0; }
+.arr { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.arr-line { display: flex; align-items: center; }
+.arr-shaft { width: 30px; height: 1px; background: var(--line-2); }
+.arr-head { width: 0; height: 0; border-top: 3px solid transparent; border-bottom: 3px solid transparent; border-left: 5px solid var(--line-2); margin-top: -1.5px; }
+.arr-label { font-size: 8px; color: var(--faint); white-space: nowrap; }
+
+.phone { width: 252px; height: 540px; border-radius: 42px; overflow: hidden; background: var(--surface); border: 1.5px solid var(--line-2); display: flex; flex-direction: column; position: relative; flex-shrink: 0; box-shadow: 0 30px 60px -20px rgba(0,0,0,0.6), 0 0 0 6px rgba(139,92,246,0.04); }
+.phone.tall { height: 600px; }
+.phone.xl { height: 670px; }
+.phone.xxl { height: 760px; }
+.sb { display: flex; justify-content: space-between; align-items: center; padding: 11px 20px 0; font-size: 8.5px; font-weight: 700; color: rgba(255,255,255,0.35); flex-shrink: 0; z-index: 10; }
+.sb-r { display: flex; align-items: center; gap: 3px; }
+.sb-r i { width: 9px; height: 9px; stroke: rgba(255,255,255,0.35); }
+.nav { height: 52px; background: rgba(8,8,14,0.98); border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-around; flex-shrink: 0; padding: 0 8px; }
+.ni { display: flex; flex-direction: column; align-items: center; gap: 2px; opacity: 0.32; flex: 1; }
+.ni.on { opacity: 1; }
+.ni i { width: 18px; height: 18px; stroke: var(--text); }
+.ni.on i { stroke: var(--violet); filter: drop-shadow(0 0 6px rgba(139,92,246,0.5)); }
+.ni span { font-size: 7.5px; color: var(--dim); }
+.ni.on span { color: var(--violet); }
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 11px 16px 7px; flex-shrink: 0; }
+.topbar-title { font-size: 15px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+.icon-btn { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; }
+.icon-btn i { width: 13px; height: 13px; stroke: var(--mute); }
+.pivot { display: flex; gap: 0; border-bottom: 1px solid var(--line); flex-shrink: 0; padding: 0 16px; }
+.pivot-item { font-size: 10.5px; font-weight: 700; padding: 7px 12px 7px 0; color: var(--dim); position: relative; }
+.pivot-item.on { color: var(--text); }
+.pivot-item.on::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 12px; height: 2px; background: var(--aurora); border-radius: 1px; }
+.feed-scroll { flex:1; overflow:hidden; padding:10px 13px; display:flex; flex-direction:column; gap:11px; }
+.day-chip { align-self: flex-start; font-size: 8px; font-weight: 700; color: var(--dim); background: rgba(255,255,255,0.04); border: 1px solid var(--line); border-radius: 11px; padding: 3px 9px; margin: 2px 0; }
+
+.viewfinder { flex: 1; background: #050509; position: relative; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; }
+.vf-bg { position: absolute; inset: 0; background: radial-gradient(circle at 50% 38%, rgba(139,92,246,0.12), transparent 60%), #050509; }
+.vf-face-box { position: absolute; width: 72px; height: 72px; border: 1.5px solid rgba(139,92,246,0.7); border-radius: 8px; top: 36%; left: 50%; transform: translate(-50%, -50%); }
+.vf-corner { position: absolute; width: 10px; height: 10px; }
+.vfc-tl { top:-1px; left:-1px; border-top:2px solid var(--violet); border-left:2px solid var(--violet); border-radius:2px 0 0 0; }
+.vfc-tr { top:-1px; right:-1px; border-top:2px solid var(--violet); border-right:2px solid var(--violet); border-radius:0 2px 0 0; }
+.vfc-bl { bottom:-1px; left:-1px; border-bottom:2px solid var(--violet); border-left:2px solid var(--violet); border-radius:0 0 0 2px; }
+.vfc-br { bottom:-1px; right:-1px; border-bottom:2px solid var(--violet); border-right:2px solid var(--violet); border-radius:0 0 2px 0; }
+.vf-scan { position: absolute; left:50%; transform:translateX(-50%); width:68px; height:1px; background: linear-gradient(90deg, transparent, var(--magenta), transparent); animation: scan 1.8s ease-in-out infinite; top: calc(36% - 36px); }
+@keyframes scan { 0% { top: calc(36% - 36px); opacity:1; } 100% { top: calc(36% + 36px); opacity:0.2; } }
+.mode-bar { flex-shrink: 0; background: rgba(8,8,14,0.97); padding: 11px 0 13px; display: flex; flex-direction: column; gap: 9px; }
+.mode-row { display: flex; align-items: center; justify-content: center; gap: 5px; }
+.mode-pill { font-size: 8.5px; font-weight: 700; padding: 3px 9px; border-radius: 8px; color: var(--dim); }
+.mode-pill.on { background: rgba(139,92,246,0.16); color: var(--violet); }
+.capture-row { display: flex; align-items: center; justify-content: space-around; padding: 0 20px; }
+.thumb-btn { width: 34px; height: 34px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; }
+.thumb-btn i { width: 15px; height: 15px; stroke: var(--mute); }
+.capture-btn { width: 56px; height: 56px; border-radius: 50%; background: #fff; border: 3px solid rgba(255,255,255,0.25); box-shadow: 0 0 0 3px rgba(255,255,255,0.06); }
+.capture-btn.voice { background: rgba(244,63,94,0.14); border: 2px solid var(--rose); display:flex;align-items:center;justify-content:center; }
+.capture-btn.voice i { width:22px;height:22px;stroke:var(--rose); }
+.scan-btn { width: 34px; height: 34px; border-radius: 50%; background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.25); display: flex; align-items: center; justify-content: center; }
+.scan-btn i { width: 15px; height: 15px; stroke: var(--violet); }
+
+.mode-panel { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; gap: 14px; position: relative; overflow: hidden; }
+.mode-panel .glow { position: absolute; width: 180px; height: 180px; border-radius: 50%; filter: blur(40px); opacity: 0.4; }
+.mode-panel.local .glow { background: rgba(34,211,238,0.4); top: 20%; }
+.mode-panel.voice .glow { background: rgba(244,63,94,0.45); top: 18%; }
+.mode-panel.contact .glow { background: rgba(139,92,246,0.4); top: 20%; }
+.mp-icon { width: 64px; height: 64px; border-radius: 20px; position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; background: var(--surface-2); border: 1px solid var(--line-2); }
+.mp-icon i { width: 28px; height: 28px; stroke: var(--mute); }
+.mode-panel.local .mp-icon i { stroke: var(--cyan); }
+.mode-panel.voice .mp-icon i { stroke: var(--rose); }
+.mp-title { font-size: 12px; font-weight: 800; color: var(--text); position: relative; z-index: 1; }
+.mp-sub { font-size: 9px; color: var(--dim); position: relative; z-index: 1; line-height: 1.5; }
+
+.rec-orb { width: 90px; height: 90px; border-radius: 50%; position: relative; z-index: 1; background: radial-gradient(circle, rgba(244,63,94,0.3), rgba(244,63,94,0.05) 70%); border: 2px solid var(--rose); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 40px rgba(244,63,94,0.4); animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+.rec-orb i { width: 32px; height: 32px; stroke: var(--rose); }
+.rec-wave { display: flex; align-items: center; gap: 2px; height: 28px; position: relative; z-index: 1; }
+.rec-wave .b { width: 3px; border-radius: 2px; background: var(--rose); }
+.rec-timer { font-size: 14px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; position: relative; z-index: 1; }
+.rec-hint { font-size: 8px; color: var(--dim); position: relative; z-index: 1; }
+
+.form { flex: 1; padding: 12px 14px; display: flex; flex-direction: column; gap: 9px; }
+.form-row { display: flex; align-items: center; gap: 8px; padding: 9px 11px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; }
+.form-row i { width: 14px; height: 14px; stroke: var(--dim); flex-shrink: 0; }
+.form-row .ph { flex: 1; font-size: 10px; color: var(--faint); }
+.form-stub { font-size: 7px; color: var(--faint); padding: 0 4px; align-self: flex-start; }
+.btn-primary { margin-top: auto; padding: 11px; border-radius: 12px; text-align: center; font-size: 11px; font-weight: 800; color: #fff; background: var(--aurora); border: none; }
+.btn-ghost { padding: 9px; border-radius: 11px; text-align: center; font-size: 10px; font-weight: 700; color: var(--dim); border: 1px solid var(--line-2); background: transparent; }
+.btn-danger-outline { padding: 9px; border-radius: 11px; text-align: center; font-size: 10px; font-weight: 700; color: var(--rose); border: 1px solid rgba(244,63,94,0.4); background: transparent; }
+
+.intake { flex: 1; display: flex; flex-direction: column; padding: 12px; gap: 10px; }
+.intake-preview { height: 180px; border-radius: 14px; background: linear-gradient(135deg, #1a1030, #2a1248 60%, #0d1a30); display: flex; align-items: center; justify-content: center; font-size: 44px; position: relative; border: 1px solid var(--line-2); }
+.intake-preview .face-crop { position: absolute; width: 50px; height: 50px; border: 1.5px solid rgba(139,92,246,0.7); border-radius: 8px; top: 35%; left: 50%; transform: translate(-50%, -50%); }
+.intake-warn { display: flex; align-items: flex-start; gap: 7px; padding: 9px 11px; background: rgba(244,63,94,0.08); border: 1px solid rgba(244,63,94,0.25); border-radius: 10px; }
+.intake-warn i { width: 14px; height: 14px; stroke: var(--rose); flex-shrink: 0; margin-top: 1px; }
+.intake-warn .t { font-size: 9px; font-weight: 700; color: var(--rose); }
+.intake-warn .s { font-size: 8px; color: var(--dim); margin-top: 2px; line-height: 1.45; }
+
+.search { flex: 1; display: flex; flex-direction: column; padding: 10px 12px; gap: 9px; overflow: hidden; }
+.search-bar { display: flex; align-items: center; gap: 7px; padding: 8px 11px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; }
+.search-bar i { width: 13px; height: 13px; stroke: var(--dim); }
+.search-bar .ph { flex: 1; font-size: 9px; color: var(--faint); }
+.search-seed { height: 64px; border-radius: 11px; background: linear-gradient(135deg, #1a1030, #2a1248); display: flex; align-items: center; justify-content: center; font-size: 26px; position: relative; border: 1px solid var(--line-2); }
+.search-seed .tag { position: absolute; bottom: 5px; left: 7px; font-size: 7px; font-weight: 800; color: var(--violet); background: rgba(10,10,18,0.6); padding: 1px 6px; border-radius: 4px; }
+.search-sec-label { font-size: 8px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); margin-top: 2px; }
+.search-row { display: flex; align-items: center; gap: 9px; padding: 7px 9px; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 10px; }
+.search-row .av { width: 30px; height: 30px; border-radius: 50%; background: var(--surface-2); border: 1.5px solid var(--line-2); display:flex;align-items:center;justify-content:center; font-size: 10px; font-weight: 800; color: var(--mute); flex-shrink: 0; }
+.search-row .info { flex: 1; min-width: 0; }
+.search-row .name { font-size: 10px; font-weight: 700; color: var(--text); }
+.search-row .meta { font-size: 7.5px; color: var(--dim); margin-top: 1px; }
+.search-row .conf { font-size: 9px; font-weight: 800; color: var(--emerald); }
+.search-row .conf.mid { color: var(--amber); }
+.search-row .conf.low { color: var(--faint); }
+.search-new { display: flex; align-items: center; gap: 9px; padding: 8px 9px; border: 1px dashed var(--line-2); border-radius: 10px; }
+.search-new i { width: 16px; height: 16px; stroke: var(--violet); }
+.search-new .t { font-size: 10px; font-weight: 700; color: var(--violet); }
+
+.settings-list { flex: 1; padding: 10px 12px; display: flex; flex-direction: column; gap: 7px; }
+.set-row { display: flex; align-items: center; gap: 10px; padding: 11px 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 11px; }
+.set-row i { width: 16px; height: 16px; stroke: var(--mute); flex-shrink: 0; }
+.set-row .info { flex: 1; }
+.set-row .t { font-size: 10px; font-weight: 700; color: var(--text); }
+.set-row .s { font-size: 7.5px; color: var(--dim); margin-top: 1px; }
+.toggle { width: 30px; height: 17px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line-2); position: relative; flex-shrink: 0; }
+.toggle.on { background: rgba(139,92,246,0.3); border-color: var(--violet); }
+.toggle::after { content: ''; position: absolute; top: 1.5px; left: 1.5px; width: 12px; height: 12px; border-radius: 50%; background: var(--dim); }
+.toggle.on::after { left: 15px; background: var(--violet); }
+.progress { height: 5px; border-radius: 3px; background: var(--surface); overflow: hidden; margin-top: 5px; }
+.progress .bar { height: 100%; background: var(--aurora); width: 64%; }
+
+.detail-hero { height: 170px; background: linear-gradient(160deg, #1c0f3a, #0e1640 55%, #2a0f30); display: flex; align-items: flex-end; padding: 12px; position: relative; }
+.detail-hero .bg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 60px; opacity: 0.45; }
+.detail-hero .grad { position: absolute; inset: 0; background: linear-gradient(transparent 30%, rgba(10,10,18,0.9)); }
+.detail-hero .ov { position: relative; z-index: 1; }
+.detail-hero .title { font-size: 13px; font-weight: 800; color: var(--text); }
+.detail-hero .sub { font-size: 8.5px; color: var(--mute); margin-top: 3px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.detail-hero .sub i { width: 9px; height: 9px; stroke: var(--mute); }
+.detail-body { flex: 1; padding: 11px 13px; display: flex; flex-direction: column; gap: 9px; overflow: hidden; }
+.detail-chips { display: flex; gap: 5px; flex-wrap: wrap; }
+.detail-chip { display: flex; align-items: center; gap: 3px; padding: 4px 8px 4px 5px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; }
+.detail-chip .av { width: 16px; height: 16px; border-radius: 50%; background: var(--surface); display:flex;align-items:center;justify-content:center; font-size: 7px; font-weight: 800; color: var(--mute); }
+.detail-chip .n { font-size: 8.5px; font-weight: 700; color: var(--mute); }
+.detail-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-top: auto; }
+.detail-act { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 9px 4px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 11px; }
+.detail-act i { width: 16px; height: 16px; stroke: var(--violet); }
+.detail-act .l { font-size: 7.5px; color: var(--dim); }
+.detail-note { padding: 9px 11px; background: rgba(34,211,238,0.05); border: 1px solid rgba(34,211,238,0.25); border-radius: 10px; font-size: 9px; color: var(--mute); line-height: 1.5; }
+
+.cal { flex: 1; display: flex; flex-direction: column; padding: 10px 13px; gap: 9px; overflow: hidden; position: relative; }
+.cal-head { display: flex; align-items: center; justify-content: space-between; }
+.cal-head .m { font-size: 12px; font-weight: 800; color: var(--text); }
+.cal-head .nav-btns { display: flex; gap: 6px; }
+.cal-head .nav-btns .icon-btn { width: 24px; height: 24px; }
+.cal-head .nav-btns .icon-btn i { width: 11px; height: 11px; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.cal-dow { font-size: 7px; font-weight: 800; color: var(--faint); text-align: center; padding-bottom: 4px; }
+.cal-day { aspect-ratio: 1; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--mute); background: rgba(255,255,255,0.02); border: 1px solid transparent; position: relative; }
+.cal-day.off { color: var(--faint); background: transparent; }
+.cal-day.has { background: rgba(139,92,246,0.12); border-color: rgba(139,92,246,0.25); color: var(--text); font-weight: 700; }
+.cal-day.has.a { background: rgba(251,191,36,0.12); border-color: rgba(251,191,36,0.3); color: var(--amber); }
+.cal-day.has.e { background: rgba(52,211,153,0.1); border-color: rgba(52,211,153,0.25); color: var(--emerald); }
+.cal-day.today { box-shadow: inset 0 0 0 1.5px var(--violet); }
+.cal-day .dot { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 3px; height: 3px; border-radius: 50%; background: var(--violet); }
+.cal-upcoming-label { font-size: 8px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); margin-top: 2px; }
+.cal-up { display: flex; align-items: center; gap: 9px; padding: 8px 10px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; }
+.cal-up .date { width: 36px; height: 36px; border-radius: 9px; background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.3); display:flex;flex-direction:column;align-items:center;justify-content:center; flex-shrink: 0; }
+.cal-up.bday .date { background: rgba(236,72,153,0.12); border-color: rgba(236,72,153,0.3); }
+.cal-up .date .d { font-size: 11px; font-weight: 800; color: var(--amber); line-height: 1; }
+.cal-up.bday .date .d { color: var(--magenta); }
+.cal-up .date .m { font-size: 6px; color: var(--dim); }
+.cal-up .info { flex: 1; min-width: 0; }
+.cal-up .t { font-size: 9.5px; font-weight: 700; color: var(--text); }
+.cal-up .s { font-size: 7.5px; color: var(--dim); margin-top: 1px; }
+.fab { position: absolute; bottom: 64px; right: 14px; width: 42px; height: 42px; border-radius: 14px; background: var(--aurora); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px -4px rgba(139,92,246,0.5); }
+.fab i { width: 18px; height: 18px; stroke: #fff; }
+
+.meetup { flex: 1; display: flex; flex-direction: column; padding: 12px 14px; gap: 9px; overflow: hidden; }
+.meetup-sec { font-size: 8px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); margin-top: 2px; }
+
+.evshow-map { height: 200px; background: linear-gradient(135deg, #0a1424, #0d1a30 60%, #08141c); position: relative; overflow: hidden; }
+.evshow-map .grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(34,211,238,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(34,211,238,0.08) 1px, transparent 1px); background-size: 28px 28px; }
+.evshow-map .road { position: absolute; height: 2px; background: rgba(255,255,255,0.08); }
+.evshow-map .r1 { top: 40%; left: -10%; right: -10%; transform: rotate(-8deg); }
+.evshow-map .r2 { top: 70%; left: -10%; right: -10%; transform: rotate(4deg); }
+.evshow-map .pin { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.evshow-map .pin .dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #fff; background: var(--violet); box-shadow: 0 0 12px rgba(139,92,246,0.7); }
+.evshow-map .pin.me .dot { background: var(--magenta); box-shadow: 0 0 14px rgba(236,72,153,0.8); }
+.evshow-map .pin .lbl { font-size: 6.5px; color: var(--text); background: rgba(10,10,18,0.7); padding: 1px 4px; border-radius: 4px; }
+.evshow-map .bt-pill { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 4px; font-size: 7.5px; font-weight: 700; color: var(--cyan); background: rgba(10,10,18,0.75); border: 1px solid rgba(34,211,238,0.3); padding: 3px 8px; border-radius: 14px; }
+.evshow-map .bt-pill i { width: 9px; height: 9px; stroke: var(--cyan); }
+.evshow-body { flex: 1; padding: 12px 13px; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+.evshow-title { font-size: 14px; font-weight: 800; color: var(--text); }
+.evshow-time { font-size: 9px; color: var(--dim); display: flex; align-items: center; gap: 5px; }
+.evshow-time i { width: 11px; height: 11px; stroke: var(--dim); }
+.evshow-sec { font-size: 8px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
+.whos-here { display: flex; flex-direction: column; gap: 6px; }
+.whos-row { display: flex; align-items: center; gap: 8px; padding: 7px 9px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; }
+.whos-row .av { width: 26px; height: 26px; border-radius: 50%; background: var(--surface); border: 1.5px solid var(--line-2); display:flex;align-items:center;justify-content:center; font-size: 9px; font-weight: 800; color: var(--mute); flex-shrink: 0; }
+.whos-row .info { flex: 1; }
+.whos-row .n { font-size: 9.5px; font-weight: 700; color: var(--text); }
+.whos-row .s { font-size: 7px; color: var(--dim); }
+.whos-row .state { font-size: 7px; font-weight: 800; padding: 2px 6px; border-radius: 5px; }
+.whos-row .state.here { color: var(--emerald); background: rgba(52,211,153,0.12); }
+.whos-row .state.near { color: var(--cyan); background: rgba(34,211,238,0.1); }
+.whos-row .state.enroute { color: var(--amber); background: rgba(251,191,36,0.1); }
+
+.insights { flex: 1; padding: 11px 13px; display: flex; flex-direction: column; gap: 11px; overflow: hidden; }
+.ins-streak { display: flex; gap: 9px; }
+.ins-streak-card { flex: 1; padding: 11px; border-radius: 13px; background: var(--surface-2); border: 1px solid var(--line); }
+.ins-streak-card .lbl { font-size: 7.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
+.ins-streak-card .val { font-size: 22px; font-weight: 900; margin-top: 3px; }
+.ins-streak-card.social .val { color: var(--violet); }
+.ins-streak-card.solo .val { color: var(--cyan); }
+.ins-streak-card .sub { font-size: 7.5px; color: var(--faint); margin-top: 1px; }
+.ins-block { padding: 11px; border-radius: 13px; background: var(--surface-2); border: 1px solid var(--line); }
+.ins-block .lbl { font-size: 8px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); margin-bottom: 8px; }
+.heat { display: grid; grid-template-columns: repeat(14, 1fr); gap: 3px; }
+.heat .c { aspect-ratio: 1; border-radius: 3px; background: rgba(255,255,255,0.04); }
+.heat .c.l1 { background: rgba(139,92,246,0.25); }
+.heat .c.l2 { background: rgba(139,92,246,0.5); }
+.heat .c.l3 { background: rgba(236,72,153,0.7); }
+.heat .c.l4 { background: var(--magenta); }
+.drift-row { display: flex; align-items: center; gap: 8px; padding: 7px 9px; background: rgba(244,63,94,0.06); border: 1px solid rgba(244,63,94,0.2); border-radius: 10px; }
+.drift-row .av { width: 26px; height: 26px; border-radius: 50%; background: var(--surface); border: 1.5px solid var(--line-2); display:flex;align-items:center;justify-content:center; font-size: 9px; font-weight: 800; color: var(--mute); flex-shrink: 0; }
+.drift-row .info { flex: 1; }
+.drift-row .n { font-size: 9.5px; font-weight: 700; color: var(--text); }
+.drift-row .s { font-size: 7.5px; color: var(--rose); }
+.bars { display: flex; flex-direction: column; gap: 5px; }
+.bar-row { display: flex; align-items: center; gap: 8px; }
+.bar-row .n { font-size: 8.5px; color: var(--mute); width: 50px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-row .track { flex: 1; height: 8px; border-radius: 4px; background: rgba(255,255,255,0.04); overflow: hidden; }
+.bar-row .fill { height: 100%; background: var(--aurora); border-radius: 4px; }
+.bar-row .v { font-size: 7.5px; color: var(--dim); width: 18px; text-align: right; flex-shrink: 0; }
+.places { display: flex; flex-direction: column; gap: 5px; }
+.place-row { display: flex; align-items: center; gap: 8px; padding: 7px 9px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; }
+.place-row .n { flex: 1; font-size: 9px; font-weight: 700; color: var(--text); }
+.place-row .c { font-size: 7.5px; color: var(--dim); }
+.place-row .react { display: flex; gap: 4px; }
+.place-row .react .r { width: 20px; height: 20px; border-radius: 6px; border: 1px solid var(--line); display:flex;align-items:center;justify-content:center; }
+.place-row .react .r i { width: 11px; height: 11px; stroke: var(--dim); }
+.place-row .react .r.like i { stroke: var(--emerald); }
+.place-row .react .r.dislike i { stroke: var(--rose); }
+
+.life-map { flex: 1; position: relative; overflow: hidden; background: linear-gradient(135deg, #0a1424, #0d1a30 60%, #08141c); }
+.life-map .grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(34,211,238,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(34,211,238,0.07) 1px, transparent 1px); background-size: 32px 32px; }
+.life-map .road { position: absolute; height: 2px; background: rgba(255,255,255,0.07); }
+.life-map .rd1 { top: 30%; left: -10%; right: -10%; transform: rotate(-6deg); }
+.life-map .rd2 { top: 62%; left: -10%; right: -10%; transform: rotate(3deg); }
+.life-map .mpin { position: absolute; display: flex; flex-direction: column; align-items: center; }
+.life-map .mpin .d { width: 10px; height: 10px; border-radius: 50%; border: 2px solid #fff; background: var(--violet); box-shadow: 0 0 10px rgba(139,92,246,0.6); }
+.life-map .mpin.lvl3 .d { background: var(--magenta); width: 12px; height: 12px; }
+.life-map .mpin.lvl4 .d { background: var(--amber); width: 14px; height: 14px; box-shadow: 0 0 14px rgba(251,191,36,0.7); }
+.life-map .filter-pill { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 5px; font-size: 8px; font-weight: 700; color: var(--text); background: rgba(10,10,18,0.8); border: 1px solid var(--line-2); padding: 5px 10px; border-radius: 16px; }
+.life-map .filter-pill i { width: 11px; height: 11px; stroke: var(--violet); }
+.life-map .slideup { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(11,11,20,0.96); border-top: 1px solid var(--line-2); padding: 11px 13px; backdrop-filter: blur(8px); }
+
+.people { flex: 1; padding: 11px 13px; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+.people-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; }
+.person-card { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.person-card .av { width: 56px; height: 56px; border-radius: 50%; background: var(--surface-2); border: 1.5px solid var(--line-2); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: var(--mute); position: relative; }
+.person-card .av .status { position: absolute; bottom: 1px; right: 1px; width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--surface); }
+.person-card .av .status.ok { background: var(--emerald); }
+.person-card .av .status.drift { background: var(--rose); }
+.person-card .n { font-size: 9px; font-weight: 700; color: var(--text); }
+.person-card .ls { font-size: 7px; color: var(--dim); }
+.person-card .ls.drift { color: var(--rose); }
+
+.profile-head { padding: 14px; display: flex; align-items: center; gap: 12px; background: linear-gradient(160deg, rgba(139,92,246,0.1), transparent); border-bottom: 1px solid var(--line); }
+.profile-head .av { width: 56px; height: 56px; border-radius: 50%; background: var(--surface-2); border: 2px solid var(--violet); display:flex;align-items:center;justify-content:center; font-size: 20px; font-weight: 800; color: var(--text); flex-shrink: 0; box-shadow: 0 0 20px rgba(139,92,246,0.4); }
+.profile-head .info { flex: 1; }
+.profile-head .n { font-size: 14px; font-weight: 800; color: var(--text); }
+.profile-head .s { font-size: 8.5px; color: var(--dim); margin-top: 2px; }
+.profile-head .conf { font-size: 8px; font-weight: 800; color: var(--emerald); margin-top: 4px; display: flex; align-items: center; gap: 3px; }
+.profile-head .conf i { width: 10px; height: 10px; stroke: var(--emerald); }
+.profile-body { flex: 1; padding: 11px 13px; display: flex; flex-direction: column; gap: 11px; overflow: hidden; }
+.profile-sec { font-size: 8px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
+.profile-mini-map { height: 70px; border-radius: 11px; background: linear-gradient(135deg, #0a1424, #0d1a30); position: relative; overflow: hidden; border: 1px solid var(--line); }
+.profile-mini-map .grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(34,211,238,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(34,211,238,0.08) 1px, transparent 1px); background-size: 20px 20px; }
+.profile-mini-map .mpin { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: var(--violet); border: 1.5px solid #fff; }
+.profile-dates { display: flex; gap: 7px; }
+.profile-date { flex: 1; padding: 8px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); }
+.profile-date .lbl { font-size: 7px; color: var(--dim); }
+.profile-date .v { font-size: 10px; font-weight: 800; color: var(--text); margin-top: 2px; }
+.profile-date.bday .v { color: var(--magenta); }
+.profile-stats { display: flex; gap: 7px; }
+.profile-stat { flex: 1; padding: 8px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); text-align: center; }
+.profile-stat .v { font-size: 16px; font-weight: 900; color: var(--violet); }
+.profile-stat .l { font-size: 7px; color: var(--dim); margin-top: 1px; }
+
+.onboard { flex: 1; display: flex; flex-direction: column; padding: 18px; gap: 12px; overflow: hidden; }
+.onboard-logo { font-size: 22px; font-weight: 900; letter-spacing: -0.03em; background: var(--aurora); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.onboard-tag { font-size: 10px; color: var(--dim); line-height: 1.5; margin-top: -6px; }
+.onboard-sec { font-size: 8px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); margin-top: 4px; }
+.perm-row { display: flex; align-items: center; gap: 9px; padding: 10px 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 11px; }
+.perm-row i { width: 15px; height: 15px; stroke: var(--mute); flex-shrink: 0; }
+.perm-row .info { flex: 1; }
+.perm-row .t { font-size: 9.5px; font-weight: 700; color: var(--text); }
+.perm-row .s { font-size: 7px; color: var(--dim); }
+.face-dl { padding: 10px 12px; background: rgba(139,92,246,0.06); border: 1px solid rgba(139,92,246,0.25); border-radius: 11px; }
+.face-dl .t { font-size: 9.5px; font-weight: 700; color: var(--violet); }
+.face-dl .s { font-size: 7.5px; color: var(--dim); margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div class="page-title">hokédex — direction-e</div>
+<div class="page-sub">Dark-but-vibrant · aurora (violet→magenta) primary · cyan info · amber planned · emerald streaks · rose voice · cards first, workflows after</div>
+
+<!-- ════════ SECTION A — CARD SYSTEM ════════ -->
+<div class="section">
+  <div class="section-title"><span class="dot"></span>A · Card system — planned events · notes · voice notes · moment levels 1–4</div>
+
+  <div class="sub-title">Planned events</div>
+  <div class="showcase">
+
+    <div class="cell">
+      <div class="cell-label">Upcoming meetup<span class="pill a">amber</span></div>
+      <div class="mc-outer accent">
+        <div class="mc-event-banner">
+          <div class="mc-event-top"><span class="mc-event-tag a">Upcoming</span><span class="mc-countdown"><i data-lucide="clock"></i>in 2d</span></div>
+          <div><div class="mc-event-title">Coffee with Maya</div><div class="mc-event-sub"><i data-lucide="calendar"></i>Thu · 4:00 PM</div></div>
+        </div>
+        <div class="mc-event-body">
+          <div class="mc-event-avs"><div class="mc-event-av">M</div><div class="mc-event-av">J</div><div class="mc-event-av more">+2</div></div>
+          <div class="mc-event-place"><i data-lucide="map-pin"></i>Daydream Coffee · 0.6 mi</div>
+        </div>
+        <div class="mc-event-footer">
+          <div class="mc-ev-btn primary"><i data-lucide="navigation"></i>Live map</div>
+          <div class="mc-ev-btn"><i data-lucide="link"></i>Invite</div>
+        </div>
+      </div>
+      <div class="cell-note">Amber banner = planned. Countdown chip + participant avatars + place. Drives Calendar pivot + EventShowScreen live map.</div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-label">Recurring event<span class="pill v">violet</span></div>
+      <div class="mc-outer">
+        <div class="mc-event-banner repeat">
+          <div class="mc-event-top"><span class="mc-event-tag v">Recurring</span><span class="mc-countdown"><i data-lucide="repeat"></i>Weekly</span></div>
+          <div><div class="mc-event-title">Team sync</div><div class="mc-event-sub"><i data-lucide="calendar"></i>Every Mon · 10:00 AM</div></div>
+        </div>
+        <div class="mc-event-body">
+          <div class="mc-event-avs"><div class="mc-event-av">A</div><div class="mc-event-av">P</div><div class="mc-event-av">R</div><div class="mc-event-av more">+4</div></div>
+          <div class="mc-event-place"><i data-lucide="video"></i>Remote</div>
+        </div>
+        <div class="mc-event-footer">
+          <div class="mc-ev-btn"><i data-lucide="bell"></i>Notify</div>
+          <div class="mc-ev-btn"><i data-lucide="x"></i>Skip once</div>
+        </div>
+      </div>
+      <div class="cell-note">Violet banner = recurring. Repeat icon in countdown. Recurring toggle in create-meetup flow.</div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-label">Birthday / special date<span class="pill m">magenta</span></div>
+      <div class="mc-outer">
+        <div class="mc-event-banner bday">
+          <div class="mc-event-top"><span class="mc-event-tag m">Birthday</span><span class="mc-countdown"><i data-lucide="cake"></i>in 12d</span></div>
+          <div><div class="mc-event-title">Jordan turns 29</div><div class="mc-event-sub"><i data-lucide="gift"></i>From People · person_dates</div></div>
+        </div>
+        <div class="mc-event-body">
+          <div class="mc-event-place"><i data-lucide="user"></i>No meetup planned · suggest one?</div>
+        </div>
+        <div class="mc-event-footer">
+          <div class="mc-ev-btn primary"><i data-lucide="plus"></i>Plan meetup</div>
+          <div class="mc-ev-btn"><i data-lucide="bell"></i>Remind</div>
+        </div>
+      </div>
+      <div class="cell-note">Magenta banner = birthday. Auto-pulled from People. Suggest-meetup CTA when none exists.</div>
+    </div>
+
+  </div>
+
+  <div class="sub-title">Notes &amp; voice notes</div>
+  <div class="showcase">
+
+    <div class="cell">
+      <div class="cell-label">Note · text only<span class="pill c">cyan</span></div>
+      <div class="mc-outer">
+        <div class="mc-header">
+          <div class="mc-avatar c"><i data-lucide="sticky-note"></i></div>
+          <div class="mc-who"><div class="mc-who-name">Quick note</div><div class="mc-who-time">Today · 9:24 AM</div></div>
+          <span class="mc-lvl">NOTE</span>
+        </div>
+        <div class="mc-body cyan">
+          <div class="mc-body-text">Idea for Maya's gift — the film camera she kept talking about. Check the shop near Dalston before Thursday.</div>
+        </div>
+        <div class="mc-chips"><span class="mc-chip c">gifts</span><span class="mc-chip">maya</span><span class="mc-chip">errands</span></div>
+        <div class="mc-divider"></div>
+        <div class="mc-footer">
+          <div class="mc-actions">
+            <div class="mc-action-btn"><i data-lucide="paperclip"></i></div>
+            <div class="mc-action-btn"><i data-lucide="tag"></i></div>
+            <div class="mc-loc"><i data-lucide="map-pin"></i>Dalston</div>
+            <div class="mc-del"><i data-lucide="trash-2"></i></div>
+          </div>
+          <div class="mc-timestamp">Saved to today's session · no media</div>
+        </div>
+      </div>
+      <div class="cell-note">Cyan border = text note. Same shell as moments so it blends into Timeline. Chips double as tag + person links.</div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-label">Voice note<span class="pill r">rose</span></div>
+      <div class="mc-outer">
+        <div class="mc-header">
+          <div class="mc-avatar r"><i data-lucide="mic"></i></div>
+          <div class="mc-who"><div class="mc-who-name">Voice note · 0:38</div><div class="mc-who-time">Today · 11:02 AM</div></div>
+          <span class="mc-lvl">VOICE</span>
+        </div>
+        <div class="mc-body rose">
+          <div class="mc-body-voice">
+            <div class="mc-voice-top">
+              <div class="mc-play-btn"><i data-lucide="play"></i></div>
+              <div class="mc-waveform">
+                <span class="mc-wv played" style="height:8px"></span><span class="mc-wv played" style="height:14px"></span><span class="mc-wv played" style="height:11px"></span><span class="mc-wv played" style="height:18px"></span><span class="mc-wv played" style="height:9px"></span><span class="mc-wv played" style="height:16px"></span><span class="mc-wv played" style="height:12px"></span><span class="mc-wv" style="height:15px"></span><span class="mc-wv" style="height:7px"></span><span class="mc-wv" style="height:13px"></span><span class="mc-wv" style="height:18px"></span><span class="mc-wv" style="height:9px"></span><span class="mc-wv" style="height:14px"></span><span class="mc-wv" style="height:6px"></span><span class="mc-wv" style="height:11px"></span><span class="mc-wv" style="height:16px"></span><span class="mc-wv" style="height:8px"></span><span class="mc-wv" style="height:12px"></span>
+              </div>
+              <span class="mc-voice-dur">0:14 / 0:38</span>
+            </div>
+            <div class="mc-voice-tx">"Met Priya at the studio — she's moving to Lisbon in August. Need to plan a farewell before then…"</div>
+          </div>
+        </div>
+        <div class="mc-chips"><span class="mc-chip">priya</span><span class="mc-chip">farewell</span><span class="mc-chip c">transcribed</span></div>
+        <div class="mc-divider"></div>
+        <div class="mc-footer">
+          <div class="mc-actions">
+            <div class="mc-action-btn"><i data-lucide="languages"></i></div>
+            <div class="mc-action-btn"><i data-lucide="tag"></i></div>
+            <div class="mc-loc"><i data-lucide="map-pin"></i>Shoreditch Studio</div>
+            <div class="mc-del"><i data-lucide="trash-2"></i></div>
+          </div>
+          <div class="mc-timestamp">STT → type inference → person extraction · GPS + weather attached</div>
+        </div>
+      </div>
+      <div class="cell-note">Rose border = voice. Waveform with played/unplayed split. STT transcript inline. People auto-extracted → chips.</div>
+    </div>
+
+  </div>
+
+  <div class="sub-title">Moment levels 1–4 (eventfulness scorer)</div>
+  <div class="showcase">
+
+    <div class="cell">
+      <div class="cell-label">L1 · compact<span class="pill c">L1</span></div>
+      <div class="mc-outer">
+        <div class="mc-header">
+          <div class="mc-avatar v"><i data-lucide="user"></i></div>
+          <div class="mc-who"><div class="mc-who-name">Solo moment</div><div class="mc-who-time">Today · 8:15 AM</div></div>
+          <span class="mc-lvl l1">L1 · compact</span>
+        </div>
+        <div class="mc-body"><div class="mc-body-text">Morning run along the canal. First frost of the year — quiet, just the rowers out.</div></div>
+        <div class="mc-chips"><span class="mc-chip">solo</span><span class="mc-chip c">run</span><span class="mc-chip">canal</span></div>
+        <div class="mc-divider"></div>
+        <div class="mc-footer">
+          <div class="mc-actions">
+            <div class="mc-action-btn"><i data-lucide="camera"></i></div>
+            <div class="mc-action-btn"><i data-lucide="tag"></i></div>
+            <div class="mc-loc"><i data-lucide="map-pin"></i>Regent's Canal</div>
+            <div class="mc-del"><i data-lucide="trash-2"></i></div>
+          </div>
+          <div class="mc-timestamp">1 moment in session · single-item card</div>
+        </div>
+      </div>
+      <div class="cell-note">Trigger: single moment in session. Tiny/no thumb, note text, chips. RegroupService promotes as more land.</div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-label">L2 · carousel<span class="pill v">L2</span></div>
+      <div class="mc-outer">
+        <div class="mc-header">
+          <div class="mc-avatar v"><i data-lucide="users"></i></div>
+          <div class="mc-who"><div class="mc-who-name">Lunch with Dev &amp; Sam</div><div class="mc-who-time">Today · 12:40 PM</div></div>
+          <span class="mc-lvl l2">L2 · carousel</span>
+        </div>
+        <div class="mc-body">
+          <div class="mc-body-photos"><div class="mc-photo">🍱</div><div class="mc-photo">🍵</div><div class="mc-photo more">+1<i data-lucide="chevron-right"></i></div></div>
+          <div class="mc-body-text">Tried the new ramen place. Dev ruined his shirt with broth.</div>
+        </div>
+        <div class="mc-chips"><span class="mc-chip v">dev</span><span class="mc-chip v">sam</span><span class="mc-chip">food</span></div>
+        <div class="mc-divider"></div>
+        <div class="mc-footer">
+          <div class="mc-actions">
+            <div class="mc-action-btn"><i data-lucide="plus"></i></div>
+            <div class="mc-action-btn"><i data-lucide="tag"></i></div>
+            <div class="mc-loc"><i data-lucide="map-pin"></i>Koya · Soho</div>
+            <div class="mc-del"><i data-lucide="trash-2"></i></div>
+          </div>
+          <div class="mc-timestamp">3 moments in session · 2–3 photo carousel</div>
+        </div>
+      </div>
+      <div class="cell-note">Trigger: 2–3 moments in session. Horizontal photo carousel + note + people chips.</div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-label">L3 · big day<span class="pill m">L3</span></div>
+      <div class="mc-outer accent">
+        <div class="mc-header">
+          <div class="mc-avatar m"><i data-lucide="users"></i></div>
+          <div class="mc-who"><div class="mc-who-name">Sunday at Hampstead</div><div class="mc-who-time">Sun · afternoon</div></div>
+          <span class="mc-lvl l3">L3 · big day</span>
+        </div>
+        <div class="mc-body">
+          <div class="mc-body-cover">🌳<span class="mc-cover-badge">+7 photos</span><span class="mc-cover-place"><i data-lucide="map-pin"></i>Hampstead Heath</span></div>
+          <div class="mc-body-text">Big walk — got lost, found the pub, repeated. Nine of us in the end.</div>
+        </div>
+        <div class="mc-chips"><span class="mc-chip v">maya</span><span class="mc-chip v">jordan</span><span class="mc-chip v">priya</span><span class="mc-chip">+6</span><span class="mc-chip">outdoors</span></div>
+        <div class="mc-divider"></div>
+        <div class="mc-footer">
+          <div class="mc-actions">
+            <div class="mc-action-btn"><i data-lucide="plus"></i></div>
+            <div class="mc-action-btn"><i data-lucide="tag"></i></div>
+            <div class="mc-loc"><i data-lucide="map-pin"></i>Hampstead · 14°C ☀</div>
+            <div class="mc-del"><i data-lucide="trash-2"></i></div>
+          </div>
+          <div class="mc-timestamp">4+ moments in session · full-width cover + count badge</div>
+        </div>
+      </div>
+      <div class="cell-note">Trigger: 4+ moments in session. Full-width cover, +N badge, people chips, place + weather.</div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-label">L4 · featured<span class="pill a">L4</span></div>
+      <div class="mc-outer accent">
+        <div class="mc-header">
+          <div class="mc-avatar m"><i data-lucide="sparkles"></i></div>
+          <div class="mc-who"><div class="mc-who-name">Maya's birthday night</div><div class="mc-who-time">Sat · 9:30 PM → late</div></div>
+          <span class="mc-lvl l4">L4 · featured</span>
+        </div>
+        <div class="mc-body">
+          <div class="mc-body-hero">
+            <div class="mc-hero-bg">🎉</div><div class="mc-hero-grad"></div>
+            <div class="mc-hero-overlay">
+              <div class="mc-hero-avs"><div class="mc-hero-av">M</div><div class="mc-hero-av">J</div><div class="mc-hero-av">P</div><div class="mc-hero-av">D</div><div class="mc-hero-av more">+8</div></div>
+              <div class="mc-hero-title">12 people · 21 face matches</div>
+              <div class="mc-hero-meta"><span class="w"><i data-lucide="cloud-drizzle"></i>16°C · drizzle</span><span class="p"><i data-lucide="map-pin"></i>Rita's, Hackney</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="mc-divider"></div>
+        <div class="mc-footer">
+          <div class="mc-actions">
+            <div class="mc-action-btn"><i data-lucide="image"></i></div>
+            <div class="mc-action-btn"><i data-lucide="mic"></i></div>
+            <div class="mc-action-btn"><i data-lucide="sticky-note"></i></div>
+            <div class="mc-loc"><i data-lucide="users"></i>12 people</div>
+            <div class="mc-del"><i data-lucide="trash-2"></i></div>
+          </div>
+          <div class="mc-timestamp">High face-match + many people · hero card · prominent avatars + weather + place</div>
+        </div>
+      </div>
+      <div class="cell-note">Trigger: high face-match rate + many people. Highest promotion level. Hero card with prominent avatars, weather, place.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════ SECTION B — WORKFLOWS ════════ -->
+<div class="section">
+  <div class="section-title"><span class="dot"></span>B · Workflows — how each screen looks, connected</div>
+
+  <!-- FLOW 0 — ONBOARDING -->
+  <div class="sub-title">Flow 0 — Onboarding (first launch)</div>
+  <div class="flow">
+    <div class="flow-col">
+      <div class="flow-label">Permissions + face model</div>
+      <div class="phone tall">
+        <div class="sb"><span>9:41</span><div class="sb-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="onboard">
+          <div class="onboard-logo">hokédex</div>
+          <div class="onboard-tag">A quiet little dex for the people and moments in your life.</div>
+          <div class="onboard-sec">Permissions</div>
+          <div class="perm-row"><i data-lucide="camera"></i><div class="info"><div class="t">Camera</div><div class="s">Capture moments</div></div><div class="toggle on"></div></div>
+          <div class="perm-row"><i data-lucide="image"></i><div class="info"><div class="t">Gallery</div><div class="s">Import photos</div></div><div class="toggle on"></div></div>
+          <div class="perm-row"><i data-lucide="mic"></i><div class="info"><div class="t">Microphone</div><div class="s">Voice notes</div></div><div class="toggle"></div></div>
+          <div class="perm-row"><i data-lucide="map-pin"></i><div class="info"><div class="t">Location</div><div class="s">Places + weather</div></div><div class="toggle on"></div></div>
+          <div class="onboard-sec">Face detection · optional</div>
+          <div class="face-dl"><div class="t">Download face model</div><div class="s">12 MB · can do later in Settings</div><div class="progress"><div class="bar"></div></div></div>
+          <div class="btn-primary">Continue</div>
+          <div class="btn-ghost">Skip · set up later</div>
+        </div>
+      </div>
+      <div class="flow-note">Permissions toggled individually. Face model ON → download inline with progress. Done → PIN setup → app. Skip → PIN setup → app (permissions asked on first use).</div>
+    </div>
+  </div>
+
+  <!-- FLOW 1 — CAMERA PHOTO → TIMELINE -->
+  <div class="sub-title">Flow 1 — Camera · Photo mode → Moments Timeline (L1–L4 on one screen)</div>
+  <div class="flow">
+    <div class="flow-col">
+      <div class="flow-label">Viewfinder · Photo mode</div>
+      <div class="phone">
+        <div class="sb"><span>9:41</span><div class="sb-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="viewfinder">
+          <div class="vf-bg"></div>
+          <div class="vf-face-box"><div class="vf-corner vfc-tl"></div><div class="vf-corner vfc-tr"></div><div class="vf-corner vfc-bl"></div><div class="vf-corner vfc-br"></div></div>
+          <div class="vf-scan"></div>
+        </div>
+        <div class="mode-bar">
+          <div class="mode-row"><span class="mode-pill">Local</span><span class="mode-pill on">Photo</span><span class="mode-pill">Voice</span><span class="mode-pill">Contact</span></div>
+          <div class="capture-row"><div class="thumb-btn"><i data-lucide="image"></i></div><div class="capture-btn"></div><div class="scan-btn"><i data-lucide="scan-face"></i></div></div>
+        </div>
+        <div class="nav"><div class="ni on"><i data-lucide="camera"></i><span>Home</span></div><div class="ni"><i data-lucide="layers"></i><span>Moments</span></div><div class="ni"><i data-lucide="users"></i><span>People</span></div></div>
+      </div>
+      <div class="flow-note">Live viewfinder · face box + scan line. Tap white capture → auto-saves moment with GPS + weather → Timeline.</div>
+    </div>
+
+    <div class="arrow"><div class="arr"><div class="arr-line"><span class="arr-shaft"></span><span class="arr-head"></span></div><div class="arr-label">capture</div></div></div>
+
+    <div class="flow-col">
+      <div class="flow-label">Timeline · all 4 card levels</div>
+      <div class="phone xxl">
+        <div class="sb"><span>9:41</span><div class="sb-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="topbar"><div class="topbar-title">Moments</div><div style="display:flex;gap:6px"><div class="icon-btn"><i data-lucide="list"></i></div><div class="icon-btn"><i data-lucide="map"></i></div></div></div>
+        <div class="pivot"><span class="pivot-item on">Timeline</span><span class="pivot-item">Calendar</span><span class="pivot-item">Insights</span><span class="pivot-item">Map</span></div>
+        <div class="feed-scroll">
+          <div class="day-chip">Today · Thu 25</div>
+          <div class="mc-outer accent">
+            <div class="mc-header"><div class="mc-avatar m"><i data-lucide="sparkles"></i></div><div class="mc-who"><div class="mc-who-name">Maya's birthday night</div><div class="mc-who-time">Sat · 9:30 PM</div></div><span class="mc-lvl l4">L4 · featured</span></div>
+            <div class="mc-body"><div class="mc-body-hero"><div class="mc-hero-bg">🎉</div><div class="mc-hero-grad"></div><div class="mc-hero-overlay"><div class="mc-hero-avs"><div class="mc-hero-av">M</div><div class="mc-hero-av">J</div><div class="mc-hero-av">P</div><div class="mc-hero-av">D</div><div class="mc-hero-av more">+8</div></div><div class="mc-hero-title">12 people · 21 face matches</div><div class="mc-hero-meta"><span class="w"><i data-lucide="cloud-drizzle"></i>16°C</span><span class="p"><i data-lucide="map-pin"></i>Rita's</span></div></div></div></div>
+          </div>
+          <div class="day-chip">Wed 24</div>
+          <div class="mc-outer accent">
+            <div class="mc-header"><div class="mc-avatar m"><i data-lucide="users"></i></div><div class="mc-who"><div class="mc-who-name">Sunday at Hampstead</div><div class="mc-who-time">Sun · afternoon</div></div><span class="mc-lvl l3">L3 · big day</span></div>
+            <div class="mc-body"><div class="mc-body-cover">🌳<span class="mc-cover-badge">+7</span><span class="mc-cover-place"><i data-lucide="map-pin"></i>Hampstead Heath</span></div><div class="mc-body-text">Big walk — got lost, found the pub, repeated.</div></div>
+          </div>
+          <div class="day-chip">Tue 23</div>
+          <div class="mc-outer">
+            <div class="mc-header"><div class="mc-avatar v"><i data-lucide="users"></i></div><div class="mc-who"><div class="mc-who-name">Lunch with Dev &amp; Sam</div><div class="mc-who-time">Tue · 12:40 PM</div></div><span class="mc-lvl l2">L2 · carousel</span></div>
+            <div class="mc-body"><div class="mc-body-photos"><div class="mc-photo">🍱</div><div class="mc-photo">🍵</div><div class="mc-photo more">+1</div></div><div class="mc-body-text">Tried the new ramen place.</div></div>
+          </div>
+          <div class="mc-outer">
+            <div class="mc-header"><div class="mc-avatar v"><i data-lucide="user"></i></div><div class="mc-who"><div class="mc-who-name">Morning run</div><div class="mc-who-time">Tue · 8:15 AM</div></div><span class="mc-lvl l1">L1 · compact</span></div>
+            <div class="mc-body"><div class="mc-body-text">First frost of the year — quiet, just the rowers out.</div></div>
+          </div>
+        </div>
+        <div class="nav"><div class="ni"><i data-lucide="camera"></i><span>Home</span></div><div class="ni on"><i data-lucide="layers"></i><span>Moments</span></div><div class="ni"><i data-lucide="users"></i><span>People</span></div></div>
+      </div>
+      <div class="flow-note">Day chips between days (WhatsApp-style). Cards promote/demote as RegroupService + FaceProcessingQueue add to a session. Tap any card → MomentDetail.</div>
+    </div>
+  </div>
+
+  <!-- FLOW 2 — TIMELINE → MOMENT DETAIL -->
+  <div class="sub-title">Flow 2 — Timeline · tap card → MomentDetailScreen</div>
+  <div class="flow">
+    <div class="flow-col">
+      <div class="flow-label">Timeline · tap L3 card</div>
+      <div class="phone tall">
+        <div class="sb"><span>9:41</span><div class="sb-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="topbar"><div class="topbar-title">Moments</div><div class="icon-btn"><i data-lucide="map"></i></div></div>
+        <div class="pivot"><span class="pivot-item on">Timeline</span><span class="pivot-item">Calendar</span><span class="pivot-item">Insights</span><span class="pivot-item">Map</span></div>
+        <div class="feed-scroll">
+          <div class="day-chip">Sun 21</div>
+          <div class="mc-outer accent" style="box-shadow:0 0 0 2px rgba(139,92,246,0.4)">
+            <div class="mc-header"><div class="mc-avatar m"><i data-lucide="users"></i></div><div class="mc-who"><div class="mc-who-name">Sunday at Hampstead</div><div class="mc-who-time">Sun · afternoon</div></div><span class="mc-lvl l3">L3 · big day</span></div>
+            <div class="mc-body"><div class="mc-body-cover">🌳<span class="mc-cover-badge">+7</span><span class="mc-cover-place"><i data-lucide="map-pin"></i>Hampstead Heath</span></div><div class="mc-body-text">Big walk — got lost, found the pub, repeated. Nine of us in the end.</div><div class="mc-chips"><span class="mc-chip v">maya</span><span class="mc-chip v">jordan</span><span class="mc-chip v">priya</span><span class="mc-chip">+6</span><span class="mc-chip">outdoors</span></div></div>
+            <div class="mc-divider"></div>
+            <div class="mc-footer">
+              <div class="mc-actions">
+                <div class="mc-action-btn"><i data-lucide="plus"></i></div>
+                <div class="mc-action-btn"><i data-lucide="sticky-note"></i></div>
+                <div class="mc-action-btn"><i data-lucide="heart"></i></div>
+                <div class="mc-loc"><i data-lucide="map-pin"></i>Hampstead · 14°C ☀</div>
+                <div class="mc-del"><i data-lucide="trash-2"></i></div>
+              </div>
+              <div class="mc-timestamp">4+ moments in session · tap card → MomentDetail</div>
+            </div>
+          </div>
+        </div>
+        <div class="nav"><div class="ni"><i data-lucide="camera"></i><span>Home</span></div><div class="ni on"><i data-lucide="layers"></i><span>Moments</span></div><div class="ni"><i data-lucide="users"></i><span>People</span></div></div>
+      </div>
+      <div class="flow-note">Highlighted card = tapped. Navigates to MomentDetailScreen.</div>
+    </div>
+
+    <div class="arrow"><div class="arr"><div class="arr-line"><span class="arr-shaft"></span><span class="arr-head"></span></div><div class="arr-label">tap</div></div></div>
+
+    <div class="flow-col">
+      <div class="flow-label">MomentDetailScreen</div>
+      <div class="phone xl">
+        <div class="sb"><span>9:41</span><div class="sb-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+          <div class="detail-hero">
+            <div class="bg">🌳</div><div class="grad"></div>
+            <div class="ov"><div class="title">Sunday at Hampstead</div><div class="sub"><i data-lucide="calendar"></i>Sun · 2:14 PM<i data-lucide="cloud-sun"></i>14°C<i data-lucide="map-pin"></i>Hampstead Heath</div></div>
+          </div>
+          <div class="detail-body">
+            <div class="detail-chips">
+              <div class="detail-chip"><div class="av">M</div><div class="n">Maya</div></div>
+              <div class="detail-chip"><div class="av">J</div><div class="n">Jordan</div></div>
+              <div class="detail-chip"><div class="av">P</div><div class="n">Priya</div></div>
+              <div class="detail-chip"><div class="av">D</div><div class="n">Dev</div></div>
+              <div class="detail-chip"><div class="av">+5</div></div>
+            </div>
+            <div class="detail-note">Big walk — got lost, found the pub, repeated. Nine of us in the end. Maya brought her dog.</div>
+            <div class="profile-sec">Add more · bundle · split</div>
+            <div class="detail-actions">
+              <div class="detail-act"><i data-lucide="camera"></i><div class="l">Photo</div></div>
+              <div class="detail-act"><i data-lucide="video"></i><div class="l">Video</div></div>
+              <div class="detail-act"><i data-lucide="mic"></i><div class="l">Voice</div></div>
+              <div class="detail-act"><i data-lucide="sticky-note"></i><div class="l">Note</div></div>
+              <div class="detail-act"><i data-lucide="git-merge"></i><div class="l">Bundle</div></div>
+              <div class="detail-act"><i data-lucide="split"></i><div class="l">Split</div></div>
+              <div class="detail-act"><i data-lucide="edit-3"></i><div class="l">Edit note</div></div>
+              <div class="detail-act"><i data-lucide="trash-2"></i><div class="l">Delete</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="nav"><div class="ni"><i data-lucide="camera"></i><span>Home</span></div><div class="ni on"><i data-lucide="layers"></i><span>Moments</span></div><div class="ni"><i data-lucide="users"></i><span>People</span></div></div>
+      </div>
+      <div class="flow-note">Full media viewer with swipe. People chips tap → person profile. Add photo/voice/note after the fact. Bundle or split moments.</div>
+    </div>
+  </div>
+
+  <!-- FLOW 3 — LOCAL → INTAKE (ready) → SEARCH -->
+  <div class="sub-title">Flow 3 — Local mode → Intake (model ready) → SearchResult (face + text)</div>
+  <div class="flow">
+    <div class="flow-col">
+      <div class="flow-label">Local mode</div>
+      <div class="phone">
+        <div class="sb"><span>9:41</span><div class="sb-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="mode-panel local"><div class="glow"></div><div class="mp-icon"><i data-lucide="image"></i></div><div class="mp-title">Pick from gallery</div><div class="mp-sub">Import an existing photo. Faces detected on-device.</div></div>
+        <div class="mode-bar"><div class="mode-row"><span class="mode-pill on">Local</span><span class="mode-pill">Photo</span><span class="mode-pill">Voice</span><span class="mode-pill">Contact</span></div><div class="capture-row"><div class="thumb-btn"><i data-lucide="folder"></i></div><div class="capture-btn"></div><div class="scan-btn"><i data-lucide="scan-face"></i></div></div></div>
+        <div class="nav"><div class="ni on"><i data-lucide="camera"></i><span>Home</span></div><div class="ni"><i data-lucide="layers"></i><span>Moments</span></div><div class="ni"><i data-lucide="users"></i><span>People</span></div></div>
+      </div>
+      <div class="flow-note">Dark panel with cyan glow. Tap capture → system gallery picker.</div>
+    </div>
+
+    <div class="arrow"><div class="arr"><div class="arr-line"><span class="arr-shaft"></span><span class="arr-head"></span></div><div class="arr-label">pick</div></div></div>
+
+    <div class="flow-col">
+      <div class="flow-label">Intake · model ready</div>
+      <div class="phone tall">
+        <div class="sb"><span>9:41</span><div class="sb-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="topbar"><div class="icon-btn"><i data-lucide="x"></i></div><div class="topbar-title">Import</div><div class="icon-btn"><i data-lucide="more-horizontal"></i></div></div>
+        <div class="intake">
+          <div class="intake-preview">🖼️<div class="face-crop"></div></div>
+          <div class="btn-primary">Save as Moment</div>
+          <div class="btn-ghost">Add Contact</div>
+          <div class="btn-ghost" style="color:var(--faint)">Discard</div>
+        </div>
+      </div>
+      <div class="flow-note">Model ready → full action set: Save as Moment (primary), Add Contact → SearchResult, Discard (ghost).</div>
+    </div>
+
+    <div class="arrow"><div class="arr"><div class="arr-line"><span class="arr-shaft"></span><span class="arr-head"></span></div><div class="arr-label">add contact</div></div></div>
+
+    <div class="flow-col">
+      <div class="flow-label">SearchResult · face + text</div>
+      <div class="phone tall">
+        <div class="sb"><span>9:41</span><div class="sb-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="topbar"><div class="icon-btn"><i data-lucide="arrow-left"></i></div><div class="topbar-title">Add Contact</div><div class="icon-btn"><i data-lucide="check"></i></div></div>
+        <div class="search">
+          <div class="search-bar"><i data-lucide="search"></i><span class="ph">Search by name or handle…</span><i data-lucide="image" style="stroke:var(--violet)"></i></div>
+          <div class="search-seed">🧑<span class="tag">FACE CROP</span></div>
+          <div class="search-sec-label">Face matches</div>
+          <div class="search-row"><div class="av">M</div><div class="info"><div class="name">Maya Okafor</div><div class="meta">Last seen 2d ago · Rita's</div></div><span class="conf">94%</span></div>
+          <div class="search-row"><div class="av">J</div><div class="info"><div class="name">Jordan Lee</div><div class="meta">Last seen 4d ago</div></div><span class="conf mid">71%</span></div>
+          <div class="search-sec-label">All contacts</div>
+          <div class="search-row"><div class="av">P</div><div class="info"><div class="name">Priya Shah</div><div class="meta">Last seen 1w ago</div></div><span class="conf low">22%</span></div>
+          <div class="search-new"><i data-lucide="user-plus"></i><span class="t">Create new contact</span></div>
+        </div>
+      </div>
+      <div class="flow-note">Face crop seeds search. Results ranked by % confidence (emerald/amber/faint). Text search also. Image icon swaps photo. Create new → ContactForm.</div>
+    </div>
+  </div>
+
+  <!-- FLOW 4 — INTAKE NO MODEL → SETTINGS → BACK -->
+  <div class="sub-title">Flow 4 — Intake · no model → Settings → back · ready</div>
+  <div class="flow">
+    <div class="flow-col">
+      <div class="flow-label">Intake · model missing</div>
+      <div class="phone tall">
+        <div class="sb"><span>9:41</span><div class="sb-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="topbar"><div class="icon-btn"><i data-lucide="x"></i></div><div class="topbar-title">Import</div><div class="icon-btn"><i data-lucide="more-horizontal"></i></div></div>
+        <div class="intake">
+          <div class="intake-preview">🖼️</div>
+          <div class="intake-warn"><i data-lucide="alert-triangle"></i><div><div class="t">Face model not downloaded</div><div class="s">You can still save this as a moment. Add-contact-by-face is unavailable until the model is ready.</div></div></div>
+          <div class="btn-primary">Save as Moment</div>
+          <div class="btn-danger-outline">Download → Settings</div>
+          <div class="btn-ghost" style="color:var(--faint)">Discard</div>
+        </div>
+      </div>
+      <div class="flow-note">No model → warning block, Save still primary, Download→Settings (rose outline). Add Contact hidden.</div>
+    </div>
+
+    <div class="arrow"><div class="arr"><div class="arr-line"><span class="arr-shaft"></span><span class="arr-head"></span></div><div class="arr-label">download</div></div></div>
+
+    <div class="flow-col">
+      <div class="flow-label">Settings · downloading</div>
+      <div class="phone tall">
+        <div class="sb"><span>9:41</span><div class="sb-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="topbar"><div class="icon-btn"><i data-lucide="arrow-left"></i></div><div class="topbar-title">Settings</div><div class="icon-btn"></div></div>
+        <div class="settings-list">
+          <div class="set-row"><i data-lucide="scan-face"></i><div class="info"><div class="t">Face model</div><div class="s">Downloading · 12 MB</div><div class="progress"><div class="bar" style="width:64%"></div></div></div></div>
+          <div class="set-row"><i data-lucide="lock"></i><div class="info"><div class="t">PIN lock</div><div class="s">Enabled · 6-digit</div></div><div class="toggle on"></div></div>
+          <div class="set-row"><i data-lucide="bell"></i><div class="info"><div class="t">Notifications</div><div class="s">Drift alerts, birthdays</div></div><div class="toggle on"></div></div>
+          <div class="set-row"><i data-lucide="cloud-download"></i><div class="info"><div class="t">App update</div><div class="s">v0.9.2 · up to date</div></div></div>
+        </div>
+      </div>
+      <div class="flow-note">Face model row shows live progress. Other settings: PIN, notifications, update check.</div>
+    </div>
+
+    <div class="arrow"><div class="arr"><div class="arr-line"><span class="arr-shaft"></span><span class="arr-head"></span></div><div class="arr-label">back · re-check</div></div></div>
+
+    <div class="flow-col">
+      <div class="flow-label">Intake · ready (useFocusEffect)</div>
+      <div class="phone tall">
+        <div class="sb"><span>9:41</span><div class="sb-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="topbar"><div class="icon-btn"><i data-lucide="x"></i></div><div class="topbar-title">Import</div><div class="icon-btn"><i data-lucide="more-horizontal"></i></div></div>
+        <div class="intake">
+          <div class="intake-preview">🖼️<div class="face-crop"></div></div>
+          <div class="btn-primary">Save as Moment</div>
+          <div class="btn-ghost">Add Contact</div>
+          <div class="btn-ghost" style="color:var(--faint)">Discard</div>
+        </div>
+      </div>
+      <div class="flow-note">useFocusEffect re-checks on return. Warning gone → full action set restored.</div>
+    </div>
+  </div>
+
+  <!-- FLOW 5 — VOICE → RECORDING → MOMENTS -->
+  <div class="sub-title">Flow 5 — Voice mode → recording → Moments (voice card)</div>
+  <div class="flow">
+    <div class="flow-col">
+      <div class="flow-label">Voice · idle</div>
+      <div class="phone">
+        <div class="sb"><span>9:41</span><div class="sb-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="mode-panel voice"><div class="glow"></div><div class="mp-icon"><i data-lucide="mic"></i></div><div class="mp-title">Voice note</div><div class="mp-sub">Tap = hands-free toggle · Hold = push-to-talk</div></div>
+        <div class="mode-bar"><div class="mode-row"><span class="mode-pill">Local</span><span class="mode-pill">Photo</span><span class="mode-pill on">Voice</span><span class="mode-pill">Contact</span></div><div class="capture-row"><div class="thumb-btn"><i data-lucide="image"></i></div><div class="capture-btn voice"><i data-lucide="mic"></i></div><div class="scan-btn"><i data-lucide="scan-face"></i></div></div></div>
+        <div class="nav"><div class="ni on"><i data-lucide="camera"></i><span>Home</span></div><div class="ni"><i data-lucide="layers"></i><span>Moments</span></div><div class="ni"><i data-lucide="users"></i><span>People</span></div></div>
+      </div>
+      <div class="flow-note">Rose mic orb idle. Capture = red mic.</div>
+    </div>
+
+    <div class="arrow"><div class="arr"><div class="arr-line"><span class="arr-shaft"></span><span class="arr-head"></span></div><div class="arr-label">tap</div></div></div>
+
+    <div class="flow-col">
+      <div class="flow-label">Recording</div>
+      <div class="phone">
+        <div class="sb"><span>9:41</span><div class="sb-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="mode-panel voice" style="justify-content:flex-start;padding-top:60px">
+          <div class="glow"></div>
+          <div class="rec-orb"><i data-lucide="mic"></i></div>
+          <div class="rec-timer">00:38</div>
+          <div class="rec-wave"><span class="b" style="height:6px"></span><span class="b" style="height:14px"></span><span class="b" style="height:22px"></span><span class="b" style="height:10px"></span><span class="b" style="height:18px"></span><span class="b" style="height:24px"></span><span class="b" style="height:8px"></span><span class="b" style="height:16px"></span><span class="b" style="height:22px"></span><span class="b" style="height:12px"></span><span class="b" style="height:20px"></span><span class="b" style="height:6px"></span><span class="b" style="height:14px"></span></div>
+          <div class="rec-hint">Tap to stop · hold-release auto-stops</div>
+        </div>
+        <div class="mode-bar"><div class="mode-row"><span class="mode-pill">Local</span><span class="mode-pill">Photo</span><span class="mode-pill on">Voice</span><span class="mode-pill">Contact</span></div><div class="capture-row"><div class="thumb-btn"><i data-lucide="trash-2"></i></div><div class="capture-btn voice" style="background:var(--rose);border-color:#fff"><i data-lucide="square" style="stroke:#fff"></i></div><div class="scan-btn"><i data-lucide="scan-face"></i></div></div></div>
+        <div class="nav"><div class="ni on"><i data-lucide="camera"></i><span>Home</span></div><div class="ni"><i data-lucide="layers"></i><span>Moments</span></div><div class="ni"><i data-lucide="users"></i><span>People</span></div></div>
+      </div>
+      <div class="flow-note">Pulsing rose orb + live waveform + timer. Stop = solid rose with square.</div>
+    </div>
+
+    <div class="arrow"><div class="arr"><div class="arr-line"><span class="arr-shaft"></span><span class="arr-head"></span></div><div class="arr-label">save</div></div></div>
+
+    <div class="flow-col">
+      <div class="flow-label">Timeline · voice saved</div>
+      <div class="phone tall">
+        <div class="sb"><span>9:41</span><div class="sb-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="topbar"><div class="topbar-title">Moments</div><div class="icon-btn"><i data-lucide="list"></i></div></div>
+        <div class="pivot"><span class="pivot-item on">Timeline</span><span class="pivot-item">Calendar</span><span class="pivot-item">Insights</span><span class="pivot-item">Map</span></div>
+        <div class="feed-scroll">
+          <div class="day-chip">Today · Thu 25</div>
+          <div class="mc-outer">
+            <div class="mc-header"><div class="mc-avatar r"><i data-lucide="mic"></i></div><div class="mc-who"><div class="mc-who-name">Voice note · 0:38</div><div class="mc-who-time">Today · 11:02 AM</div></div><span class="mc-lvl">VOICE</span></div>
+            <div class="mc-body rose"><div class="mc-body-voice">
+              <div class="mc-voice-top"><div class="mc-play-btn"><i data-lucide="play"></i></div><div class="mc-waveform"><span class="mc-wv played" style="height:8px"></span><span class="mc-wv played" style="height:14px"></span><span class="mc-wv played" style="height:11px"></span><span class="mc-wv played" style="height:18px"></span><span class="mc-wv played" style="height:9px"></span><span class="mc-wv played" style="height:16px"></span><span class="mc-wv" style="height:15px"></span><span class="mc-wv" style="height:7px"></span><span class="mc-wv" style="height:13px"></span><span class="mc-wv" style="height:18px"></span><span class="mc-wv" style="height:9px"></span><span class="mc-wv" style="height:14px"></span><span class="mc-wv" style="height:6px"></span><span class="mc-wv" style="height:11px"></span></div><span class="mc-voice-dur">0:38</span></div>
+              <div class="mc-voice-tx">"Met Priya at the studio — she's moving to Lisbon in August…"</div>
+            </div></div>
+            <div class="mc-chips"><span class="mc-chip">priya</span><span class="mc-chip">farewell</span><span class="mc-chip c">transcribed</span></div>
+            <div class="mc-divider"></div>
+            <div class="mc-footer"><div class="mc-actions"><div class="mc-action-btn"><i data-lucide="languages"></i></div><div class="mc-action-btn"><i data-lucide="tag"></i></div><div class="mc-loc"><i data-lucide="map-pin"></i>Shoreditch · 13°C</div><div class="mc-del"><i data-lucide="trash-2"></i></div></div><div class="mc-timestamp">STT → type inference → person extraction · GPS + weather</div></div>
+          </div>
+        </div>
+        <div class="nav"><div class="ni"><i data-lucide="camera"></i><span>Home</span></div><div class="ni on"><i data-lucide="layers"></i><span>Moments</span></div><div class="ni"><i data-lucide="users"></i><span>People</span></div></div>
+      </div>
+      <div class="flow-note">STT → type inference → person extraction → saved with GPS + weather. Renders as voice card (rose border).</div>
+    </div>
+  </div>
+  <!-- FLOW 6 — CONTACT MODE → PEOPLE → PROFILE -->
+  <div class="sub-title">Flow 6 — Contact mode → People tab → Person profile</div>
+  <div class="flow">
+    <div class="flow-col">
+      <div class="flow-label">Contact mode</div>
+      <div class="phone tall">
+        <div class="sb"><span>9:41</span><div class="sb-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="topbar"><div class="icon-btn"><i data-lucide="x"></i></div><div class="topbar-title">New Contact</div><div class="icon-btn"></div></div>
+        <div class="form">
+          <div class="form-row"><i data-lucide="user"></i><span class="ph">Full name</span></div>
+          <div class="form-row"><i data-lucide="phone"></i><span class="ph">Phone (optional)</span></div>
+          <div class="form-row"><i data-lucide="at-sign"></i><span class="ph">Handle (optional)</span></div>
+          <div class="form-row"><i data-lucide="nfc"></i><span class="ph">NFC bump to fill</span></div>
+          <div class="form-row"><i data-lucide="qr-code"></i><span class="ph">Scan QR</span></div>
+          <div class="form-stub">NFC + QR are stubs for v1</div>
+          <div class="btn-primary">Save Contact</div>
+        </div>
+        <div class="nav"><div class="ni on"><i data-lucide="camera"></i><span>Home</span></div><div class="ni"><i data-lucide="layers"></i><span>Moments</span></div><div class="ni"><i data-lucide="users"></i><span>People</span></div></div>
+      </div>
+      <div class="flow-note">Name + phone + handle + NFC stub + QR stub. Save → People tab.</div>
+    </div>
+
+    <div class="arrow"><div class="arr"><div class="arr-line"><span class="arr-shaft"></span><span class="arr-head"></span></div><div class="arr-label">save</div></div></div>
+
+    <div class="flow-col">
+      <div class="flow-label">People · grid</div>
+      <div class="phone tall">
+        <div class="sb"><span>9:41</span><div class="sb-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="topbar"><div class="topbar-title">People</div><div class="icon-btn"><i data-lucide="search"></i></div></div>
+        <div class="people">
+          <div class="people-grid">
+            <div class="person-card"><div class="av">M<span class="status ok"></span></div><div class="n">Maya</div><div class="ls">2d ago</div></div>
+            <div class="person-card"><div class="av">J<span class="status ok"></span></div><div class="n">Jordan</div><div class="ls">4d ago</div></div>
+            <div class="person-card"><div class="av">P<span class="status drift"></span></div><div class="n">Priya</div><div class="ls drift">28d drift</div></div>
+            <div class="person-card"><div class="av">D<span class="status ok"></span></div><div class="n">Dev</div><div class="ls">1d ago</div></div>
+            <div class="person-card"><div class="av">S<span class="status ok"></span></div><div class="n">Sam</div><div class="ls">1d ago</div></div>
+            <div class="person-card"><div class="av">R<span class="status drift"></span></div><div class="n">Riya</div><div class="ls drift">35d drift</div></div>
+          </div>
+        </div>
+        <div class="nav"><div class="ni"><i data-lucide="camera"></i><span>Home</span></div><div class="ni"><i data-lucide="layers"></i><span>Moments</span></div><div class="ni on"><i data-lucide="users"></i><span>People</span></div></div>
+      </div>
+      <div class="flow-note">Avatar + name + last seen. Rose status dot = drift (>21d, configurable).</div>
+    </div>
+
+    <div class="arrow"><div class="arr"><div class="arr-line"><span class="arr-shaft"></span><span class="arr-head"></span></div><div class="arr-label">tap</div></div></div>
+
+    <div class="flow-col">
+      <div class="flow-label">Person profile</div>
+      <div class="phone xl">
+        <div class="sb"><span>9:41</span><div class="sb-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+          <div class="profile-head">
+            <div class="av">M</div>
+            <div class="info"><div class="n">Maya Okafor</div><div class="s">Last seen 2d ago · Rita's, Hackney</div><div class="conf"><i data-lucide="scan-face"></i>Face confidence 94%</div></div>
+          </div>
+          <div class="profile-body">
+            <div class="profile-sec">Stats</div>
+            <div class="profile-stats">
+              <div class="profile-stat"><div class="v">47</div><div class="l">moments</div></div>
+              <div class="profile-stat"><div class="v">12</div><div class="l">places</div></div>
+              <div class="profile-stat"><div class="v">2d</div><div class="l">since seen</div></div>
+            </div>
+            <div class="profile-sec">Where we've been</div>
+            <div class="profile-mini-map">
+              <div class="grid"></div>
+              <div class="mpin" style="top:30%;left:22%"></div>
+              <div class="mpin" style="top:55%;left:48%"></div>
+              <div class="mpin" style="top:40%;left:70%"></div>
+              <div class="mpin" style="top:65%;left:30%"></div>
+            </div>
+            <div class="profile-sec">Special dates → Calendar</div>
+            <div class="profile-dates">
+              <div class="profile-date bday"><div class="lbl">Birthday</div><div class="v">Jul 12</div></div>
+              <div class="profile-date"><div class="lbl">Met</div><div class="v">Mar 2024</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="nav"><div class="ni"><i data-lucide="camera"></i><span>Home</span></div><div class="ni"><i data-lucide="layers"></i><span>Moments</span></div><div class="ni on"><i data-lucide="users"></i><span>People</span></div></div>
+      </div>
+      <div class="flow-note">Stats, "where we've been together" mini-map, special dates that feed Calendar, face embedding confidence, drift status.</div>
+    </div>
+  </div>
+
+  <!-- FLOW 7 — CALENDAR → CREATE MEETUP → EVENT SHOW -->
+  <div class="sub-title">Flow 7 — Calendar → create meetup → EventShowScreen (live map + BT)</div>
+  <div class="flow">
+    <div class="flow-col">
+      <div class="flow-label">Calendar pivot</div>
+      <div class="phone tall">
+        <div class="sb"><span>9:41</span><div class="sb-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="topbar"><div class="topbar-title">Moments</div><div class="icon-btn"><i data-lucide="list"></i></div></div>
+        <div class="pivot"><span class="pivot-item">Timeline</span><span class="pivot-item on">Calendar</span><span class="pivot-item">Insights</span><span class="pivot-item">Map</span></div>
+        <div class="cal">
+          <div class="cal-head"><div class="m">June 2026</div><div class="nav-btns"><div class="icon-btn"><i data-lucide="chevron-left"></i></div><div class="icon-btn"><i data-lucide="chevron-right"></i></div></div></div>
+          <div class="cal-grid">
+            <div class="cal-dow">M</div><div class="cal-dow">T</div><div class="cal-dow">W</div><div class="cal-dow">T</div><div class="cal-dow">F</div><div class="cal-dow">S</div><div class="cal-dow">S</div>
+            <div class="cal-day off">1</div><div class="cal-day has">2<span class="dot"></span></div><div class="cal-day">3</div><div class="cal-day has a">4<span class="dot"></span></div><div class="cal-day">5</div><div class="cal-day has">6</div><div class="cal-day">7</div>
+            <div class="cal-day">8</div><div class="cal-day">9</div><div class="cal-day has">10</div><div class="cal-day">11</div><div class="cal-day has e">12<span class="dot"></span></div><div class="cal-day">13</div><div class="cal-day has">14</div>
+            <div class="cal-day">15</div><div class="cal-day">16</div><div class="cal-day">17</div><div class="cal-day today">18</div><div class="cal-day has a">19<span class="dot"></span></div><div class="cal-day">20</div><div class="cal-day has">21</div>
+            <div class="cal-day">22</div><div class="cal-day">23</div><div class="cal-day">24</div><div class="cal-day today has">25</div><div class="cal-day">26</div><div class="cal-day has a">27<span class="dot"></span></div><div class="cal-day">28</div>
+          </div>
+          <div class="cal-upcoming-label">Upcoming</div>
+          <div class="cal-up"><div class="date"><div class="d">27</div><div class="m">JUN</div></div><div class="info"><div class="t">Coffee with Maya</div><div class="s">4:00 PM · Daydream Coffee</div></div></div>
+          <div class="cal-up bday"><div class="date"><div class="d">7</div><div class="m">JUL</div></div><div class="info"><div class="t">Jordan turns 29</div><div class="s">Birthday · from People</div></div></div>
+          <div class="fab"><i data-lucide="plus"></i></div>
+        </div>
+        <div class="nav"><div class="ni"><i data-lucide="camera"></i><span>Home</span></div><div class="ni on"><i data-lucide="layers"></i><span>Moments</span></div><div class="ni"><i data-lucide="users"></i><span>People</span></div></div>
+      </div>
+      <div class="flow-note">Month grid: violet = moments, amber = planned event, emerald = recurring. Dots show days with moments. Upcoming strip below. FAB → create meetup.</div>
+    </div>
+
+    <div class="arrow"><div class="arr"><div class="arr-line"><span class="arr-shaft"></span><span class="arr-head"></span></div><div class="arr-label">FAB</div></div></div>
+
+    <div class="flow-col">
+      <div class="flow-label">Create meetup</div>
+      <div class="phone tall">
+        <div class="sb"><span>9:41</span><div class="sb-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="topbar"><div class="icon-btn"><i data-lucide="x"></i></div><div class="topbar-title">New Meetup</div><div class="icon-btn"><i data-lucide="check"></i></div></div>
+        <div class="meetup">
+          <div class="form-row"><i data-lucide="type"></i><span class="ph">Title · e.g. Coffee with Maya</span></div>
+          <div class="form-row"><i data-lucide="calendar"></i><span class="ph">Thu 27 Jun · 4:00 PM</span></div>
+          <div class="form-row"><i data-lucide="map-pin"></i><span class="ph">Daydream Coffee</span></div>
+          <div class="meetup-sec">People</div>
+          <div class="detail-chips">
+            <div class="detail-chip"><div class="av">M</div><div class="n">Maya</div></div>
+            <div class="detail-chip"><div class="av">J</div><div class="n">Jordan</div></div>
+            <div class="detail-chip" style="border-style:dashed"><div class="av">+</div><div class="n">add</div></div>
+          </div>
+          <div class="meetup-sec">Options</div>
+          <div class="set-row"><i data-lucide="repeat"></i><div class="info"><div class="t">Recurring</div><div class="s">Repeat weekly</div></div><div class="toggle"></div></div>
+          <div class="btn-primary">Share invite link</div>
+        </div>
+        <div class="nav"><div class="ni"><i data-lucide="camera"></i><span>Home</span></div><div class="ni on"><i data-lucide="layers"></i><span>Moments</span></div><div class="ni"><i data-lucide="users"></i><span>People</span></div></div>
+      </div>
+      <div class="flow-note">Title, date/time, people (select from contacts), recurring toggle, share-link invite. Save → EventShowScreen.</div>
+    </div>
+
+    <div class="arrow"><div class="arr"><div class="arr-line"><span class="arr-shaft"></span><span class="arr-head"></span></div><div class="arr-label">save</div></div></div>
+
+    <div class="flow-col">
+      <div class="flow-label">EventShowScreen · live map + BT</div>
+      <div class="phone xl">
+        <div class="sb"><span>9:41</span><div class="sb-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+          <div class="evshow-map">
+            <div class="grid"></div>
+            <div class="road r1"></div><div class="road r2"></div>
+            <div class="bt-pill"><i data-lucide="bluetooth"></i>BT proximity · 3 nearby</div>
+            <div class="pin p1"><div class="dot"></div><div class="lbl">Maya</div></div>
+            <div class="pin p2"><div class="dot"></div><div class="lbl">Jordan</div></div>
+            <div class="pin p3"><div class="dot"></div><div class="lbl">Dev</div></div>
+            <div class="pin pme me"><div class="dot"></div><div class="lbl">You</div></div>
+          </div>
+          <div class="evshow-body">
+            <div class="evshow-title">Coffee with Maya</div>
+            <div class="evshow-time"><i data-lucide="calendar"></i>Thu 27 · 4:00 PM<i data-lucide="map-pin"></i>Daydream Coffee</div>
+            <div class="evshow-sec">Who's here</div>
+            <div class="whos-here">
+              <div class="whos-row"><div class="av">M</div><div class="info"><div class="n">Maya</div><div class="s">120 m away</div></div><span class="state here">here</span></div>
+              <div class="whos-row"><div class="av">J</div><div class="info"><div class="n">Jordan</div><div class="s">BT · 8 m</div></div><span class="state near">near</span></div>
+              <div class="whos-row"><div class="av">D</div><div class="info"><div class="n">Dev</div><div class="s">0.4 mi · 6 min</div></div><span class="state enroute">en route</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="nav"><div class="ni"><i data-lucide="camera"></i><span>Home</span></div><div class="ni on"><i data-lucide="layers"></i><span>Moments</span></div><div class="ni"><i data-lucide="users"></i><span>People</span></div></div>
+      </div>
+      <div class="flow-note">Live map of participants who shared location. Seamless switch to BT proximity (BleProximityModule) when nearby. "Who's here" updates as people arrive.</div>
+    </div>
+  </div>
+
+  <!-- FLOW 8 — INSIGHTS PIVOT -->
+  <div class="sub-title">Flow 8 — Moments · Insights pivot (backward-looking analytics)</div>
+  <div class="flow">
+    <div class="flow-col">
+      <div class="flow-label">Insights · overview</div>
+      <div class="phone xl">
+        <div class="sb"><span>9:41</span><div class="sb-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="topbar"><div class="topbar-title">Moments</div><div class="icon-btn"><i data-lucide="list"></i></div></div>
+        <div class="pivot"><span class="pivot-item">Timeline</span><span class="pivot-item">Calendar</span><span class="pivot-item on">Insights</span><span class="pivot-item">Map</span></div>
+        <div class="insights">
+          <div class="ins-streak">
+            <div class="ins-streak-card social"><div class="lbl">Social streak</div><div class="val">12d</div><div class="sub">people seen in a row</div></div>
+            <div class="ins-streak-card solo"><div class="lbl">Solo streak</div><div class="val">5d</div><div class="sub">capture in a row</div></div>
+          </div>
+          <div class="ins-block">
+            <div class="lbl">28-day heatmap</div>
+            <div class="heat">
+              <span class="c"></span><span class="c l1"></span><span class="c"></span><span class="c l2"></span><span class="c l1"></span><span class="c"></span><span class="c l3"></span>
+              <span class="c l1"></span><span class="c l2"></span><span class="c l1"></span><span class="c"></span><span class="c l3"></span><span class="c l2"></span><span class="c l4"></span>
+              <span class="c l2"></span><span class="c l3"></span><span class="c l1"></span><span class="c l4"></span><span class="c l3"></span><span class="c l2"></span><span class="c l1"></span>
+              <span class="c l3"></span><span class="c l4"></span><span class="c l2"></span><span class="c l1"></span><span class="c l3"></span><span class="c l4"></span><span class="c l2"></span>
+            </div>
+          </div>
+          <div class="ins-block">
+            <div class="lbl">Drift alerts · &gt;21d</div>
+            <div class="drift-row"><div class="av">P</div><div class="info"><div class="n">Priya Shah</div><div class="s">28 days since last seen</div></div></div>
+          </div>
+        </div>
+        <div class="nav"><div class="ni"><i data-lucide="camera"></i><span>Home</span></div><div class="ni on"><i data-lucide="layers"></i><span>Moments</span></div><div class="ni"><i data-lucide="users"></i><span>People</span></div></div>
+      </div>
+      <div class="flow-note">Streak counters (social + solo). 28-day capture heatmap. Drift alerts for people not seen in &gt;21d (configurable).</div>
+    </div>
+
+    <div class="arrow"><div class="arr"><div class="arr-line"><span class="arr-shaft"></span><span class="arr-head"></span></div><div class="arr-label">scroll</div></div></div>
+
+    <div class="flow-col">
+      <div class="flow-label">Insights · frequency + places</div>
+      <div class="phone xl">
+        <div class="sb"><span>9:41</span><div class="sb-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="topbar"><div class="topbar-title">Moments</div><div class="icon-btn"><i data-lucide="list"></i></div></div>
+        <div class="pivot"><span class="pivot-item">Timeline</span><span class="pivot-item">Calendar</span><span class="pivot-item on">Insights</span><span class="pivot-item">Map</span></div>
+        <div class="insights">
+          <div class="ins-block">
+            <div class="lbl">People frequency · 90-day</div>
+            <div class="bars">
+              <div class="bar-row"><span class="n">Maya</span><div class="track"><div class="fill" style="width:92%"></div></div><span class="v">47</span></div>
+              <div class="bar-row"><span class="n">Jordan</span><div class="track"><div class="fill" style="width:64%"></div></div><span class="v">31</span></div>
+              <div class="bar-row"><span class="n">Dev</span><div class="track"><div class="fill" style="width:40%"></div></div><span class="v">19</span></div>
+              <div class="bar-row"><span class="n">Sam</span><div class="track"><div class="fill" style="width:28%"></div></div><span class="v">13</span></div>
+              <div class="bar-row"><span class="n">Priya</span><div class="track"><div class="fill" style="width:14%"></div></div><span class="v">6</span></div>
+            </div>
+          </div>
+          <div class="ins-block">
+            <div class="lbl">Places · react to each</div>
+            <div class="places">
+              <div class="place-row"><span class="n">Rita's, Hackney</span><span class="c">14 visits</span><div class="react"><div class="r like"><i data-lucide="heart"></i></div><div class="r dislike"><i data-lucide="thumbs-down"></i></div></div></div>
+              <div class="place-row"><span class="n">Koya · Soho</span><span class="c">8 visits</span><div class="react"><div class="r like"><i data-lucide="heart"></i></div><div class="r dislike"><i data-lucide="thumbs-down"></i></div></div></div>
+              <div class="place-row"><span class="n">Hampstead Heath</span><span class="c">6 visits</span><div class="react"><div class="r like"><i data-lucide="heart"></i></div><div class="r dislike"><i data-lucide="thumbs-down"></i></div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="nav"><div class="ni"><i data-lucide="camera"></i><span>Home</span></div><div class="ni on"><i data-lucide="layers"></i><span>Moments</span></div><div class="ni"><i data-lucide="users"></i><span>People</span></div></div>
+      </div>
+      <div class="flow-note">People frequency bar chart (90-day window). Places visited most, with like / dislike reactions that feed future sorting.</div>
+    </div>
+  </div>
+
+  <!-- FLOW 9 — MAP PIVOT -->
+  <div class="sub-title">Flow 9 — Moments · Map pivot (life map, filter by person)</div>
+  <div class="flow">
+    <div class="flow-col">
+      <div class="flow-label">Map · all moment pins</div>
+      <div class="phone tall">
+        <div class="sb"><span>9:41</span><div class="sb-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="topbar"><div class="topbar-title">Moments</div><div class="icon-btn"><i data-lucide="map"></i></div></div>
+        <div class="pivot"><span class="pivot-item">Timeline</span><span class="pivot-item">Calendar</span><span class="pivot-item">Insights</span><span class="pivot-item on">Map</span></div>
+        <div class="life-map">
+          <div class="grid"></div>
+          <div class="road rd1"></div><div class="road rd2"></div>
+          <div class="filter-pill"><i data-lucide="users"></i>All people</div>
+          <div class="mpin" style="top:22%;left:18%"><div class="d"></div></div>
+          <div class="mpin lvl3" style="top:40%;left:30%"><div class="d"></div></div>
+          <div class="mpin" style="top:58%;left:24%"><div class="d"></div></div>
+          <div class="mpin lvl4" style="top:34%;left:52%"><div class="d"></div></div>
+          <div class="mpin" style="top:64%;left:60%"><div class="d"></div></div>
+          <div class="mpin lvl3" style="top:28%;left:72%"><div class="d"></div></div>
+          <div class="mpin" style="top:48%;left:78%"><div class="d"></div></div>
+          <div class="slideup">
+            <div class="mc-outer accent">
+              <div class="mc-header"><div class="mc-avatar m"><i data-lucide="sparkles"></i></div><div class="mc-who"><div class="mc-who-name">Maya's birthday night</div><div class="mc-who-time">Sat · Rita's, Hackney</div></div><span class="mc-lvl l4">L4</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="nav"><div class="ni"><i data-lucide="camera"></i><span>Home</span></div><div class="ni on"><i data-lucide="layers"></i><span>Moments</span></div><div class="ni"><i data-lucide="users"></i><span>People</span></div></div>
+      </div>
+      <div class="flow-note">OSM tiles (offline-capable). Pin size/colour by level (violet L1/2, magenta L3, amber L4). Tap pin → card slides up. Filter by person narrows pins. Topbar toggle switches Timeline ↔ Map.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════ SECTION C — PALETTE & SEMANTICS ════════ -->
+<div class="section">
+  <div class="section-title"><span class="dot"></span>C · Palette &amp; colour semantics</div>
+  <div class="showcase">
+    <div class="cell">
+      <div class="cell-label">Primary · aurora<span class="pill v">violet→magenta</span></div>
+      <div style="height:64px;border-radius:14px;background:var(--aurora);border:1px solid var(--line-2)"></div>
+      <div class="cell-note">Active tab, primary CTAs, pivot underlines, L2/L3 card accents, FAB, profile ring. The brand gradient.</div>
+    </div>
+    <div class="cell">
+      <div class="cell-label">Info · cyan<span class="pill c">#22d3ee</span></div>
+      <div style="height:64px;border-radius:14px;background:var(--cyan);border:1px solid var(--line-2)"></div>
+      <div class="cell-note">Map tiles, place chips, local-mode glow, note-card borders, "transcribed" tag. Anything cartographic or informational.</div>
+    </div>
+    <div class="cell">
+      <div class="cell-label">Planned · amber<span class="pill a">#fbbf24</span></div>
+      <div style="height:64px;border-radius:14px;background:var(--amber);border:1px solid var(--line-2)"></div>
+      <div class="cell-note">Planned events, calendar event dots, countdowns, weather sun, "en route" state, L4 featured tier.</div>
+    </div>
+    <div class="cell">
+      <div class="cell-label">Streaks · emerald<span class="pill e">#34d399</span></div>
+      <div style="height:64px;border-radius:14px;background:var(--emerald);border:1px solid var(--line-2)"></div>
+      <div class="cell-note">High face-confidence, "here" state on event show, place likes, recurring-event dots, healthy status.</div>
+    </div>
+    <div class="cell">
+      <div class="cell-label">Voice · rose<span class="pill r">#f43f5e</span></div>
+      <div style="height:64px;border-radius:14px;background:var(--rose);border:1px solid var(--line-2)"></div>
+      <div class="cell-note">Voice cards + recording UI, drift alerts, delete actions, danger outlines, "no model" warnings.</div>
+    </div>
+    <div class="cell">
+      <div class="cell-label">Surface · void<span class="pill">dark base</span></div>
+      <div style="height:64px;border-radius:14px;background:var(--bg);border:1px solid var(--line-2)"></div>
+      <div class="cell-note">#0a0a12 base with violet/magenta radial glows top-corners. Surfaces #11111c / #161624. Keeps it dark but never flat black.</div>
+    </div>
+  </div>
+</div>
+
+</body>
+<script>lucide.createIcons();</script>
+</html>

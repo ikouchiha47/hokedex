@@ -16,3 +16,6 @@ UPDATE processing_queue SET status = 'failed', processed_at = ? WHERE id = ?;
 
 -- name: CountPending :one
 SELECT COUNT(*) as count FROM processing_queue WHERE status = 'pending';
+
+-- name: ResetStalledJobs :exec
+UPDATE processing_queue SET status = 'pending' WHERE status = 'processing';

@@ -37,13 +37,8 @@ export function PinSetupScreen({ onPinSet }: Props) {
 
   const handleDigit = useCallback((digit: string) => {
     setCurrent(prev => {
-      if (prev.length >= 6) return prev;
-      const next = prev + digit;
-      if (next.length === 4 || next.length <= 6) {
-        // Auto-advance when 4 digits entered (minimum length)
-        // Allow up to 6 — user must press Done
-      }
-      return next;
+      if (prev.length === DOT_COUNT) return prev;
+      return prev + digit;
     });
     setError('');
   }, []);
@@ -54,8 +49,8 @@ export function PinSetupScreen({ onPinSet }: Props) {
   }, []);
 
   const handleDone = useCallback(async () => {
-    if (current.length < 4) {
-      setError('Enter 4–6 digits');
+    if (current.length < DOT_COUNT) {
+      setError(`Enter ${DOT_COUNT} digits`);
       shake();
       return;
     }

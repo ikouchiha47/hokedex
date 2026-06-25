@@ -10,6 +10,11 @@ import { listGroups, listMembersByGroup } from '../db/queries/moment_groups';
 import { getMoment } from '../db/queries/moments';
 import { listFacesByMoment } from '../db/queries/moment_faces';
 import { regroup, getRegroupStatus, onRegroupStatusChange } from '../services/RegroupService';
+import { SETTINGS, EVENTS } from '../constants';
+import { useFeaturePermissions } from '../services/permissions/useFeaturePermissions';
+import { FEATURE_PERMISSIONS } from '../features';
+import { drain } from '../services/FaceProcessingQueue';
+import { NativeModules, DeviceEventEmitter } from 'react-native';
 import { MomentGroupCarousel, type MomentGroup, type MomentThumbnail } from '../components/moments/MomentGroupCarousel';
 import { MomentLocationCards } from '../components/moments/MomentLocationCards';
 import { MomentCaptureService } from '../services/MomentCaptureService';
@@ -37,9 +42,21 @@ export function MomentsScreen() {
     new RuleRegistry(),
   )).current;
 
+  const dbRef = useRef(db);
+  useEffect(() => { dbRef.current = db; }, [db]);
+
+  useFeaturePermissions(FEATURE_PERMISSIONS.moments, {
+    onFailure: {
+      gallery: () => console.warn('[MomentsScreen] gallery permission denied — imports unavailable'),
+    },
+  });
+
   useFocusEffect(
     useCallback(() => {
       loadGroups();
+      drain(dbRef.current, { HokedexML: NativeModules.HokedexML }).catch(e =>
+        console.warn('[MomentsScreen] drain failed:', e),
+      );
     }, []),
   );
 
@@ -57,7 +74,16 @@ export function MomentsScreen() {
   }, []);
 
   useEffect(() => {
-    getSetting(db, 'moments_layout').then(val => {
+    const sub = DeviceEventEmitter.addListener(EVENTS.DRAIN_QUEUE, () => {
+      drain(dbRef.current, { HokedexML: NativeModules.HokedexML }).catch(e =>
+        console.warn('[MomentsScreen] worker-triggered drain failed:', e),
+      );
+    });
+    return () => sub.remove();
+  }, []);
+
+  useEffect(() => {
+    getSetting(db, SETTINGS.MOMENTS_LAYOUT).then(val => {
       if (val === 'carousel' || val === 'location') {
         setLayout(val);
       }
@@ -68,32 +94,37 @@ export function MomentsScreen() {
     setLoading(true);
     try {
       const groupRows = await listGroups(db);
-      const hydrated: MomentGroup[] = [];
 
-      for (const g of groupRows) {
-        const members = await listMembersByGroup(db, g.id);
-        const moments: MomentThumbnail[] = [];
+      const hydrated = await Promise.all(
+        groupRows.map(async g => {
+          const members = await listMembersByGroup(db, g.id);
 
-        for (const m of members) {
-          const moment = await getMoment(db, m.moment_id);
-          if (!moment) continue;
-          const faces = await listFacesByMoment(db, m.moment_id);
-          moments.push({
-            id: moment.id,
-            note: moment.note,
-            placeName: moment.place_name,
-            faceCount: faces.length,
-          });
-        }
+          const momentResults = await Promise.all(
+            members.map(async m => {
+              const [moment, faces] = await Promise.all([
+                getMoment(db, m.moment_id),
+                listFacesByMoment(db, m.moment_id),
+              ]);
+              if (!moment) return null;
+              return {
+                id: moment.id,
+                note: moment.note,
+                placeName: moment.place_name ?? null,
+                faceCount: faces.length,
+              } as MomentThumbnail;
+            }),
+          );
+          const moments = momentResults.filter((m): m is MomentThumbnail => m !== null);
 
-        hydrated.push({
-          id: g.id,
-          label: g.label,
-          startedAt: g.started_at,
-          endedAt: g.ended_at,
-          moments,
-        });
-      }
+          return {
+            id: g.id,
+            label: g.label,
+            startedAt: g.started_at,
+            endedAt: g.ended_at,
+            moments,
+          } as MomentGroup;
+        }),
+      );
 
       setGroups(hydrated);
     } finally {
@@ -104,7 +135,7 @@ export function MomentsScreen() {
   const handleToggleLayout = useCallback(() => {
     const next: LayoutMode = layout === 'carousel' ? 'location' : 'carousel';
     setLayout(next);
-    setSettingValue(db, 'moments_layout', next);
+    setSettingValue(db, SETTINGS.MOMENTS_LAYOUT, next);
   }, [layout, db]);
 
   const handleRegroup = useCallback(() => {

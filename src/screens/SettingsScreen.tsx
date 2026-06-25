@@ -256,6 +256,22 @@ export function SettingsScreen() {
           )}
         </View>
 
+        {/* Dev tools — only in debug builds */}
+        {__DEV__ && (
+          <View style={[styles.section, styles.dangerSection]}>
+            <Text style={[styles.sectionTitle, styles.dangerTitle]}>Dev tools</Text>
+            <Pressable
+              style={({ pressed }) => [styles.actionBtn, pressed && styles.actionBtnPressed]}
+              onPress={async () => {
+                await setSettingValue(db, 'onboarding_complete', '');
+                Alert.alert('Done', 'Onboarding reset — restart the app.');
+              }}
+            >
+              <Text style={styles.actionBtnText}>Reset onboarding</Text>
+            </Pressable>
+          </View>
+        )}
+
         {/* Version */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Version</Text>

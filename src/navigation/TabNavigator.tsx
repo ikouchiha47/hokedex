@@ -9,7 +9,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Camera, Image, Users, Map, Menu } from '../components/icons';
 
 import type { TabParamList, RootStackParamList } from './types';
-import { CameraScreen } from '../screens/CameraScreen';
+import { HomeScreen } from '../screens/HomeScreen';
 import { MomentsScreen } from '../screens/MomentsScreen';
 import { PeopleScreen } from '../screens/PeopleScreen';
 import { MapsScreen } from '../screens/MapsScreen';
@@ -33,7 +33,7 @@ export function TabNavigator() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarStyle:
-          route.name === 'Camera'
+          route.name === 'Home'
             ? { display: 'none' }
             : {
                 backgroundColor: TAB_BAR_BG,
@@ -56,8 +56,8 @@ export function TabNavigator() {
       })}
     >
       <Tab.Screen
-        name="Camera"
-        component={CameraScreen}
+        name="Home"
+        component={HomeScreen}
         options={{
           headerShown: false,
           tabBarIcon: ({ color }) => <Camera color={color} size={ICON_SIZE} />,

@@ -16,6 +16,7 @@ interface Props {
   biometricAvailable?: boolean;   // optional — defaults false until native impl is added
 }
 
+const PIN_LENGTH = 4;
 const MAX_ATTEMPTS = 5;
 const BASE_LOCKOUT_MS = 30_000;
 
@@ -61,7 +62,7 @@ export function LockScreen({ onUnlocked, onBiometric, biometricAvailable = false
 
   const handleDigit = useCallback((digit: string) => {
     if (isLocked) return;
-    setPin(prev => (prev.length >= 6 ? prev : prev + digit));
+    setPin(prev => (prev.length === PIN_LENGTH ? prev : prev + digit));
     setError('');
   }, [isLocked]);
 
@@ -71,7 +72,7 @@ export function LockScreen({ onUnlocked, onBiometric, biometricAvailable = false
   }, [isLocked]);
 
   const handleSubmit = useCallback(async () => {
-    if (isLocked || pin.length < 4) return;
+    if (isLocked || pin.length < PIN_LENGTH) return;
     try {
       const ok = await verifyPin(pin);
       if (ok) {
@@ -109,7 +110,7 @@ export function LockScreen({ onUnlocked, onBiometric, biometricAvailable = false
       </View>
 
       <Animated.View style={[styles.dotsRow, { transform: [{ translateX: shakeAnim }] }]}>
-        {Array.from({ length: Math.max(4, pin.length) }).map((_, i) => (
+        {Array.from({ length: PIN_LENGTH }).map((_, i) => (
           <View
             key={i}
             style={[styles.dot, i < pin.length ? styles.dotFilled : styles.dotEmpty]}

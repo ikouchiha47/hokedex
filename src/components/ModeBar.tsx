@@ -9,31 +9,26 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 
-import { Image as ImageIcon, ScanFace } from './icons';
+import { Image as ImageIcon } from './icons';
 import { Fonts } from '../theme/fonts';
+import type { ModeKey } from '../types/capture';
 
-type CaptureMode = 'photo' | 'voice' | 'contact' | 'local';
-
-const MODE_LABELS: { key: CaptureMode; label: string }[] = [
+const MODE_LABELS: { key: ModeKey; label: string }[] = [
   { key: 'photo', label: 'PHOTO' },
   { key: 'voice', label: 'VOICE' },
   { key: 'contact', label: 'CONTACT' },
   { key: 'local', label: 'LOCAL' },
 ];
 
-export type { CaptureMode };
-
-interface CameraBottomBarProps {
-  onGalleryPress: () => void;
+interface ModeBarProps {
+  activeMode: ModeKey;
+  onModeChange: (mode: ModeKey) => void;
+  ready: boolean;
   onCapturePressIn: () => void;
   onCapturePressOut: () => void;
   onCaptureStop: () => void;
-  onFaceScanPress: () => void;
-  onModeChange: (mode: CaptureMode) => void;
-  activeMode: CaptureMode;
-  bottomInset: number;
-  isProcessing: boolean;
   showStop: boolean;
+  bottomInset: number;
   lastPhotoUri?: string | null;
 }
 
@@ -53,27 +48,16 @@ function GalleryButton({
     if (!lastPhotoUri || lastPhotoUri === prevUri.current) return;
     prevUri.current = lastPhotoUri;
 
-    // Snap thumbnail in
     thumbOpacity.value = 1;
     thumbScale.value = withTiming(1, { duration: 150, easing: Easing.out(Easing.quad) });
     iconOpacity.value = withTiming(0, { duration: 100 });
 
-    // After 1.5s, fade thumbnail out and restore icon
-    thumbOpacity.value = withDelay(
-      1500,
-      withTiming(0, { duration: 300 }),
-    );
+    thumbOpacity.value = withDelay(1500, withTiming(0, { duration: 300 }));
     thumbScale.value = withDelay(
       1500,
-      withSequence(
-        withTiming(1.05, { duration: 150 }),
-        withTiming(0.8, { duration: 200 }),
-      ),
+      withSequence(withTiming(1.05, { duration: 150 }), withTiming(0.8, { duration: 200 })),
     );
-    iconOpacity.value = withDelay(
-      1700,
-      withTiming(1, { duration: 200 }),
-    );
+    iconOpacity.value = withDelay(1700, withTiming(1, { duration: 200 }));
   }, [lastPhotoUri, thumbOpacity, thumbScale, iconOpacity]);
 
   const thumbStyle = useAnimatedStyle(() => ({
@@ -89,10 +73,7 @@ function GalleryButton({
     <Pressable style={styles.sideButton} onPress={onPress}>
       <Animated.View style={[StyleSheet.absoluteFill, styles.thumbContainer, thumbStyle]}>
         {lastPhotoUri && (
-          <Animated.Image
-            source={{ uri: lastPhotoUri }}
-            style={styles.thumb}
-          />
+          <Animated.Image source={{ uri: lastPhotoUri }} style={styles.thumb} />
         )}
       </Animated.View>
       <Animated.View style={iconStyle}>
@@ -102,29 +83,31 @@ function GalleryButton({
   );
 }
 
-export function CameraBottomBar({
-  onGalleryPress,
+export function ModeBar({
+  activeMode,
+  onModeChange,
+  ready,
   onCapturePressIn,
   onCapturePressOut,
   onCaptureStop,
-  onFaceScanPress,
-  onModeChange,
-  activeMode,
-  bottomInset,
-  isProcessing,
   showStop,
+  bottomInset,
   lastPhotoUri,
-}: CameraBottomBarProps) {
+}: ModeBarProps) {
   return (
     <View style={[styles.container, { paddingBottom: Math.max(bottomInset, 12) }]}>
       <View style={styles.modeRow}>
         {MODE_LABELS.map(({ key, label }) => (
-          <Pressable key={key} onPress={() => onModeChange(key)}>
+          <Pressable
+            key={key}
+            onPress={ready ? () => onModeChange(key) : undefined}
+          >
             <Text
               style={[
                 styles.modeLabel,
                 Fonts.grotesk.medium,
                 key === activeMode && styles.modeLabelActive,
+                !ready && styles.modeLabelDisabled,
               ]}
             >
               {label}
@@ -134,7 +117,10 @@ export function CameraBottomBar({
       </View>
 
       <View style={styles.actionRow}>
-        <GalleryButton onPress={onGalleryPress} lastPhotoUri={lastPhotoUri} />
+        <GalleryButton
+          onPress={() => onModeChange('local')}
+          lastPhotoUri={lastPhotoUri}
+        />
 
         {showStop ? (
           <Pressable style={styles.stopButton} onPress={onCaptureStop}>
@@ -145,8 +131,9 @@ export function CameraBottomBar({
             style={styles.captureButton}
             onPressIn={onCapturePressIn}
             onPressOut={onCapturePressOut}
+            disabled={!ready}
           >
-            {isProcessing ? (
+            {!ready ? (
               <ActivityIndicator size="small" color="#090a1c" />
             ) : (
               <View style={styles.captureInner} />
@@ -154,9 +141,7 @@ export function CameraBottomBar({
           </Pressable>
         )}
 
-        <Pressable style={styles.sideButton} onPress={onFaceScanPress}>
-          <ScanFace size={22} color="rgba(255,255,255,0.7)" />
-        </Pressable>
+        <View style={styles.sideButton} />
       </View>
     </View>
   );
@@ -185,6 +170,9 @@ const styles = StyleSheet.create({
   },
   modeLabelActive: {
     color: '#ffffff',
+  },
+  modeLabelDisabled: {
+    opacity: 0.3,
   },
   actionRow: {
     flexDirection: 'row',

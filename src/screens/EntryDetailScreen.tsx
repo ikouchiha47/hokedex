@@ -30,7 +30,7 @@ import { ColorPickerSection } from './entry-detail/ColorPickerSection';
 import { NotesTimelineSection } from './entry-detail/NotesTimelineSection';
 import { InfoSection } from './entry-detail/InfoSection';
 import { PhotoLightboxModal } from './PhotoLightboxModal';
-import { requestCameraPermission } from '../utils/permissions';
+import { checkPermission, requestPermission } from '../services/permissions/PermissionRegistry';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import type { Photo, Note } from '../db/types';
@@ -127,7 +127,7 @@ export function EntryDetailScreen() {
       },
       {
         text: 'Camera', onPress: async () => {
-          const ok = await requestCameraPermission();
+          const ok = await requestPermission('camera');
           if (!ok) { Alert.alert('Permission denied'); return; }
           try {
             const result = await NativeModules.HokedexMedia.capturePhoto();

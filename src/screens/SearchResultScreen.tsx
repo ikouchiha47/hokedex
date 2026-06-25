@@ -21,7 +21,7 @@ import { useApp } from '../AppContext';
 import { SearchController } from '../services/SearchController';
 import { searchByEmbedding, type SearchResult } from '../services/search';
 import { searchEmbeddingsByVector } from '../db/queries/embeddings';
-import { requestCameraPermission, requestGalleryPermission } from '../utils/permissions';
+import { checkPermission, requestPermission } from '../services/permissions/PermissionRegistry';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -68,7 +68,7 @@ export function SearchResultScreen() {
     : [];
 
   async function pickAndSearch(source: 'gallery' | 'camera') {
-    const ok = source === 'gallery' ? await requestGalleryPermission() : await requestCameraPermission();
+    const ok = source === 'gallery' ? await requestPermission('gallery') : await requestPermission('camera');
     if (!ok) { Alert.alert('Permission denied'); return; }
     try {
       const original = source === 'gallery'

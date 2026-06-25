@@ -24,7 +24,7 @@ import type { BoundingBox } from '../types/ml';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Fonts } from '../theme/fonts';
-import { requestCameraPermission } from '../utils/permissions';
+import { checkPermission, requestPermission } from '../services/permissions/PermissionRegistry';
 
 const { HokedexIngest, HokedexML } = NativeModules;
 
@@ -84,7 +84,7 @@ export function NewEntryScreen() {
       },
       {
         text: 'Camera', onPress: async () => {
-          const ok = await requestCameraPermission();
+          const ok = await requestPermission('camera');
           if (!ok) { Alert.alert('Permission denied'); return; }
           try {
             const result = await NativeModules.HokedexMedia.capturePhoto();

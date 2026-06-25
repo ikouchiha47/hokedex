@@ -1,0 +1,2104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>hokédex — Workflow Wireframes v5</title>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #060608;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', sans-serif;
+  padding: 56px 48px 120px;
+  color: #fff;
+}
+
+.page-title { font-size: 32px; font-weight: 900; letter-spacing: -0.03em; color: #fff; margin-bottom: 4px; }
+.page-sub { font-size: 13px; color: #444; margin-bottom: 72px; }
+
+.section { margin-bottom: 88px; }
+.section-title {
+  font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: #555; margin-bottom: 28px; padding-bottom: 12px;
+  border-bottom: 1px solid #111;
+}
+
+/* ── FLOW ── */
+.flow { display: flex; align-items: flex-start; gap: 0; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 12px; }
+.flow-col { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+.flow-label {
+  font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: #444; margin-bottom: 10px; text-align: center;
+  min-height: 28px; display: flex; align-items: flex-end;
+}
+.flow-note {
+  font-size: 9px; color: #2a2a2a; text-align: center;
+  margin-top: 8px; max-width: 230px; line-height: 1.5;
+}
+
+/* ── ARROW ── */
+.arrow {
+  display: flex; align-items: center; padding: 0 4px;
+  padding-top: 88px; flex-shrink: 0;
+}
+.arr { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.arr-line { display: flex; align-items: center; }
+.arr-shaft { width: 28px; height: 1px; background: #1e1e1e; }
+.arr-head {
+  width: 0; height: 0;
+  border-top: 3px solid transparent; border-bottom: 3px solid transparent;
+  border-left: 5px solid #1e1e1e;
+  margin-top: -1.5px;
+}
+.arr-label { font-size: 8px; color: #2a2a2a; white-space: nowrap; }
+
+/* ── PHONE ── */
+.phone {
+  width: 240px; height: 520px;
+  border-radius: 40px;
+  overflow: hidden;
+  background: #080808;
+  border: 1.5px solid #181818;
+  display: flex; flex-direction: column;
+  position: relative; flex-shrink: 0;
+}
+.phone-tall { height: 600px; }
+.phone-xl { height: 660px; }
+.phone-auto { height: auto; }
+
+/* STATUS BAR */
+.sb {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 18px 0;
+  font-size: 8px; font-weight: 700;
+  color: rgba(255,255,255,0.3);
+  flex-shrink: 0; z-index: 10;
+}
+
+/* NAV — 3 tabs */
+.nav {
+  height: 50px;
+  background: rgba(5,5,7,0.98);
+  border-top: 1px solid rgba(255,255,255,0.05);
+  display: flex; align-items: center; justify-content: space-around;
+  flex-shrink: 0; padding: 0 8px;
+}
+.ni { display: flex; flex-direction: column; align-items: center; gap: 2px; opacity: 0.3; flex: 1; }
+.ni.on { opacity: 1; }
+.ni i { width: 17px; height: 17px; stroke: #fff; }
+.ni.on i { stroke: #c0170d; }
+.ni span { font-size: 7px; color: rgba(255,255,255,0.45); }
+.ni.on span { color: #c0170d; }
+
+/* TOPBAR */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px 6px; flex-shrink: 0;
+}
+.topbar-title { font-size: 14px; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
+.icon-btn {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  display: flex; align-items: center; justify-content: center;
+}
+.icon-btn i { width: 13px; height: 13px; stroke: rgba(255,255,255,0.45); }
+
+/* PIVOT */
+.pivot {
+  display: flex; gap: 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0; padding: 0 16px;
+}
+.pivot-item {
+  font-size: 10px; font-weight: 700; padding: 6px 10px 6px 0;
+  color: rgba(255,255,255,0.3); position: relative;
+}
+.pivot-item.on { color: #fff; }
+.pivot-item.on::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 10px; height: 2px;
+  background: #c0170d; border-radius: 1px;
+}
+
+/* ── VIEWFINDER ── */
+.viewfinder {
+  flex: 1; background: #040404; position: relative;
+  display: flex; align-items: flex-end; justify-content: center;
+  overflow: hidden;
+}
+.vf-face-box {
+  position: absolute; width: 68px; height: 68px;
+  border: 1.5px solid rgba(192,23,13,0.7); border-radius: 6px;
+  top: 34%; left: 50%; transform: translate(-50%, -50%);
+}
+.vf-corner { position: absolute; width: 9px; height: 9px; }
+.vfc-tl { top:-1px; left:-1px; border-top:2px solid #c0170d; border-left:2px solid #c0170d; border-radius:2px 0 0 0; }
+.vfc-tr { top:-1px; right:-1px; border-top:2px solid #c0170d; border-right:2px solid #c0170d; border-radius:0 2px 0 0; }
+.vfc-bl { bottom:-1px; left:-1px; border-bottom:2px solid #c0170d; border-left:2px solid #c0170d; border-radius:0 0 0 2px; }
+.vfc-br { bottom:-1px; right:-1px; border-bottom:2px solid #c0170d; border-right:2px solid #c0170d; border-radius:0 0 2px 0; }
+.vf-scan {
+  position: absolute; left:50%; transform:translateX(-50%);
+  width:64px; height:1px;
+  background: linear-gradient(90deg, transparent, #c0170d, transparent);
+  animation: scan 1.6s ease-in-out infinite;
+  top: calc(34% - 34px);
+}
+@keyframes scan {
+  0%   { top: calc(34% - 34px); opacity:1; }
+  100% { top: calc(34% + 34px); opacity:0.2; }
+}
+
+/* MODE BAR */
+.mode-bar {
+  flex-shrink: 0; background: rgba(5,5,7,0.97);
+  padding: 10px 0 12px; display: flex; flex-direction: column; gap: 8px;
+}
+.mode-row {
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+}
+.mode-pill {
+  font-size: 8px; font-weight: 700; padding: 3px 8px; border-radius: 7px;
+  color: rgba(255,255,255,0.3);
+}
+.mode-pill.on { background: rgba(192,23,13,0.15); color: #c0170d; }
+.capture-row {
+  display: flex; align-items: center; justify-content: space-around; padding: 0 18px;
+}
+.thumb-btn {
+  width: 32px; height: 32px; border-radius: 7px;
+  background: #181818; display: flex; align-items: center; justify-content: center; font-size: 12px;
+}
+.capture-btn {
+  width: 54px; height: 54px; border-radius: 50%; background: #fff;
+  border: 3px solid rgba(255,255,255,0.25);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.06);
+}
+.capture-btn-voice { background: rgba(192,23,13,0.12); border: 2px solid #c0170d; display:flex;align-items:center;justify-content:center; }
+.capture-btn-voice i { width:22px;height:22px;stroke:#c0170d; }
+.scan-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(192,23,13,0.1); border: 1px solid rgba(192,23,13,0.2);
+  display: flex; align-items: center; justify-content: center;
+}
+.scan-btn i { width: 14px; height: 14px; stroke: #c0170d; }
+
+/* ── MOMENTS TIMELINE ── */
+.feed { flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 0; }
+.feed-scroll { flex:1; overflow:hidden; padding: 8px 12px; display:flex; flex-direction:column; gap:10px; }
+
+.day-chip {
+  align-self: flex-start; font-size: 8px; font-weight: 700;
+  color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06); border-radius: 10px;
+  padding: 2px 8px; margin: 2px 0;
+}
+
+/* ── CARD DESIGN SYSTEM ──
+   Every card: header (avatar + who/when) · body (level content, red border) · footer (actions + timestamp)
+   Plan card: no header, event bg fills top section instead.
+*/
+
+/* Outer shell */
+.mc-outer {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px; overflow: hidden;
+}
+.mc-outer.accent { border-color: rgba(192,23,13,0.2); }
+
+/* Header row */
+.mc-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px 6px;
+}
+.mc-avatar {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.12);
+  background: #0e0e18;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.mc-avatar i { width: 13px; height: 13px; stroke: rgba(255,255,255,0.35); }
+.mc-avatar.blue { border-color: rgba(96,165,250,0.45); }
+.mc-avatar.blue i { stroke: rgba(96,165,250,0.65); }
+.mc-avatar.red { border-color: rgba(192,23,13,0.55); }
+.mc-avatar.red i { stroke: rgba(192,23,13,0.8); }
+.mc-who { flex: 1; min-width: 0; }
+.mc-who-name { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.65); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mc-who-time { font-size: 7px; color: rgba(255,255,255,0.22); margin-top: 1px; }
+
+/* Body — red-bordered content area */
+.mc-body {
+  margin: 0 8px 6px;
+  border: 1px solid rgba(192,23,13,0.3);
+  border-radius: 9px;
+  overflow: hidden;
+  background: rgba(192,23,13,0.03);
+}
+
+/* Body: text content (Level 1, Notes, Voice transcript) */
+.mc-body-text {
+  padding: 8px 10px;
+  font-size: 9px; color: rgba(255,255,255,0.6); line-height: 1.45;
+}
+.mc-see-more { text-align: right; font-size: 8px; color: rgba(255,255,255,0.2); padding: 0 10px 7px; }
+
+/* Body: photo strip (Level 2 carousel) */
+.mc-body-photos { display: flex; gap: 0; height: 80px; overflow: hidden; }
+.mc-photo {
+  flex: 1; background: linear-gradient(135deg, #0d0820, #1a0d30);
+  display: flex; align-items: center; justify-content: center; font-size: 22px;
+  min-width: 0; border-right: 1px solid rgba(0,0,0,0.4);
+}
+.mc-photo:last-child { border-right: none; }
+.mc-photo.more { background: rgba(0,0,0,0.55); font-size: 12px; font-weight: 800; color: rgba(255,255,255,0.5); }
+
+/* Body: cover photo (Level 3 big day) */
+.mc-body-cover {
+  height: 90px; background: linear-gradient(135deg, #0d1a20, #0a2030);
+  display: flex; align-items: center; justify-content: center; font-size: 30px;
+  position: relative;
+}
+.mc-cover-badge {
+  position: absolute; top: 6px; right: 8px;
+  background: rgba(0,0,0,0.65); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px; padding: 2px 6px; font-size: 7px; font-weight: 800; color: #fff;
+}
+
+/* Body: hero image (Level 4 featured) */
+.mc-body-hero {
+  height: 100px; background: linear-gradient(160deg, #100820, #0a1830);
+  position: relative; overflow: hidden;
+  display: flex; align-items: flex-end;
+}
+.mc-hero-bg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 44px; opacity: 0.55; }
+.mc-hero-overlay { position: relative; z-index: 2; padding: 8px 10px; width: 100%; }
+.mc-hero-avs { display: flex; gap: 3px; margin-bottom: 4px; }
+.mc-hero-av {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 1.5px solid rgba(192,23,13,0.5); background: #141630;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px; font-weight: 800;
+}
+.mc-hero-title { font-size: 10px; font-weight: 800; color: #fff; }
+
+/* Body: voice playback controls */
+.mc-body-voice { padding: 8px 10px; }
+.mc-voice-controls { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+.mc-play-btn {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+}
+.mc-play-btn i { width: 11px; height: 11px; stroke: rgba(255,255,255,0.5); }
+.mc-waveform { flex: 1; display: flex; align-items: center; gap: 1.5px; height: 18px; }
+.mc-wv { border-radius: 2px; background: rgba(192,23,13,0.5); }
+
+/* Footer — actions + timestamp */
+.mc-divider { height: 1px; background: rgba(255,255,255,0.05); }
+.mc-footer { padding: 6px 10px 8px; display: flex; flex-direction: column; gap: 4px; }
+.mc-actions { display: flex; align-items: center; gap: 5px; }
+.mc-action-btn {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+}
+.mc-action-btn i { width: 9px; height: 9px; stroke: rgba(255,255,255,0.25); }
+.mc-loc {
+  display: flex; align-items: center; gap: 2px;
+  font-size: 7px; color: rgba(255,255,255,0.22); margin-left: 3px;
+}
+.mc-loc i { width: 8px; height: 8px; stroke: rgba(255,255,255,0.2); }
+.mc-del { margin-left: auto; display: flex; align-items: center; justify-content: center; }
+.mc-del i { width: 10px; height: 10px; stroke: rgba(192,23,13,0.4); }
+.mc-timestamp { font-size: 7px; color: rgba(255,255,255,0.18); }
+
+/* Plan card body (event bg + people row, no header) */
+.mc-plan-bg {
+  height: 80px; background: linear-gradient(135deg, #0d1a20, #081428);
+  display: flex; align-items: flex-end; justify-content: flex-start;
+  padding: 8px 10px; gap: 0; position: relative;
+}
+.mc-plan-bg-emoji { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 28px; opacity: 0.5; }
+.mc-plan-people { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 4px; }
+.mc-plan-people-label { font-size: 7px; color: rgba(255,255,255,0.3); }
+.mc-plan-avs { display: flex; gap: 3px; }
+.mc-plan-av {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.15); background: #141630;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 7px; font-weight: 800;
+}
+.mc-plan-av.add { border-style: dashed; border-color: rgba(255,255,255,0.1); }
+.mc-plan-av.add i { width: 8px; height: 8px; stroke: rgba(255,255,255,0.2); }
+
+/* legacy chip classes kept for search/person screens */
+.mc { font-size: 7px; font-weight: 700; padding: 2px 5px; border-radius: 4px; }
+.mc-place { background: #1e3a5f; color: #93c5fd; }
+.mc-person { background: #1a0040; color: #c4b5fd; }
+.mc-weather { background: #1c1917; color: #a8a29e; }
+.mc-voice { background: #0a2010; color: #6ee7b7; }
+.mc-tag { background: #1a1a2e; color: #818cf8; }
+/* legacy moment-card used in older flows — keep for non-timeline cards */
+.moment-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px; overflow: hidden;
+}
+.moment-card.new { border-color: rgba(192,23,13,0.25); }
+.moment-footer { padding: 7px 10px; }
+.moment-note { font-size: 10px; color: rgba(255,255,255,0.75); line-height: 1.3; margin-bottom: 5px; }
+.moment-chips { display: flex; align-items: center; gap: 3px; flex-wrap: wrap; }
+.carousel-strip { display: flex; gap: 2px; height: 76px; overflow: hidden; }
+.carousel-photo {
+  flex: 1; background: linear-gradient(135deg, #0d0820, #1a0d30);
+  display: flex; align-items: center; justify-content: center; font-size: 20px; min-width: 0;
+}
+.carousel-photo.more { background: rgba(0,0,0,0.6); font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.5); }
+.card-compact { padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; }
+.card-compact-note { font-size: 9px; color: rgba(255,255,255,0.6); line-height: 1.35; }
+
+/* layout toggle */
+.layout-toggle { display: flex; align-items: center; gap: 4px; }
+.lt-btn { width: 22px; height: 22px; border-radius: 5px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; }
+.lt-btn.on { background: rgba(192,23,13,0.15); }
+.lt-btn i { width: 11px; height: 11px; stroke: rgba(255,255,255,0.3); }
+.lt-btn.on i { stroke: #c0170d; }
+
+/* ── MOMENT DETAIL ── */
+.detail-media { flex-shrink:0; height:170px; background:linear-gradient(160deg,#0d0820,#1a0d30); display:flex;align-items:center;justify-content:center;font-size:42px;position:relative; }
+.detail-media-bar { position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:4px; }
+.detail-dot { width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.3); }
+.detail-dot.on { background:#fff; }
+.detail-body { flex:1;overflow:hidden;padding:10px 14px;display:flex;flex-direction:column;gap:8px; }
+.detail-note { font-size:11px;color:rgba(255,255,255,0.8);line-height:1.45; }
+.detail-meta-row { display:flex;align-items:center;gap:6px; }
+.detail-meta-row i { width:11px;height:11px;stroke:rgba(255,255,255,0.25); }
+.detail-meta-text { font-size:8px;color:rgba(255,255,255,0.3); }
+.detail-section-label { font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-top:2px; }
+.detail-people { display:flex;gap:5px;align-items:center; }
+.detail-av { width:28px;height:28px;border-radius:50%;background:#141630;border:1px solid rgba(192,23,13,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700; }
+.detail-actions { display:flex;gap:4px;flex-wrap:wrap; }
+.detail-action { height:26px;border-radius:7px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;gap:4px;padding:0 8px; }
+.detail-action i { width:10px;height:10px;stroke:rgba(255,255,255,0.4); }
+.detail-action span { font-size:8px;color:rgba(255,255,255,0.4); }
+
+/* ── INSIGHTS (was Planner) ── */
+.insights { flex:1; overflow:hidden; padding:8px 12px; display:flex; flex-direction:column; gap:8px; }
+.streak-card {
+  background: rgba(192,23,13,0.08); border: 1px solid rgba(192,23,13,0.18);
+  border-radius: 12px; padding: 10px 12px; display: flex; align-items: center; gap: 10px;
+}
+.streak-num { font-size: 34px; font-weight: 900; color: #c0170d; line-height:1; }
+.streak-label { font-size: 12px; font-weight: 800; color: #fff; }
+.streak-sub { font-size: 8px; color: rgba(255,255,255,0.35); margin-top:2px; }
+.heatmap { display: grid; grid-template-columns: repeat(14,1fr); gap: 2px; }
+.hm { aspect-ratio:1; border-radius:2px; background:rgba(255,255,255,0.04); }
+.hm1 { background: rgba(192,23,13,0.2); }
+.hm2 { background: rgba(192,23,13,0.5); }
+.hm3 { background: rgba(192,23,13,0.85); }
+.hm-label { font-size: 8px; color: rgba(255,255,255,0.25); margin-bottom: 3px; }
+.drift-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 9px; border-radius: 10px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+}
+.drift-av { width: 28px; height: 28px; border-radius: 50%; background: #141630; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.3); flex-shrink:0; }
+.drift-name { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.45); }
+.drift-meta { font-size: 7px; color: rgba(255,255,255,0.25); margin-top:1px; }
+.drift-badge { margin-left:auto; font-size:7px; font-weight:800; background:rgba(255,120,0,0.12); color:#fb923c; border-radius:5px; padding:2px 5px; }
+
+.freq-bar-row { display:flex;align-items:center;gap:6px;margin-bottom:3px; }
+.freq-av { width:18px;height:18px;border-radius:50%;background:#141630;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;flex-shrink:0; }
+.freq-bar-bg { flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,0.05);overflow:hidden; }
+.freq-bar-fill { height:100%;border-radius:2px;background:#c0170d; }
+.freq-count { font-size:7px;color:rgba(255,255,255,0.25);width:20px;text-align:right; }
+
+/* ── MAPS (inside moments) ── */
+.map-view {
+  flex:1; background:#0c0e18; position:relative; overflow:hidden;
+  display:flex; align-items:flex-end;
+}
+.map-grid {
+  position:absolute; inset:0;
+  background-image: linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),
+                    linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);
+  background-size: 22px 22px;
+}
+.map-road-h { position:absolute; left:0; right:0; height:2px; background:rgba(255,255,255,0.06); }
+.map-road-v { position:absolute; top:0; bottom:0; width:2px; background:rgba(255,255,255,0.06); }
+.map-pin {
+  position:absolute; width:10px; height:10px; border-radius:50%;
+  background:#c0170d; border:1.5px solid rgba(255,255,255,0.3);
+  box-shadow: 0 0 6px rgba(192,23,13,0.7);
+}
+.map-pin.sm { width:7px;height:7px;background:rgba(192,23,13,0.5); }
+.map-pin.user { background:#4ade80;box-shadow:0 0 6px rgba(74,222,128,0.7);border-color:rgba(255,255,255,0.5); }
+.map-card {
+  position:relative; z-index:5; margin:10px; border-radius:12px;
+  background:rgba(10,10,12,0.92); border:1px solid rgba(255,255,255,0.08);
+  padding:10px 12px; width:100%;
+}
+.map-card-title { font-size:11px;font-weight:800;color:#fff;margin-bottom:3px; }
+.map-card-meta { font-size:8px;color:rgba(255,255,255,0.35); }
+
+/* ── CALENDAR ── */
+.cal-body { flex:1;overflow:hidden;padding:8px 12px;display:flex;flex-direction:column;gap:8px; }
+.cal-month { font-size:10px;font-weight:800;color:#fff;margin-bottom:4px; }
+.cal-grid { display:grid;grid-template-columns:repeat(7,1fr);gap:2px; }
+.cal-dow { font-size:6px;color:rgba(255,255,255,0.2);text-align:center;padding-bottom:2px; }
+.cal-day { aspect-ratio:1;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:rgba(255,255,255,0.35);position:relative; }
+.cal-day.has { color:rgba(255,255,255,0.7); }
+.cal-day.has::after { content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:#c0170d; }
+.cal-day.today { background:rgba(192,23,13,0.15);color:#c0170d; }
+.cal-day.event { background:rgba(192,23,13,0.2);color:#fff; }
+.cal-events-label { font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.2); }
+.cal-event-row { display:flex;align-items:center;gap:7px;padding:7px 8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:9px; }
+.cal-event-dot { width:6px;height:6px;border-radius:50%;background:#c0170d;flex-shrink:0; }
+.cal-event-dot.bday { background:#a78bfa; }
+.cal-event-title { font-size:9px;font-weight:700;color:#fff; }
+.cal-event-meta { font-size:7px;color:rgba(255,255,255,0.3); }
+.cal-event-time { margin-left:auto;font-size:7px;color:rgba(255,255,255,0.25); }
+
+/* meetup create */
+.meetup-body { flex:1;overflow:hidden;padding:10px 14px;display:flex;flex-direction:column;gap:6px; }
+.meetup-field { height:34px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:7px;padding:0 10px; }
+.meetup-field i { width:11px;height:11px;stroke:rgba(255,255,255,0.2); }
+.meetup-field span { font-size:9px;color:rgba(255,255,255,0.2); }
+.meetup-field span.v { color:rgba(255,255,255,0.75); }
+.meetup-field.active { border-color:rgba(192,23,13,0.4); }
+.meetup-people { display:flex;gap:4px;align-items:center;flex-wrap:wrap; }
+.meetup-av { width:24px;height:24px;border-radius:50%;background:#141630;border:1px solid rgba(192,23,13,0.3);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700; }
+.meetup-av.add { background:rgba(255,255,255,0.04);border-style:dashed;border-color:rgba(255,255,255,0.1); }
+.meetup-av.add i { width:10px;height:10px;stroke:rgba(255,255,255,0.2); }
+.meetup-toggle-row { display:flex;align-items:center;justify-content:space-between;padding:6px 0; }
+.meetup-toggle-label { font-size:9px;font-weight:700;color:rgba(255,255,255,0.5); }
+.mini-toggle { width:28px;height:16px;border-radius:8px;background:rgba(255,255,255,0.1);position:relative; }
+.mini-toggle.on { background:#c0170d; }
+.mini-toggle-knob { position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#fff; }
+.mini-toggle.on .mini-toggle-knob { left:auto;right:2px; }
+.btn-p { height:38px;border-radius:9px;background:#c0170d;display:flex;align-items:center;justify-content:center;gap:5px;font-size:11px;font-weight:700;color:#fff; }
+.btn-p i { width:12px;height:12px;stroke:#fff; }
+.btn-s { height:34px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;gap:5px;font-size:10px;font-weight:600;color:rgba(255,255,255,0.55); }
+.btn-s i { width:12px;height:12px;stroke:rgba(255,255,255,0.45); }
+.btn-dl { height:34px;border-radius:9px;background:rgba(192,23,13,0.07);border:1px solid rgba(192,23,13,0.18);display:flex;align-items:center;justify-content:center;gap:5px;font-size:10px;font-weight:600;color:#c0170d; }
+.btn-dl i { width:12px;height:12px;stroke:#c0170d; }
+.btn-ghost { height:26px;display:flex;align-items:center;justify-content:center;font-size:9px;color:rgba(255,255,255,0.2); }
+
+/* event show */
+.event-header { flex-shrink:0;padding:10px 14px 0;display:flex;flex-direction:column;gap:3px; }
+.event-title { font-size:14px;font-weight:900;color:#fff;letter-spacing:-0.02em; }
+.event-meta { font-size:8px;color:rgba(255,255,255,0.35); }
+.event-map { flex-shrink:0;height:130px;background:#0c0e18;position:relative;overflow:hidden; }
+.event-who { flex-shrink:0;padding:7px 14px;display:flex;flex-direction:column;gap:4px; }
+.event-who-label { font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.2); }
+.event-who-list { display:flex;flex-direction:column;gap:3px; }
+.event-who-row { display:flex;align-items:center;gap:7px;padding:5px 0; }
+.event-who-av { width:24px;height:24px;border-radius:50%;background:#141630;border:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0; }
+.event-who-name { font-size:9px;font-weight:700;color:#fff; }
+.event-who-status { font-size:7px;color:rgba(255,255,255,0.3); }
+.event-who-badge { margin-left:auto;font-size:7px;font-weight:800;border-radius:5px;padding:2px 5px; }
+.badge-here { background:rgba(74,222,128,0.12);color:#4ade80; }
+.badge-nearby { background:rgba(251,191,36,0.12);color:#fbbf24; }
+.badge-en-route { background:rgba(148,163,184,0.1);color:#94a3b8; }
+.bt-row { flex-shrink:0;display:flex;align-items:center;gap:6px;padding:6px 14px;background:rgba(74,222,128,0.04);border-top:1px solid rgba(74,222,128,0.08); }
+.bt-row i { width:10px;height:10px;stroke:#4ade80; }
+.bt-row span { font-size:8px;color:rgba(74,222,128,0.7); }
+
+/* ── SEARCH ── */
+.search-bar {
+  margin: 8px 12px; height: 34px; border-radius: 9px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+  display: flex; align-items: center; gap: 7px; padding: 0 10px; flex-shrink:0;
+}
+.search-bar i { width: 12px; height: 12px; stroke: rgba(255,255,255,0.3); }
+.search-placeholder { font-size: 10px; color: rgba(255,255,255,0.2); flex:1; }
+.search-img-btn {
+  width: 22px; height: 22px; border-radius: 5px;
+  background: rgba(192,23,13,0.1); border: 1px solid rgba(192,23,13,0.2);
+  display: flex; align-items: center; justify-content: center;
+}
+.search-img-btn i { width: 11px; height: 11px; stroke: #c0170d; }
+.search-hint { padding: 4px 12px; font-size: 8px; color: rgba(255,255,255,0.2); flex-shrink:0; }
+.sr-list { flex:1; overflow:hidden; padding: 4px 12px; display:flex; flex-direction:column; gap:5px; }
+.sr-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 9px; border-radius: 9px;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+}
+.sr-av { width:30px;height:30px;border-radius:50%;background:#141630;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0; }
+.sr-name { font-size:10px;font-weight:700;color:#fff; }
+.sr-sub { font-size:7px;color:rgba(255,255,255,0.3);margin-top:1px; }
+.sr-new {
+  display:flex;align-items:center;gap:7px;padding:9px;border-radius:9px;
+  background:rgba(192,23,13,0.07);border:1px solid rgba(192,23,13,0.15);margin-top:2px;
+}
+.sr-new i { width:14px;height:14px;stroke:#c0170d; }
+.sr-new span { font-size:10px;font-weight:700;color:#c0170d; }
+
+/* ── INTAKE ── */
+.intake-photo {
+  flex-shrink:0; height:180px;
+  background:linear-gradient(135deg,#0d1020,#1a0d30);
+  display:flex;align-items:center;justify-content:center;font-size:38px;
+}
+.intake-body { flex:1; padding:12px 14px; display:flex; flex-direction:column; gap:8px; overflow:hidden; }
+.intake-card {
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px; padding:12px 12px; display:flex; flex-direction:column; gap:7px;
+}
+.model-warn { display:flex;align-items:center;gap:5px;margin-bottom:2px; }
+.model-warn i { width:14px;height:14px;stroke:#c0170d; }
+.model-warn span { font-size:11px;font-weight:700;color:#fff; }
+.model-desc { font-size:8px;color:rgba(255,255,255,0.3);line-height:1.5; }
+
+/* ── SETTINGS ── */
+.settings-body { flex:1;overflow:hidden;padding:8px 12px;display:flex;flex-direction:column;gap:5px; }
+.s-label { font-size:7px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-top:6px;margin-bottom:1px; }
+.s-row { display:flex;align-items:center;gap:8px;padding:8px 9px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:9px; }
+.s-icon { width:24px;height:24px;border-radius:6px;background:rgba(192,23,13,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+.s-icon i { width:12px;height:12px;stroke:#c0170d; }
+.s-name { font-size:10px;font-weight:700;color:#fff;flex:1; }
+.s-meta { font-size:8px;color:rgba(255,255,255,0.25); }
+.progress-wrap { background:rgba(255,255,255,0.04);border:1px solid rgba(192,23,13,0.18);border-radius:9px;padding:9px;margin-top:1px; }
+.progress-top { display:flex;justify-content:space-between;align-items:center;margin-bottom:5px; }
+.progress-title { font-size:9px;color:rgba(255,255,255,0.5);font-weight:700; }
+.progress-pct { font-size:9px;color:#c0170d;font-weight:800; }
+.progress-bg { height:3px;background:rgba(255,255,255,0.05);border-radius:2px; }
+.progress-fill { height:3px;background:#c0170d;border-radius:2px;width:62%; }
+.progress-sub { font-size:7px;color:rgba(255,255,255,0.2);margin-top:4px; }
+
+/* ── PEOPLE ── */
+.people-grid { flex:1;overflow:hidden;padding:8px 12px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px; }
+.person-tile { background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:11px;padding:9px 7px;display:flex;flex-direction:column;align-items:center;gap:4px; }
+.av { width:36px;height:36px;border-radius:50%;background:#141630;border:1.5px solid rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff; }
+.av.glow { border-color:#c0170d;box-shadow:0 0 0 2px rgba(192,23,13,0.2); }
+.av-name { font-size:8px;font-weight:700;color:rgba(255,255,255,0.7);text-align:center; }
+.av-seen { font-size:7px;color:rgba(255,255,255,0.25); }
+
+/* person profile */
+.profile-header { flex-shrink:0;padding:10px 14px;display:flex;align-items:center;gap:10px; }
+.profile-av { width:48px;height:48px;border-radius:50%;background:#141630;border:2px solid rgba(192,23,13,0.4);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;flex-shrink:0; }
+.profile-name { font-size:14px;font-weight:900;color:#fff;letter-spacing:-0.02em; }
+.profile-meta { font-size:8px;color:rgba(255,255,255,0.3);margin-top:2px; }
+.profile-conf { font-size:7px;color:rgba(192,23,13,0.7);margin-top:1px; }
+.profile-body { flex:1;overflow:hidden;padding:0 12px;display:flex;flex-direction:column;gap:8px; }
+.profile-moments { display:flex;gap:3px;height:60px; }
+.profile-moment-thumb { flex:1;border-radius:7px;background:linear-gradient(135deg,#0d0820,#1a0d30);display:flex;align-items:center;justify-content:center;font-size:16px; }
+.profile-mini-map { height:50px;background:#0c0e18;border-radius:9px;border:1px solid rgba(255,255,255,0.05);position:relative;overflow:hidden; }
+.profile-stats-row { display:flex;gap:6px; }
+.profile-stat { flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:9px;padding:7px;display:flex;flex-direction:column;gap:2px; }
+.profile-stat-num { font-size:16px;font-weight:900;color:#fff; }
+.profile-stat-label { font-size:7px;color:rgba(255,255,255,0.3); }
+
+/* ── ONBOARDING ── */
+.ob-body { flex:1;overflow:hidden;padding:16px 16px;display:flex;flex-direction:column;gap:0; }
+.ob-logo { font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.03em;margin-bottom:3px; }
+.ob-sub { font-size:9px;color:rgba(255,255,255,0.35);margin-bottom:18px;line-height:1.4; }
+.ob-perm-label { font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-bottom:8px; }
+.ob-perm-row { display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.05); }
+.ob-perm-icon { width:26px;height:26px;border-radius:7px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+.ob-perm-icon i { width:13px;height:13px;stroke:rgba(255,255,255,0.4); }
+.ob-perm-text { flex:1; }
+.ob-perm-name { font-size:10px;font-weight:700;color:#fff; }
+.ob-perm-desc { font-size:8px;color:rgba(255,255,255,0.3);margin-top:1px; }
+.ob-toggle { width:32px;height:18px;border-radius:9px;background:#c0170d;position:relative;flex-shrink:0; }
+.ob-toggle-off { background:rgba(255,255,255,0.1); }
+.ob-toggle-knob { position:absolute;top:2px;right:2px;width:14px;height:14px;border-radius:50%;background:#fff; }
+.ob-toggle-knob-off { right:auto;left:2px; }
+.ob-face-section { margin-top:12px; }
+.ob-face-label { font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-bottom:8px; }
+.ob-face-row { display:flex;align-items:center;gap:8px;padding:9px 0; }
+.ob-face-icon { width:26px;height:26px;border-radius:7px;background:rgba(192,23,13,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+.ob-face-icon i { width:13px;height:13px;stroke:#c0170d; }
+.ob-face-text { flex:1; }
+.ob-face-name { font-size:10px;font-weight:700;color:#fff; }
+.ob-face-desc { font-size:8px;color:rgba(255,255,255,0.3);margin-top:1px; }
+.ob-done { margin-top:auto;padding-top:14px; }
+.ob-done-btn { height:38px;border-radius:10px;background:#c0170d;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;letter-spacing:0.02em; }
+.ob-skip { height:26px;display:flex;align-items:center;justify-content:center;font-size:9px;color:rgba(255,255,255,0.2);margin-top:5px; }
+
+/* ── CONTACT FORM ── */
+.contact-body { flex:1;padding:12px 14px;display:flex;flex-direction:column;gap:6px;overflow:hidden; }
+.cf-title { font-size:13px;font-weight:800;color:#fff;margin-bottom:1px; }
+.cf-sub { font-size:8px;color:rgba(255,255,255,0.25);margin-bottom:8px; }
+.cf-field { height:36px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:7px;padding:0 10px; }
+.cf-field.active { border-color:rgba(192,23,13,0.4); }
+.cf-field i { width:12px;height:12px;stroke:rgba(255,255,255,0.2); }
+.cf-field span { font-size:9px;color:rgba(255,255,255,0.2); }
+.cf-field span.v { color:rgba(255,255,255,0.8); }
+.cf-or { font-size:8px;color:#222;text-align:center;padding:3px 0; }
+.cf-alt { display:flex;align-items:center;gap:7px;padding:8px;border-radius:9px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05); }
+.cf-alt i { width:13px;height:13px;stroke:rgba(255,255,255,0.2); }
+.cf-alt span { font-size:9px;color:rgba(255,255,255,0.2); }
+</style>
+</head>
+<body>
+
+<div class="page-title">hokédex — Workflows</div>
+<div class="page-sub">Wireframes v5 · June 2026 · 3-tab nav (Home · Moments · People) · Maps inside Moments · level-based cards</div>
+
+<!-- ══════════════════════════════════════════════
+     CARD DESIGN SYSTEM — all 4 types
+══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Card Design System — Moment · Plan · Voice · Notes</div>
+  <div class="flow" style="gap:20px;align-items:flex-start;">
+
+    <!-- Moment Card (level 2 carousel shown as example) -->
+    <div class="flow-col">
+      <div class="flow-label">Moment Card</div>
+      <div style="width:220px;">
+        <div class="mc-outer">
+          <div class="mc-header">
+            <div class="mc-avatar red"><i data-lucide="users"></i></div>
+            <div class="mc-who">
+              <div class="mc-who-name">Priya, Aarav and others</div>
+              <div class="mc-who-time">8:00 PM – 10:30 PM</div>
+            </div>
+          </div>
+          <div class="mc-body">
+            <div class="mc-body-photos">
+              <div class="mc-photo">🌆</div>
+              <div class="mc-photo">🍛</div>
+              <div class="mc-photo more">+2</div>
+            </div>
+          </div>
+          <div class="mc-divider"></div>
+          <div class="mc-footer">
+            <div class="mc-actions">
+              <div class="mc-action-btn"><i data-lucide="heart"></i></div>
+              <div class="mc-action-btn"><i data-lucide="file-text"></i></div>
+              <div class="mc-loc"><i data-lucide="map-pin"></i>Juhu</div>
+              <div class="mc-del"><i data-lucide="x"></i></div>
+            </div>
+            <div class="mc-timestamp">Wed 18 Jun · 8:00 – 10:30 PM</div>
+          </div>
+        </div>
+      </div>
+      <div class="flow-note">Body content changes per level.<br>Header: who was there + time range.</div>
+    </div>
+
+    <!-- Plan Card (event/meetup — no header, event bg fills top) -->
+    <div class="flow-col">
+      <div class="flow-label">Plan Card</div>
+      <div style="width:220px;">
+        <div class="mc-outer">
+          <div class="mc-plan-bg">
+            <div class="mc-plan-bg-emoji">🎉</div>
+            <div class="mc-plan-people">
+              <div class="mc-plan-people-label">People</div>
+              <div class="mc-plan-avs">
+                <div class="mc-plan-av">P</div>
+                <div class="mc-plan-av">A</div>
+                <div class="mc-plan-av">R</div>
+                <div class="mc-plan-av add"><i data-lucide="plus"></i></div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:6px 10px 8px;">
+            <div style="font-size:10px;font-weight:800;color:#fff;">Rooftop gathering</div>
+          </div>
+          <div class="mc-divider"></div>
+          <div class="mc-footer">
+            <div class="mc-actions">
+              <div class="mc-action-btn"><i data-lucide="heart"></i></div>
+              <div class="mc-action-btn"><i data-lucide="file-text"></i></div>
+              <div class="mc-loc"><i data-lucide="map-pin"></i>Bandra</div>
+              <div class="mc-del"><i data-lucide="x"></i></div>
+            </div>
+            <div class="mc-timestamp">Sun 29 Jun · 8:00 PM</div>
+          </div>
+        </div>
+      </div>
+      <div class="flow-note">No header avatar — event bg fills top. People row inside the bg area.</div>
+    </div>
+
+    <!-- Voice Card -->
+    <div class="flow-col">
+      <div class="flow-label">Voice Card</div>
+      <div style="width:220px;">
+        <div class="mc-outer">
+          <div class="mc-header">
+            <div class="mc-avatar blue"><i data-lucide="mic"></i></div>
+            <div class="mc-who">
+              <div class="mc-who-name">Neha S.</div>
+              <div class="mc-who-time">10:15 AM</div>
+            </div>
+          </div>
+          <div class="mc-body">
+            <div class="mc-body-text">"Quick coffee with Neha before the meeting. She's moving to Pune next month."</div>
+            <div class="mc-body-voice" style="padding-top:0;">
+              <div class="mc-voice-controls">
+                <div class="mc-play-btn"><i data-lucide="play"></i></div>
+                <div class="mc-waveform">
+                  <div class="mc-wv" style="width:2px;height:4px;"></div>
+                  <div class="mc-wv" style="width:2px;height:11px;"></div>
+                  <div class="mc-wv" style="width:2px;height:15px;"></div>
+                  <div class="mc-wv" style="width:2px;height:7px;"></div>
+                  <div class="mc-wv" style="width:2px;height:13px;"></div>
+                  <div class="mc-wv" style="width:2px;height:5px;"></div>
+                  <div class="mc-wv" style="width:2px;height:9px;"></div>
+                </div>
+                <div class="mc-play-btn"><i data-lucide="pause"></i></div>
+              </div>
+            </div>
+            <div class="mc-see-more">…See More</div>
+          </div>
+          <div class="mc-divider"></div>
+          <div class="mc-footer">
+            <div class="mc-actions">
+              <div class="mc-action-btn"><i data-lucide="heart"></i></div>
+              <div class="mc-action-btn"><i data-lucide="file-text"></i></div>
+              <div class="mc-loc"><i data-lucide="map-pin"></i>Lower Parel</div>
+              <div class="mc-del"><i data-lucide="x"></i></div>
+            </div>
+            <div class="mc-timestamp">Tue 17 Jun · 10:15 AM</div>
+          </div>
+        </div>
+      </div>
+      <div class="flow-note">Blue avatar = voice/note type. Transcript + playback controls in body.</div>
+    </div>
+
+    <!-- Notes Card -->
+    <div class="flow-col">
+      <div class="flow-label">Notes Card</div>
+      <div style="width:220px;">
+        <div class="mc-outer">
+          <div class="mc-header">
+            <div class="mc-avatar blue"><i data-lucide="file-text"></i></div>
+            <div class="mc-who">
+              <div class="mc-who-name">Rahul K.</div>
+              <div class="mc-who-time">3:00 PM</div>
+            </div>
+          </div>
+          <div class="mc-body">
+            <div class="mc-body-text">Met Rahul at the co-working space. He's pitching to investors next week — intro'd him to Priya's fund contact.</div>
+            <div class="mc-see-more">…See More</div>
+          </div>
+          <div class="mc-divider"></div>
+          <div class="mc-footer">
+            <div class="mc-actions">
+              <div class="mc-action-btn"><i data-lucide="heart"></i></div>
+              <div class="mc-action-btn"><i data-lucide="file-text"></i></div>
+              <div class="mc-loc"><i data-lucide="map-pin"></i>BKC</div>
+              <div class="mc-del"><i data-lucide="x"></i></div>
+            </div>
+            <div class="mc-timestamp">Mon 16 Jun · 3:00 PM</div>
+          </div>
+        </div>
+      </div>
+      <div class="flow-note">Same structure as Voice — no playback controls. Text fills body.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     0. ONBOARDING
+══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Screen 0 — Onboarding (first launch)</div>
+  <div class="flow">
+
+    <div class="flow-col">
+      <div class="flow-label">Permissions + face model</div>
+      <div class="phone phone-tall">
+        <div class="sb"><span>9:41</span><span>●●●</span></div>
+        <div class="ob-body">
+          <div class="ob-logo">hokédex</div>
+          <div class="ob-sub">A private people-intelligence dex.<br>Everything stays on your device.</div>
+          <div class="ob-perm-label">Permissions</div>
+          <div class="ob-perm-row">
+            <div class="ob-perm-icon"><i data-lucide="camera"></i></div>
+            <div class="ob-perm-text">
+              <div class="ob-perm-name">Camera</div>
+              <div class="ob-perm-desc">Photo + video capture</div>
+            </div>
+            <div class="ob-toggle"><div class="ob-toggle-knob"></div></div>
+          </div>
+          <div class="ob-perm-row">
+            <div class="ob-perm-icon"><i data-lucide="image"></i></div>
+            <div class="ob-perm-text">
+              <div class="ob-perm-name">Gallery</div>
+              <div class="ob-perm-desc">Pick photos from device</div>
+            </div>
+            <div class="ob-toggle"><div class="ob-toggle-knob"></div></div>
+          </div>
+          <div class="ob-perm-row">
+            <div class="ob-perm-icon"><i data-lucide="mic"></i></div>
+            <div class="ob-perm-text">
+              <div class="ob-perm-name">Microphone</div>
+              <div class="ob-perm-desc">Voice capture</div>
+            </div>
+            <div class="ob-toggle ob-toggle-off"><div class="ob-toggle-knob ob-toggle-knob-off"></div></div>
+          </div>
+          <div class="ob-perm-row">
+            <div class="ob-perm-icon"><i data-lucide="map-pin"></i></div>
+            <div class="ob-perm-text">
+              <div class="ob-perm-name">Location</div>
+              <div class="ob-perm-desc">GPS for moments</div>
+            </div>
+            <div class="ob-toggle ob-toggle-off"><div class="ob-toggle-knob ob-toggle-knob-off"></div></div>
+          </div>
+          <div class="ob-face-section">
+            <div class="ob-face-label">Face Detection · optional</div>
+            <div class="ob-face-row">
+              <div class="ob-face-icon"><i data-lucide="scan-face"></i></div>
+              <div class="ob-face-text">
+                <div class="ob-face-name">Download face model</div>
+                <div class="ob-face-desc">12 MB · required for person tagging.<br>Can download later in Settings.</div>
+              </div>
+              <div class="ob-toggle ob-toggle-off"><div class="ob-toggle-knob ob-toggle-knob-off"></div></div>
+            </div>
+          </div>
+          <div class="ob-done">
+            <div class="ob-done-btn">Done</div>
+            <div class="ob-skip">Skip for now</div>
+          </div>
+        </div>
+      </div>
+      <div class="flow-note">Face model toggle: ON → download starts inline with progress bar. Done → PIN setup → app.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     1. CAMERA → MOMENTS TIMELINE (all 4 card levels)
+══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Flow 1 — Camera · Photo mode → Moments Timeline (level 1–4 cards)</div>
+  <div class="flow">
+
+    <div class="flow-col">
+      <div class="flow-label">Viewfinder · Photo mode</div>
+      <div class="phone">
+        <div class="sb"><span>9:41</span><span>●●●</span></div>
+        <div class="viewfinder">
+          <div class="vf-face-box">
+            <div class="vf-corner vfc-tl"></div><div class="vf-corner vfc-tr"></div>
+            <div class="vf-corner vfc-bl"></div><div class="vf-corner vfc-br"></div>
+            <div class="vf-scan"></div>
+          </div>
+        </div>
+        <div class="mode-bar">
+          <div class="mode-row">
+            <div class="mode-pill on">Photo</div>
+            <div class="mode-pill">Local</div>
+            <div class="mode-pill">Voice</div>
+            <div class="mode-pill">Contact</div>
+          </div>
+          <div class="capture-row">
+            <div class="thumb-btn">🌄</div>
+            <div class="capture-btn"></div>
+            <div class="scan-btn"><i data-lucide="scan-face"></i></div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="ni on"><i data-lucide="camera"></i><span>Home</span></div>
+          <div class="ni"><i data-lucide="sparkles"></i><span>Moments</span></div>
+          <div class="ni"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+      <div class="flow-note">Tap capture → saves moment with GPS + weather → navigates to Timeline.</div>
+    </div>
+
+    <div class="arrow">
+      <div class="arr">
+        <div class="arr-line"><div class="arr-shaft"></div><div class="arr-head"></div></div>
+        <div class="arr-label">tap capture</div>
+      </div>
+    </div>
+
+    <!-- Timeline with all 4 card levels -->
+    <div class="flow-col">
+      <div class="flow-label">Timeline · all 4 card levels</div>
+      <div class="phone phone-auto">
+        <div class="sb"><span>9:41</span><span>●●●</span></div>
+        <div class="topbar">
+          <div class="topbar-title">Moments</div>
+          <div class="layout-toggle">
+            <div class="lt-btn on"><i data-lucide="layout-list"></i></div>
+            <div class="lt-btn"><i data-lucide="map-pin"></i></div>
+          </div>
+        </div>
+        <div class="pivot">
+          <div class="pivot-item on">Timeline</div>
+          <div class="pivot-item">Calendar</div>
+          <div class="pivot-item">Insights</div>
+          <div class="pivot-item">Map</div>
+        </div>
+        <div class="feed-scroll" style="overflow:visible;">
+
+          <!-- Level 4 — Featured: hero image, multi-person, high face-match -->
+          <div class="day-chip">Fri 20 Jun</div>
+          <div class="mc-outer accent">
+            <div class="mc-header">
+              <div class="mc-avatar red"><i data-lucide="users"></i></div>
+              <div class="mc-who">
+                <div class="mc-who-name">Priya, Aarav, Rahul +4</div>
+                <div class="mc-who-time">8:00 PM – 11:30 PM</div>
+              </div>
+            </div>
+            <div class="mc-body">
+              <div class="mc-body-hero">
+                <div class="mc-hero-bg">🎉</div>
+                <div class="mc-hero-overlay">
+                  <div class="mc-hero-avs">
+                    <div class="mc-hero-av">P</div>
+                    <div class="mc-hero-av">A</div>
+                    <div class="mc-hero-av">R</div>
+                    <div class="mc-hero-av">N</div>
+                    <div style="font-size:7px;color:rgba(255,255,255,0.35);align-self:center;margin-left:3px;">+3</div>
+                  </div>
+                  <div class="mc-hero-title">Rooftop party with 7 people</div>
+                </div>
+              </div>
+            </div>
+            <div class="mc-divider"></div>
+            <div class="mc-footer">
+              <div class="mc-actions">
+                <div class="mc-action-btn"><i data-lucide="heart"></i></div>
+                <div class="mc-action-btn"><i data-lucide="file-text"></i></div>
+                <div class="mc-loc"><i data-lucide="map-pin"></i>Bandra</div>
+                <div class="mc-del"><i data-lucide="x"></i></div>
+              </div>
+              <div class="mc-timestamp">Fri 20 Jun · 8:00 – 11:30 PM · 26°C</div>
+            </div>
+          </div>
+
+          <!-- Level 3 — Big day: cover photo, count badge, 4+ moments -->
+          <div class="day-chip">Thu 19 Jun</div>
+          <div class="mc-outer">
+            <div class="mc-header">
+              <div class="mc-avatar"><i data-lucide="user"></i></div>
+              <div class="mc-who">
+                <div class="mc-who-name">Priya and others</div>
+                <div class="mc-who-time">9:00 AM – 9:30 PM</div>
+              </div>
+            </div>
+            <div class="mc-body">
+              <div class="mc-body-cover">
+                🌆
+                <div class="mc-cover-badge">+5 moments</div>
+              </div>
+              <div class="mc-body-text" style="padding:6px 10px 4px;">Full day at Juhu — breakfast, beach walk, evening drinks</div>
+            </div>
+            <div class="mc-divider"></div>
+            <div class="mc-footer">
+              <div class="mc-actions">
+                <div class="mc-action-btn"><i data-lucide="heart"></i></div>
+                <div class="mc-action-btn"><i data-lucide="file-text"></i></div>
+                <div class="mc-loc"><i data-lucide="map-pin"></i>Juhu</div>
+                <div class="mc-del"><i data-lucide="x"></i></div>
+              </div>
+              <div class="mc-timestamp">Thu 19 Jun · 9:00 AM – 9:30 PM · 32°C</div>
+            </div>
+          </div>
+
+          <!-- Level 2 — Carousel: 2–3 photos in session -->
+          <div class="day-chip">Wed 18 Jun</div>
+          <div class="mc-outer">
+            <div class="mc-header">
+              <div class="mc-avatar"><i data-lucide="user"></i></div>
+              <div class="mc-who">
+                <div class="mc-who-name">Aarav Singh</div>
+                <div class="mc-who-time">7:30 PM – 9:45 PM</div>
+              </div>
+            </div>
+            <div class="mc-body">
+              <div class="mc-body-photos">
+                <div class="mc-photo">🍛</div>
+                <div class="mc-photo">🥂</div>
+                <div class="mc-photo more">+1</div>
+              </div>
+            </div>
+            <div class="mc-divider"></div>
+            <div class="mc-footer">
+              <div class="mc-actions">
+                <div class="mc-action-btn"><i data-lucide="heart"></i></div>
+                <div class="mc-action-btn"><i data-lucide="file-text"></i></div>
+                <div class="mc-loc"><i data-lucide="map-pin"></i>Andheri</div>
+                <div class="mc-del"><i data-lucide="x"></i></div>
+              </div>
+              <div class="mc-timestamp">Wed 18 Jun · 7:30 – 9:45 PM</div>
+            </div>
+          </div>
+
+          <!-- Level 1 — Compact (voice note, no photo) -->
+          <div class="day-chip">Tue 17 Jun</div>
+          <div class="mc-outer">
+            <div class="mc-header">
+              <div class="mc-avatar blue"><i data-lucide="mic"></i></div>
+              <div class="mc-who">
+                <div class="mc-who-name">Neha S.</div>
+                <div class="mc-who-time">10:15 AM</div>
+              </div>
+            </div>
+            <div class="mc-body">
+              <div class="mc-body-text">"Quick coffee with Neha before the meeting. She's moving to Pune next month."</div>
+              <div class="mc-body-voice" style="padding-top:0;">
+                <div class="mc-voice-controls">
+                  <div class="mc-play-btn"><i data-lucide="play"></i></div>
+                  <div class="mc-waveform">
+                    <div class="mc-wv" style="width:2px;height:4px;"></div>
+                    <div class="mc-wv" style="width:2px;height:10px;"></div>
+                    <div class="mc-wv" style="width:2px;height:14px;"></div>
+                    <div class="mc-wv" style="width:2px;height:8px;"></div>
+                    <div class="mc-wv" style="width:2px;height:12px;"></div>
+                    <div class="mc-wv" style="width:2px;height:6px;"></div>
+                    <div class="mc-wv" style="width:2px;height:10px;"></div>
+                    <div class="mc-wv" style="width:2px;height:5px;"></div>
+                  </div>
+                  <div class="mc-play-btn"><i data-lucide="pause"></i></div>
+                </div>
+              </div>
+              <div class="mc-see-more">…See More</div>
+            </div>
+            <div class="mc-divider"></div>
+            <div class="mc-footer">
+              <div class="mc-actions">
+                <div class="mc-action-btn"><i data-lucide="heart"></i></div>
+                <div class="mc-action-btn"><i data-lucide="file-text"></i></div>
+                <div class="mc-loc"><i data-lucide="map-pin"></i>Lower Parel</div>
+                <div class="mc-del"><i data-lucide="x"></i></div>
+              </div>
+              <div class="mc-timestamp">Tue 17 Jun · 10:15 AM</div>
+            </div>
+          </div>
+
+        </div>
+        <div class="nav">
+          <div class="ni"><i data-lucide="camera"></i><span>Home</span></div>
+          <div class="ni on"><i data-lucide="sparkles"></i><span>Moments</span></div>
+          <div class="ni"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+      <div class="flow-note">Day chips between days (WhatsApp-style). Cards promote as RegroupService adds moments. Tap any card → MomentDetail.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     2. MOMENT DETAIL
+══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Flow 2 — Timeline · tap card → MomentDetailScreen</div>
+  <div class="flow">
+
+    <div class="flow-col">
+      <div class="flow-label">Timeline · tap level-3 card</div>
+      <div class="phone phone-auto">
+        <div class="sb"><span>9:41</span><span>●●●</span></div>
+        <div class="topbar">
+          <div class="topbar-title">Moments</div>
+          <div class="layout-toggle">
+            <div class="lt-btn on"><i data-lucide="layout-list"></i></div>
+            <div class="lt-btn"><i data-lucide="map-pin"></i></div>
+          </div>
+        </div>
+        <div class="pivot">
+          <div class="pivot-item on">Timeline</div>
+          <div class="pivot-item">Calendar</div>
+          <div class="pivot-item">Insights</div>
+          <div class="pivot-item">Map</div>
+        </div>
+        <div class="feed-scroll">
+          <div class="day-chip">Thu 19 Jun</div>
+          <div class="mc-outer" style="border-color:rgba(192,23,13,0.35);">
+            <div class="mc-header">
+              <div class="mc-avatar"><i data-lucide="user"></i></div>
+              <div class="mc-who">
+                <div class="mc-who-name">Priya and others</div>
+                <div class="mc-who-time">9:00 AM – 9:30 PM</div>
+              </div>
+            </div>
+            <div class="mc-body">
+              <div class="mc-body-cover">🌆<div class="mc-cover-badge">+5 moments</div></div>
+              <div class="mc-body-text" style="padding:5px 10px 4px;">Full day at Juhu</div>
+            </div>
+            <div class="mc-divider"></div>
+            <div class="mc-footer">
+              <div class="mc-actions">
+                <div class="mc-action-btn"><i data-lucide="heart"></i></div>
+                <div class="mc-action-btn"><i data-lucide="file-text"></i></div>
+                <div class="mc-loc"><i data-lucide="map-pin"></i>Juhu</div>
+                <div class="mc-del"><i data-lucide="x"></i></div>
+              </div>
+              <div class="mc-timestamp">Thu 19 Jun · 9:00 AM – 9:30 PM</div>
+            </div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="ni"><i data-lucide="camera"></i><span>Home</span></div>
+          <div class="ni on"><i data-lucide="sparkles"></i><span>Moments</span></div>
+          <div class="ni"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow">
+      <div class="arr">
+        <div class="arr-line"><div class="arr-shaft"></div><div class="arr-head"></div></div>
+        <div class="arr-label">tap card</div>
+      </div>
+    </div>
+
+    <div class="flow-col">
+      <div class="flow-label">MomentDetailScreen</div>
+      <div class="phone phone-xl">
+        <div class="sb"><span>9:41</span><span>●●●</span></div>
+        <div class="topbar" style="padding-top:8px;">
+          <div class="icon-btn"><i data-lucide="arrow-left"></i></div>
+          <div class="topbar-title" style="font-size:12px;">Thu 19 Jun</div>
+          <div class="icon-btn"><i data-lucide="more-horizontal"></i></div>
+        </div>
+        <div class="detail-media">
+          🌆
+          <div class="detail-media-bar">
+            <div class="detail-dot on"></div>
+            <div class="detail-dot"></div>
+            <div class="detail-dot"></div>
+            <div class="detail-dot"></div>
+            <div class="detail-dot"></div>
+          </div>
+        </div>
+        <div class="detail-body">
+          <div class="detail-note">Full day at Juhu — breakfast, beach walk, evening drinks with Priya.</div>
+          <div class="detail-meta-row">
+            <i data-lucide="map-pin"></i><span class="detail-meta-text">Juhu Beach, Mumbai</span>
+          </div>
+          <div class="detail-meta-row">
+            <i data-lucide="clock"></i><span class="detail-meta-text">Thu 19 Jun · 9:00 AM – 9:30 PM</span>
+          </div>
+          <div class="detail-meta-row">
+            <i data-lucide="cloud-sun"></i><span class="detail-meta-text">32°C · Sunny</span>
+          </div>
+          <div class="detail-section-label">People</div>
+          <div class="detail-people">
+            <div class="detail-av">P</div>
+            <div class="detail-av">A</div>
+            <div style="font-size:8px;color:rgba(255,255,255,0.2);margin-left:2px;">+1</div>
+          </div>
+          <div class="detail-section-label">Add more</div>
+          <div class="detail-actions">
+            <div class="detail-action"><i data-lucide="camera"></i><span>Photo</span></div>
+            <div class="detail-action"><i data-lucide="mic"></i><span>Voice</span></div>
+            <div class="detail-action"><i data-lucide="file-text"></i><span>Note</span></div>
+            <div class="detail-action"><i data-lucide="git-merge"></i><span>Bundle</span></div>
+            <div class="detail-action"><i data-lucide="scissors"></i><span>Split</span></div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="ni"><i data-lucide="camera"></i><span>Home</span></div>
+          <div class="ni on"><i data-lucide="sparkles"></i><span>Moments</span></div>
+          <div class="ni"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+      <div class="flow-note">Full media viewer with swipe. People chips tap → person profile. Add photo/voice/note after the fact. Bundle or split moments.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     3. LOCAL → INTAKE → SEARCH
+══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Flow 3 — Local mode → Intake (model ready) → SearchResult</div>
+  <div class="flow">
+
+    <div class="flow-col">
+      <div class="flow-label">Local mode</div>
+      <div class="phone">
+        <div class="sb"><span>9:41</span><span>●●●</span></div>
+        <div class="viewfinder" style="align-items:center;justify-content:center;flex-direction:column;gap:8px;">
+          <div style="width:44px;height:44px;border-radius:11px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);display:flex;align-items:center;justify-content:center;">
+            <i data-lucide="image" style="width:20px;height:20px;stroke:rgba(255,255,255,0.25);"></i>
+          </div>
+          <span style="font-size:10px;color:rgba(255,255,255,0.2);">Pick from gallery</span>
+        </div>
+        <div class="mode-bar">
+          <div class="mode-row">
+            <div class="mode-pill">Photo</div>
+            <div class="mode-pill on">Local</div>
+            <div class="mode-pill">Voice</div>
+            <div class="mode-pill">Contact</div>
+          </div>
+          <div class="capture-row">
+            <div class="thumb-btn">🌄</div>
+            <div class="capture-btn"></div>
+            <div class="scan-btn"><i data-lucide="scan-face"></i></div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="ni on"><i data-lucide="camera"></i><span>Home</span></div>
+          <div class="ni"><i data-lucide="sparkles"></i><span>Moments</span></div>
+          <div class="ni"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow">
+      <div class="arr">
+        <div class="arr-line"><div class="arr-shaft"></div><div class="arr-head"></div></div>
+        <div class="arr-label">pick image</div>
+      </div>
+    </div>
+
+    <div class="flow-col">
+      <div class="flow-label">Intake · model ready</div>
+      <div class="phone">
+        <div class="sb"><span>9:41</span><span>●●●</span></div>
+        <div class="topbar" style="padding-top:8px;">
+          <div class="icon-btn"><i data-lucide="x"></i></div>
+          <div class="topbar-title" style="font-size:12px;">Photo</div>
+          <div style="width:28px;"></div>
+        </div>
+        <div class="intake-photo">🌇</div>
+        <div class="intake-body">
+          <div class="intake-card">
+            <div class="btn-p"><i data-lucide="bookmark-plus"></i>Save as Moment</div>
+            <div class="btn-s"><i data-lucide="user-plus"></i>Add Contact</div>
+            <div class="btn-ghost">Discard</div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="ni on"><i data-lucide="camera"></i><span>Home</span></div>
+          <div class="ni"><i data-lucide="sparkles"></i><span>Moments</span></div>
+          <div class="ni"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow">
+      <div class="arr">
+        <div class="arr-line"><div class="arr-shaft"></div><div class="arr-head"></div></div>
+        <div class="arr-label">Add Contact</div>
+      </div>
+    </div>
+
+    <div class="flow-col">
+      <div class="flow-label">SearchResult · face + text</div>
+      <div class="phone phone-tall">
+        <div class="sb"><span>9:41</span><span>●●●</span></div>
+        <div class="topbar" style="padding-top:8px;">
+          <div class="icon-btn"><i data-lucide="arrow-left"></i></div>
+          <div class="topbar-title" style="font-size:12px;">Add Contact</div>
+          <div style="width:28px;"></div>
+        </div>
+        <div style="flex-shrink:0;padding:8px 12px;display:flex;align-items:center;gap:8px;">
+          <div style="width:44px;height:44px;border-radius:9px;background:linear-gradient(135deg,#1a0040,#0d0820);border:1.5px solid rgba(192,23,13,0.3);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">👤</div>
+          <div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.4);margin-bottom:2px;">Searching by face from photo</div>
+            <div style="font-size:8px;color:rgba(255,255,255,0.2);">Or type a name below</div>
+          </div>
+          <div class="icon-btn" style="margin-left:auto;"><i data-lucide="x"></i></div>
+        </div>
+        <div class="search-bar">
+          <i data-lucide="search"></i>
+          <span class="search-placeholder">Name, handle…</span>
+          <div class="search-img-btn"><i data-lucide="image"></i></div>
+        </div>
+        <div class="search-hint">Face matches · 2 found</div>
+        <div class="sr-list">
+          <div class="sr-item" style="border-color:rgba(192,23,13,0.2);">
+            <div class="sr-av" style="color:rgba(255,255,255,0.7);border:1.5px solid rgba(192,23,13,0.4);">P</div>
+            <div><div class="sr-name">Priya Mehta</div><div class="sr-sub">85% match · last seen 3 days ago</div></div>
+          </div>
+          <div class="sr-item">
+            <div class="sr-av" style="color:rgba(255,255,255,0.7);">A</div>
+            <div><div class="sr-name">Aarav Singh</div><div class="sr-sub">61% match · last seen yesterday</div></div>
+          </div>
+          <div style="font-size:8px;color:rgba(255,255,255,0.15);padding:4px 2px;">All contacts</div>
+          <div class="sr-item" style="opacity:0.4;">
+            <div class="sr-av">R</div>
+            <div><div class="sr-name">Rahul K.</div><div class="sr-sub">Last seen 2 weeks ago</div></div>
+          </div>
+          <div class="sr-new">
+            <i data-lucide="user-plus"></i>
+            <span>Create new contact</span>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="ni on"><i data-lucide="camera"></i><span>Home</span></div>
+          <div class="ni"><i data-lucide="sparkles"></i><span>Moments</span></div>
+          <div class="ni"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+      <div class="flow-note">Face crop seeds search. Results by % confidence. Text search also works. Image icon swaps photo.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     4. MODEL NOT DOWNLOADED
+══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Flow 4 — Intake · no model → Settings → back ready</div>
+  <div class="flow">
+
+    <div class="flow-col">
+      <div class="flow-label">Intake · model missing</div>
+      <div class="phone">
+        <div class="sb"><span>9:41</span><span>●●●</span></div>
+        <div class="topbar" style="padding-top:8px;">
+          <div class="icon-btn"><i data-lucide="x"></i></div>
+          <div class="topbar-title" style="font-size:12px;">Photo</div>
+          <div style="width:28px;"></div>
+        </div>
+        <div class="intake-photo">🌇</div>
+        <div class="intake-body">
+          <div class="intake-card">
+            <div class="model-warn"><i data-lucide="cloud-off"></i><span>Face model not downloaded</span></div>
+            <div class="model-desc">Download in Settings to tag people. Save now and annotate later.</div>
+            <div class="btn-p"><i data-lucide="bookmark-plus"></i>Save as Moment</div>
+            <div class="btn-dl"><i data-lucide="download"></i>Download → Settings</div>
+            <div class="btn-ghost">Discard</div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="ni on"><i data-lucide="camera"></i><span>Home</span></div>
+          <div class="ni"><i data-lucide="sparkles"></i><span>Moments</span></div>
+          <div class="ni"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow">
+      <div class="arr">
+        <div class="arr-line"><div class="arr-shaft"></div><div class="arr-head"></div></div>
+        <div class="arr-label">tap Download</div>
+      </div>
+    </div>
+
+    <div class="flow-col">
+      <div class="flow-label">Settings · downloading</div>
+      <div class="phone">
+        <div class="sb"><span>9:41</span><span>●●●</span></div>
+        <div class="topbar">
+          <div class="icon-btn"><i data-lucide="arrow-left"></i></div>
+          <div class="topbar-title">Settings</div>
+          <div style="width:28px;"></div>
+        </div>
+        <div class="settings-body">
+          <div class="s-label">Face Detection</div>
+          <div class="s-row">
+            <div class="s-icon"><i data-lucide="scan-face"></i></div>
+            <div class="s-name">Face model</div>
+            <div class="s-meta">BlazeFace · 12 MB</div>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-top">
+              <span class="progress-title">Downloading…</span>
+              <span class="progress-pct">62%</span>
+            </div>
+            <div class="progress-bg"><div class="progress-fill"></div></div>
+            <div class="progress-sub">7.4 MB / 12 MB</div>
+          </div>
+          <div class="s-label" style="margin-top:10px;">Security</div>
+          <div class="s-row" style="opacity:0.3;"><div class="s-icon"><i data-lucide="lock"></i></div><div class="s-name">PIN lock</div></div>
+          <div class="s-label">App</div>
+          <div class="s-row" style="opacity:0.3;"><div class="s-icon"><i data-lucide="bell"></i></div><div class="s-name">Notifications</div></div>
+          <div class="s-row" style="opacity:0.3;"><div class="s-icon"><i data-lucide="refresh-cw"></i></div><div class="s-name">App update</div><div class="s-meta" style="margin-left:auto;">v1.2.0</div></div>
+        </div>
+        <div class="nav">
+          <div class="ni on"><i data-lucide="camera"></i><span>Home</span></div>
+          <div class="ni"><i data-lucide="sparkles"></i><span>Moments</span></div>
+          <div class="ni"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow">
+      <div class="arr">
+        <div class="arr-line"><div class="arr-shaft"></div><div class="arr-head"></div></div>
+        <div class="arr-label">done · back</div>
+      </div>
+    </div>
+
+    <div class="flow-col">
+      <div class="flow-label">Intake · model ready</div>
+      <div class="phone">
+        <div class="sb"><span>9:41</span><span>●●●</span></div>
+        <div class="topbar" style="padding-top:8px;">
+          <div class="icon-btn"><i data-lucide="x"></i></div>
+          <div class="topbar-title" style="font-size:12px;">Photo</div>
+          <div style="width:28px;"></div>
+        </div>
+        <div class="intake-photo">🌇</div>
+        <div class="intake-body">
+          <div class="intake-card">
+            <div class="btn-p"><i data-lucide="bookmark-plus"></i>Save as Moment</div>
+            <div class="btn-s"><i data-lucide="user-plus"></i>Add Contact</div>
+            <div class="btn-ghost">Discard</div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="ni on"><i data-lucide="camera"></i><span>Home</span></div>
+          <div class="ni"><i data-lucide="sparkles"></i><span>Moments</span></div>
+          <div class="ni"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+      <div class="flow-note">useFocusEffect re-checks on return. Full action set shown.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     5. VOICE
+══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Flow 5 — Voice mode → recording → Moments</div>
+  <div class="flow">
+
+    <div class="flow-col">
+      <div class="flow-label">Voice · idle</div>
+      <div class="phone">
+        <div class="sb"><span>9:41</span><span>●●●</span></div>
+        <div class="viewfinder" style="align-items:center;justify-content:center;flex-direction:column;gap:10px;">
+          <div style="width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.03);border:1.5px solid rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;">
+            <i data-lucide="mic" style="width:28px;height:28px;stroke:rgba(255,255,255,0.2);"></i>
+          </div>
+          <span style="font-size:9px;color:rgba(255,255,255,0.15);">Tap · hold to push-to-talk</span>
+        </div>
+        <div class="mode-bar">
+          <div class="mode-row">
+            <div class="mode-pill">Photo</div>
+            <div class="mode-pill">Local</div>
+            <div class="mode-pill on">Voice</div>
+            <div class="mode-pill">Contact</div>
+          </div>
+          <div class="capture-row">
+            <div class="thumb-btn">🌄</div>
+            <div class="capture-btn capture-btn-voice"><i data-lucide="mic"></i></div>
+            <div class="scan-btn"><i data-lucide="scan-face"></i></div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="ni on"><i data-lucide="camera"></i><span>Home</span></div>
+          <div class="ni"><i data-lucide="sparkles"></i><span>Moments</span></div>
+          <div class="ni"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow">
+      <div class="arr">
+        <div class="arr-line"><div class="arr-shaft"></div><div class="arr-head"></div></div>
+        <div class="arr-label">tap / hold</div>
+      </div>
+    </div>
+
+    <div class="flow-col">
+      <div class="flow-label">Recording</div>
+      <div class="phone">
+        <div class="sb"><span>9:41</span><span>●●●</span></div>
+        <div class="viewfinder" style="align-items:center;justify-content:center;flex-direction:column;gap:10px;">
+          <div style="width:80px;height:80px;border-radius:50%;background:rgba(192,23,13,0.1);border:1.5px solid rgba(192,23,13,0.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 12px rgba(192,23,13,0.04);">
+            <i data-lucide="mic" style="width:28px;height:28px;stroke:#c0170d;"></i>
+          </div>
+          <div style="display:flex;align-items:center;gap:2px;height:20px;">
+            <div style="width:3px;border-radius:3px;background:rgba(192,23,13,0.6);height:5px;"></div>
+            <div style="width:3px;border-radius:3px;background:rgba(192,23,13,0.6);height:14px;"></div>
+            <div style="width:3px;border-radius:3px;background:rgba(192,23,13,0.6);height:18px;"></div>
+            <div style="width:3px;border-radius:3px;background:rgba(192,23,13,0.6);height:10px;"></div>
+            <div style="width:3px;border-radius:3px;background:rgba(192,23,13,0.6);height:16px;"></div>
+            <div style="width:3px;border-radius:3px;background:rgba(192,23,13,0.6);height:7px;"></div>
+            <div style="width:3px;border-radius:3px;background:rgba(192,23,13,0.6);height:12px;"></div>
+          </div>
+          <span style="font-size:13px;font-weight:800;color:#fff;">0:06</span>
+        </div>
+        <div class="mode-bar">
+          <div class="mode-row">
+            <div class="mode-pill">Photo</div>
+            <div class="mode-pill">Local</div>
+            <div class="mode-pill on">Voice</div>
+            <div class="mode-pill">Contact</div>
+          </div>
+          <div class="capture-row">
+            <div class="thumb-btn">🌄</div>
+            <div style="width:54px;height:54px;border-radius:50%;background:rgba(192,23,13,0.12);border:2px solid #c0170d;display:flex;align-items:center;justify-content:center;">
+              <div style="width:20px;height:20px;border-radius:4px;background:#c0170d;"></div>
+            </div>
+            <div class="scan-btn"><i data-lucide="scan-face"></i></div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="ni on"><i data-lucide="camera"></i><span>Home</span></div>
+          <div class="ni"><i data-lucide="sparkles"></i><span>Moments</span></div>
+          <div class="ni"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+      <div class="flow-note">Square stop. Hold-release auto-stops.</div>
+    </div>
+
+    <div class="arrow">
+      <div class="arr">
+        <div class="arr-line"><div class="arr-shaft"></div><div class="arr-head"></div></div>
+        <div class="arr-label">stop</div>
+      </div>
+    </div>
+
+    <div class="flow-col">
+      <div class="flow-label">Timeline · voice saved</div>
+      <div class="phone phone-auto">
+        <div class="sb"><span>9:41</span><span>●●●</span></div>
+        <div class="topbar">
+          <div class="topbar-title">Moments</div>
+          <div class="layout-toggle">
+            <div class="lt-btn on"><i data-lucide="layout-list"></i></div>
+            <div class="lt-btn"><i data-lucide="map-pin"></i></div>
+          </div>
+        </div>
+        <div class="pivot">
+          <div class="pivot-item on">Timeline</div>
+          <div class="pivot-item">Calendar</div>
+          <div class="pivot-item">Insights</div>
+          <div class="pivot-item">Map</div>
+        </div>
+        <div class="feed-scroll" style="overflow:visible;">
+          <div class="day-chip">Today</div>
+          <div class="mc-outer accent">
+            <div class="mc-header">
+              <div class="mc-avatar blue"><i data-lucide="mic"></i></div>
+              <div class="mc-who">
+                <div class="mc-who-name">Priya, Aarav</div>
+                <div class="mc-who-time">9:42 PM</div>
+              </div>
+            </div>
+            <div class="mc-body">
+              <div class="mc-body-text">"Had dinner with Priya and Aarav tonight at that rooftop place."</div>
+              <div class="mc-body-voice" style="padding-top:0;">
+                <div class="mc-voice-controls">
+                  <div class="mc-play-btn"><i data-lucide="play"></i></div>
+                  <div class="mc-waveform">
+                    <div class="mc-wv" style="width:2px;height:6px;"></div>
+                    <div class="mc-wv" style="width:2px;height:12px;"></div>
+                    <div class="mc-wv" style="width:2px;height:16px;"></div>
+                    <div class="mc-wv" style="width:2px;height:9px;"></div>
+                    <div class="mc-wv" style="width:2px;height:14px;"></div>
+                    <div class="mc-wv" style="width:2px;height:7px;"></div>
+                  </div>
+                  <div class="mc-play-btn"><i data-lucide="pause"></i></div>
+                </div>
+              </div>
+              <div class="mc-see-more">…See More</div>
+            </div>
+            <div class="mc-divider"></div>
+            <div class="mc-footer">
+              <div class="mc-actions">
+                <div class="mc-action-btn"><i data-lucide="heart"></i></div>
+                <div class="mc-action-btn"><i data-lucide="file-text"></i></div>
+                <div class="mc-loc"><i data-lucide="map-pin"></i>Bandra</div>
+                <div class="mc-del"><i data-lucide="x"></i></div>
+              </div>
+              <div class="mc-timestamp">Today · 9:42 PM</div>
+            </div>
+          </div>
+          <div class="day-chip">Yesterday</div>
+          <div class="mc-outer">
+            <div class="mc-header">
+              <div class="mc-avatar"><i data-lucide="user"></i></div>
+              <div class="mc-who">
+                <div class="mc-who-name">Priya Mehta</div>
+                <div class="mc-who-time">8:00 PM – 10:30 PM</div>
+              </div>
+            </div>
+            <div class="mc-body">
+              <div class="mc-body-photos">
+                <div class="mc-photo">🌆</div>
+                <div class="mc-photo">🍛</div>
+              </div>
+            </div>
+            <div class="mc-divider"></div>
+            <div class="mc-footer">
+              <div class="mc-actions">
+                <div class="mc-action-btn"><i data-lucide="heart"></i></div>
+                <div class="mc-action-btn"><i data-lucide="file-text"></i></div>
+                <div class="mc-loc"><i data-lucide="map-pin"></i>Juhu</div>
+                <div class="mc-del"><i data-lucide="x"></i></div>
+              </div>
+              <div class="mc-timestamp">Yesterday · 8:00 – 10:30 PM</div>
+            </div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="ni"><i data-lucide="camera"></i><span>Home</span></div>
+          <div class="ni on"><i data-lucide="sparkles"></i><span>Moments</span></div>
+          <div class="ni"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+      <div class="flow-note">STT → type inference → person extraction → saved with GPS + weather. Level 1 compact card.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     6. CONTACT MODE → PEOPLE
+══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Flow 6 — Contact mode → People tab → Person profile</div>
+  <div class="flow">
+
+    <div class="flow-col">
+      <div class="flow-label">Contact mode</div>
+      <div class="phone phone-tall">
+        <div class="sb"><span>9:41</span><span>●●●</span></div>
+        <div class="contact-body">
+          <div class="cf-title">New Contact</div>
+          <div class="cf-sub">Add manually · NFC + QR coming soon</div>
+          <div class="cf-field active"><i data-lucide="user"></i><span class="v">Priya Mehta</span></div>
+          <div class="cf-field"><i data-lucide="phone"></i><span>Phone number</span></div>
+          <div class="cf-field"><i data-lucide="at-sign"></i><span>Instagram / handle</span></div>
+          <div class="cf-or">— or —</div>
+          <div class="cf-alt"><i data-lucide="wifi"></i><span>Tap NFC · soon</span></div>
+          <div class="cf-alt"><i data-lucide="qr-code"></i><span>Scan QR · soon</span></div>
+          <div style="flex:1;"></div>
+          <div class="btn-p" style="margin-top:8px;"><i data-lucide="user-check"></i>Save Contact</div>
+        </div>
+        <div class="mode-bar">
+          <div class="mode-row">
+            <div class="mode-pill">Photo</div>
+            <div class="mode-pill">Local</div>
+            <div class="mode-pill">Voice</div>
+            <div class="mode-pill on">Contact</div>
+          </div>
+          <div class="capture-row">
+            <div class="thumb-btn">🌄</div>
+            <div class="capture-btn"></div>
+            <div class="scan-btn"><i data-lucide="scan-face"></i></div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="ni on"><i data-lucide="camera"></i><span>Home</span></div>
+          <div class="ni"><i data-lucide="sparkles"></i><span>Moments</span></div>
+          <div class="ni"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow">
+      <div class="arr">
+        <div class="arr-line"><div class="arr-shaft"></div><div class="arr-head"></div></div>
+        <div class="arr-label">Save Contact</div>
+      </div>
+    </div>
+
+    <div class="flow-col">
+      <div class="flow-label">People · grid</div>
+      <div class="phone">
+        <div class="sb"><span>9:41</span><span>●●●</span></div>
+        <div class="topbar">
+          <div class="topbar-title">People</div>
+          <div class="icon-btn"><i data-lucide="search"></i></div>
+        </div>
+        <div class="people-grid">
+          <div class="person-tile" style="border-color:rgba(192,23,13,0.3);">
+            <div class="av glow">P</div>
+            <div class="av-name">Priya</div>
+            <div class="av-seen">just added</div>
+          </div>
+          <div class="person-tile">
+            <div class="av">A</div>
+            <div class="av-name">Aarav</div>
+            <div class="av-seen">2 days ago</div>
+          </div>
+          <div class="person-tile">
+            <div class="av">R</div>
+            <div class="av-name">Rahul</div>
+            <div class="av-seen">2 wks ago</div>
+          </div>
+          <div class="person-tile" style="opacity:0.3;">
+            <div class="av">N</div>
+            <div class="av-name">Neha</div>
+            <div class="av-seen">1 mo ago</div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="ni"><i data-lucide="camera"></i><span>Home</span></div>
+          <div class="ni"><i data-lucide="sparkles"></i><span>Moments</span></div>
+          <div class="ni on"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow">
+      <div class="arr">
+        <div class="arr-line"><div class="arr-shaft"></div><div class="arr-head"></div></div>
+        <div class="arr-label">tap person</div>
+      </div>
+    </div>
+
+    <div class="flow-col">
+      <div class="flow-label">PersonProfileScreen</div>
+      <div class="phone phone-xl">
+        <div class="sb"><span>9:41</span><span>●●●</span></div>
+        <div class="topbar" style="padding-top:8px;">
+          <div class="icon-btn"><i data-lucide="arrow-left"></i></div>
+          <div style="width:28px;"></div>
+        </div>
+        <div class="profile-header">
+          <div class="profile-av">P</div>
+          <div>
+            <div class="profile-name">Priya Mehta</div>
+            <div class="profile-meta">Last seen 3 days ago · Bandra</div>
+            <div class="profile-conf">Face match · 92% confidence</div>
+          </div>
+        </div>
+        <div class="profile-body">
+          <div style="font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.2);">Recent moments</div>
+          <div class="profile-moments">
+            <div class="profile-moment-thumb">🌆</div>
+            <div class="profile-moment-thumb">🍛</div>
+            <div class="profile-moment-thumb">🎉</div>
+            <div class="profile-moment-thumb" style="opacity:0.4;font-size:10px;color:rgba(255,255,255,0.3);">+8</div>
+          </div>
+          <div style="font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.2);">Where we've been</div>
+          <div class="profile-mini-map">
+            <div class="map-grid"></div>
+            <div class="map-pin" style="top:40%;left:40%;width:7px;height:7px;"></div>
+            <div class="map-pin sm" style="top:60%;left:65%;"></div>
+            <div class="map-pin sm" style="top:25%;left:55%;"></div>
+          </div>
+          <div class="profile-stats-row">
+            <div class="profile-stat">
+              <div class="profile-stat-num">14</div>
+              <div class="profile-stat-label">moments together</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-num">3d</div>
+              <div class="profile-stat-label">last seen</div>
+            </div>
+            <div class="profile-stat" style="border-color:rgba(192,23,13,0.15);">
+              <div class="profile-stat-num" style="color:#c0170d;font-size:12px;">Active</div>
+              <div class="profile-stat-label">no drift</div>
+            </div>
+          </div>
+          <div style="font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-top:2px;">Special dates</div>
+          <div class="cal-event-row">
+            <div class="cal-event-dot bday"></div>
+            <div>
+              <div class="cal-event-title">Birthday</div>
+              <div class="cal-event-meta">July 4</div>
+            </div>
+            <div class="cal-event-time" style="color:#a78bfa;">9 days</div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="ni"><i data-lucide="camera"></i><span>Home</span></div>
+          <div class="ni"><i data-lucide="sparkles"></i><span>Moments</span></div>
+          <div class="ni on"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+      <div class="flow-note">Moment history · mini-map of shared places · face confidence · stats · birthdays feed to Calendar.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     7. CALENDAR → MEETUP → EVENT SHOW
+══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Flow 7 — Calendar pivot → create meetup → EventShowScreen (live map + BT)</div>
+  <div class="flow">
+
+    <div class="flow-col">
+      <div class="flow-label">Calendar pivot</div>
+      <div class="phone phone-xl">
+        <div class="sb"><span>9:41</span><span>●●●</span></div>
+        <div class="topbar">
+          <div class="topbar-title">Moments</div>
+          <div class="icon-btn"><i data-lucide="plus"></i></div>
+        </div>
+        <div class="pivot">
+          <div class="pivot-item">Timeline</div>
+          <div class="pivot-item on">Calendar</div>
+          <div class="pivot-item">Insights</div>
+          <div class="pivot-item">Map</div>
+        </div>
+        <div class="cal-body">
+          <div class="cal-month">June 2026</div>
+          <div class="cal-grid">
+            <div class="cal-dow">M</div><div class="cal-dow">T</div><div class="cal-dow">W</div>
+            <div class="cal-dow">T</div><div class="cal-dow">F</div><div class="cal-dow">S</div><div class="cal-dow">S</div>
+            <div class="cal-day"></div><div class="cal-day"></div><div class="cal-day has">3</div>
+            <div class="cal-day">4</div><div class="cal-day has">5</div><div class="cal-day">6</div><div class="cal-day">7</div>
+            <div class="cal-day has">8</div><div class="cal-day">9</div><div class="cal-day">10</div>
+            <div class="cal-day">11</div><div class="cal-day has">12</div><div class="cal-day">13</div><div class="cal-day">14</div>
+            <div class="cal-day">15</div><div class="cal-day has">16</div><div class="cal-day has">17</div>
+            <div class="cal-day has">18</div><div class="cal-day has">19</div><div class="cal-day event">20</div><div class="cal-day">21</div>
+            <div class="cal-day">22</div><div class="cal-day">23</div><div class="cal-day">24</div>
+            <div class="cal-day today">25</div><div class="cal-day">26</div><div class="cal-day">27</div><div class="cal-day">28</div>
+            <div class="cal-day event">29</div><div class="cal-day">30</div>
+          </div>
+          <div class="cal-events-label" style="margin-top:8px;">Upcoming</div>
+          <div class="cal-event-row">
+            <div class="cal-event-dot"></div>
+            <div>
+              <div class="cal-event-title">Rooftop meetup</div>
+              <div class="cal-event-meta">with Priya, Aarav +2</div>
+            </div>
+            <div class="cal-event-time">Jun 29 · 8 PM</div>
+          </div>
+          <div class="cal-event-row">
+            <div class="cal-event-dot bday"></div>
+            <div>
+              <div class="cal-event-title">Priya's birthday</div>
+              <div class="cal-event-meta">annual · from People</div>
+            </div>
+            <div class="cal-event-time">Jul 4</div>
+          </div>
+          <div style="margin-top:4px;">
+            <div class="btn-s" style="gap:6px;"><i data-lucide="plus"></i>Plan a meetup</div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="ni"><i data-lucide="camera"></i><span>Home</span></div>
+          <div class="ni on"><i data-lucide="sparkles"></i><span>Moments</span></div>
+          <div class="ni"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow">
+      <div class="arr">
+        <div class="arr-line"><div class="arr-shaft"></div><div class="arr-head"></div></div>
+        <div class="arr-label">Plan meetup</div>
+      </div>
+    </div>
+
+    <div class="flow-col">
+      <div class="flow-label">Create meetup</div>
+      <div class="phone phone-tall">
+        <div class="sb"><span>9:41</span><span>●●●</span></div>
+        <div class="topbar" style="padding-top:8px;">
+          <div class="icon-btn"><i data-lucide="x"></i></div>
+          <div class="topbar-title" style="font-size:12px;">Plan meetup</div>
+          <div style="width:28px;"></div>
+        </div>
+        <div class="meetup-body">
+          <div class="meetup-field active"><i data-lucide="type"></i><span class="v">Rooftop gathering</span></div>
+          <div class="meetup-field"><i data-lucide="calendar"></i><span class="v">Jun 29 · 8:00 PM</span></div>
+          <div class="meetup-field"><i data-lucide="map-pin"></i><span>Location (optional)</span></div>
+          <div style="font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-top:4px;">People</div>
+          <div class="meetup-people">
+            <div class="meetup-av">P</div>
+            <div class="meetup-av">A</div>
+            <div class="meetup-av">R</div>
+            <div class="meetup-av add"><i data-lucide="plus"></i></div>
+          </div>
+          <div class="meetup-toggle-row">
+            <span class="meetup-toggle-label">Recurring</span>
+            <div class="mini-toggle"><div class="mini-toggle-knob"></div></div>
+          </div>
+          <div class="meetup-toggle-row">
+            <span class="meetup-toggle-label">Share invite link</span>
+            <div class="mini-toggle on"><div class="mini-toggle-knob"></div></div>
+          </div>
+          <div style="flex:1;"></div>
+          <div class="btn-p" style="margin-top:8px;"><i data-lucide="calendar-check"></i>Create meetup</div>
+        </div>
+        <div class="nav">
+          <div class="ni"><i data-lucide="camera"></i><span>Home</span></div>
+          <div class="ni on"><i data-lucide="sparkles"></i><span>Moments</span></div>
+          <div class="ni"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow">
+      <div class="arr">
+        <div class="arr-line"><div class="arr-shaft"></div><div class="arr-head"></div></div>
+        <div class="arr-label">Create</div>
+      </div>
+    </div>
+
+    <div class="flow-col">
+      <div class="flow-label">EventShowScreen (day-of)</div>
+      <div class="phone phone-xl">
+        <div class="sb"><span>9:41</span><span>●●●</span></div>
+        <div class="topbar" style="padding-top:8px;">
+          <div class="icon-btn"><i data-lucide="arrow-left"></i></div>
+          <div style="width:28px;"></div>
+        </div>
+        <div class="event-header">
+          <div class="event-title">Rooftop gathering</div>
+          <div class="event-meta">Tonight · Jun 29 · 8:00 PM · Bandra</div>
+        </div>
+        <div class="event-map">
+          <div class="map-grid"></div>
+          <div class="map-road-h" style="top:50%;"></div>
+          <div class="map-road-v" style="left:45%;"></div>
+          <div class="map-pin" style="top:45%;left:48%;"></div>
+          <div class="map-pin user" style="top:55%;left:38%;width:9px;height:9px;"></div>
+          <div class="map-pin sm" style="top:35%;left:60%;"></div>
+          <div class="map-pin sm" style="top:65%;left:55%;opacity:0.4;"></div>
+        </div>
+        <div class="bt-row">
+          <i data-lucide="bluetooth"></i>
+          <span>Priya nearby · switching to BT proximity</span>
+        </div>
+        <div class="event-who">
+          <div class="event-who-label">Who's coming</div>
+          <div class="event-who-list">
+            <div class="event-who-row">
+              <div class="event-who-av" style="border-color:rgba(74,222,128,0.4);">P</div>
+              <div>
+                <div class="event-who-name">Priya Mehta</div>
+                <div class="event-who-status">150 m away</div>
+              </div>
+              <div class="event-who-badge badge-here">Here</div>
+            </div>
+            <div class="event-who-row">
+              <div class="event-who-av" style="border-color:rgba(251,191,36,0.3);">A</div>
+              <div>
+                <div class="event-who-name">Aarav Singh</div>
+                <div class="event-who-status">En route · 12 min</div>
+              </div>
+              <div class="event-who-badge badge-en-route">En route</div>
+            </div>
+            <div class="event-who-row" style="opacity:0.5;">
+              <div class="event-who-av">R</div>
+              <div>
+                <div class="event-who-name">Rahul K.</div>
+                <div class="event-who-status">No update yet</div>
+              </div>
+              <div class="event-who-badge" style="background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.25);">Invited</div>
+            </div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="ni"><i data-lucide="camera"></i><span>Home</span></div>
+          <div class="ni on"><i data-lucide="sparkles"></i><span>Moments</span></div>
+          <div class="ni"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+      <div class="flow-note">Live GPS map of participants who shared location. BT proximity banner when nearby. "Who's here" updates in real-time.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     8. INSIGHTS + MAP PIVOTS
+══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Screen — Moments pivots: Insights · Map</div>
+  <div class="flow">
+
+    <div class="flow-col">
+      <div class="flow-label">Insights pivot</div>
+      <div class="phone phone-xl">
+        <div class="sb"><span>9:41</span><span>●●●</span></div>
+        <div class="topbar">
+          <div class="topbar-title">Moments</div>
+          <div class="layout-toggle">
+            <div class="lt-btn on"><i data-lucide="layout-list"></i></div>
+            <div class="lt-btn"><i data-lucide="map-pin"></i></div>
+          </div>
+        </div>
+        <div class="pivot">
+          <div class="pivot-item">Timeline</div>
+          <div class="pivot-item">Calendar</div>
+          <div class="pivot-item on">Insights</div>
+          <div class="pivot-item">Map</div>
+        </div>
+        <div class="insights">
+          <div class="streak-card">
+            <div class="streak-num">12</div>
+            <div>
+              <div class="streak-label">day streak</div>
+              <div class="streak-sub">Social · solo streak: 8d</div>
+            </div>
+          </div>
+          <div class="hm-label">Last 28 days</div>
+          <div class="heatmap">
+            <div class="hm hm1"></div><div class="hm hm2"></div><div class="hm hm3"></div><div class="hm hm2"></div>
+            <div class="hm"></div><div class="hm hm1"></div><div class="hm hm2"></div><div class="hm hm3"></div>
+            <div class="hm hm1"></div><div class="hm hm3"></div><div class="hm hm2"></div><div class="hm hm1"></div>
+            <div class="hm hm3"></div><div class="hm hm2"></div><div class="hm hm3"></div><div class="hm hm3"></div>
+            <div class="hm hm2"></div><div class="hm hm1"></div><div class="hm hm3"></div><div class="hm hm2"></div>
+            <div class="hm hm3"></div><div class="hm hm1"></div><div class="hm hm2"></div><div class="hm hm3"></div>
+            <div class="hm hm3"></div><div class="hm hm2"></div><div class="hm hm3"></div><div class="hm hm3"></div>
+          </div>
+          <div class="hm-label" style="margin-top:4px;">People frequency · 90 days</div>
+          <div class="freq-bar-row"><div class="freq-av">P</div><div class="freq-bar-bg"><div class="freq-bar-fill" style="width:82%;"></div></div><div class="freq-count">14×</div></div>
+          <div class="freq-bar-row"><div class="freq-av">A</div><div class="freq-bar-bg"><div class="freq-bar-fill" style="width:55%;"></div></div><div class="freq-count">9×</div></div>
+          <div class="freq-bar-row" style="opacity:0.5;"><div class="freq-av">R</div><div class="freq-bar-bg"><div class="freq-bar-fill" style="width:18%;background:rgba(192,23,13,0.3);"></div></div><div class="freq-count">3×</div></div>
+          <div class="hm-label" style="margin-top:4px;">Drift alerts · &gt;21 days</div>
+          <div class="drift-row">
+            <div class="drift-av">R</div>
+            <div><div class="drift-name">Rahul K.</div><div class="drift-meta">42 days</div></div>
+            <div class="drift-badge">42d</div>
+          </div>
+          <div class="drift-row" style="opacity:0.55;">
+            <div class="drift-av">N</div>
+            <div><div class="drift-name">Neha S.</div><div class="drift-meta">28 days</div></div>
+            <div class="drift-badge">28d</div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="ni"><i data-lucide="camera"></i><span>Home</span></div>
+          <div class="ni on"><i data-lucide="sparkles"></i><span>Moments</span></div>
+          <div class="ni"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+      <div class="flow-note">Streak (social + solo) · 28-day heatmap · people frequency bars (90d) · drift alerts. Places section below (not shown).</div>
+    </div>
+
+    <div style="width:32px;flex-shrink:0;"></div>
+
+    <div class="flow-col">
+      <div class="flow-label">Map pivot (inside Moments)</div>
+      <div class="phone phone-tall">
+        <div class="sb"><span>9:41</span><span>●●●</span></div>
+        <div class="topbar">
+          <div class="topbar-title">Moments</div>
+          <div class="layout-toggle">
+            <div class="lt-btn"><i data-lucide="layout-list"></i></div>
+            <div class="lt-btn on"><i data-lucide="map-pin"></i></div>
+          </div>
+        </div>
+        <div class="pivot">
+          <div class="pivot-item">Timeline</div>
+          <div class="pivot-item">Calendar</div>
+          <div class="pivot-item">Insights</div>
+          <div class="pivot-item on">Map</div>
+        </div>
+        <div class="map-view">
+          <div class="map-grid"></div>
+          <div class="map-road-h" style="top:40%;"></div>
+          <div class="map-road-h" style="top:65%;"></div>
+          <div class="map-road-v" style="left:35%;"></div>
+          <div class="map-road-v" style="left:68%;"></div>
+          <div class="map-pin" style="top:35%;left:52%;"></div>
+          <div class="map-pin" style="top:55%;left:30%;"></div>
+          <div class="map-pin sm" style="top:28%;left:70%;"></div>
+          <div class="map-pin sm" style="top:60%;left:65%;"></div>
+          <div class="map-pin sm" style="top:70%;left:45%;"></div>
+          <div class="map-card">
+            <div class="map-card-title">Dinner with Priya · Juhu</div>
+            <div class="map-card-meta">Yesterday · 8:30 PM · 28°C</div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="ni"><i data-lucide="camera"></i><span>Home</span></div>
+          <div class="ni on"><i data-lucide="sparkles"></i><span>Moments</span></div>
+          <div class="ni"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+      <div class="flow-note">OSM tiles. All moment pins. Tap pin → moment card slide-up. Filter by person. Layout toggle switches list ↔ map.</div>
+    </div>
+
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

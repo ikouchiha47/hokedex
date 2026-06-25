@@ -4,6 +4,7 @@ import { runDataMigrations } from './migrations/data-runner';
 import { backfillEncounters } from './data-migrations/001_backfill_encounters';
 import { backfillMoments } from './data-migrations/001_backfill_moments';
 import { updateCategoryThresholds } from './queries/categories';
+import { CATEGORY_ID } from '../constants';
 
 // Calibrated for MobileFaceNet/ArcFace 512-dim cosine similarity.
 // Different photos of same person typically score 0.40–0.75.
@@ -43,7 +44,7 @@ export async function initDatabase(collectionRoot: string): Promise<DB> {
   runMigrations(db);
 
   // Always sync thresholds from code so we can tune without a schema migration.
-  updateCategoryThresholds(db, 'people', THRESHOLDS.likely, THRESHOLDS.possible);
+  updateCategoryThresholds(db, CATEGORY_ID.PEOPLE, THRESHOLDS.likely, THRESHOLDS.possible);
 
   // Data migrations — run after schema is ready, process existing rows in batches
   runDataMigrations(db, [backfillEncounters, backfillMoments]);

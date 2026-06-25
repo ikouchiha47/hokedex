@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>hokédex — Palette & Design Language Explorations</title>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #050507;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', sans-serif;
+  color: #fff;
+  padding: 64px 56px 140px;
+}
+.page-title { font-size: 34px; font-weight: 900; letter-spacing: -0.035em; margin-bottom: 6px; }
+.page-sub { font-size: 13px; color: rgba(255,255,255,0.34); margin-bottom: 12px; line-height: 1.6; }
+.page-thesis {
+  font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.7;
+  max-width: 680px; margin-bottom: 80px;
+  padding: 16px 20px; border-left: 2px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.02); border-radius: 0 10px 10px 0;
+}
+
+.pal-section { margin-bottom: 100px; }
+.pal-header { margin-bottom: 32px; }
+.pal-name { font-size: 22px; font-weight: 900; letter-spacing: -0.02em; margin-bottom: 4px; }
+.pal-tag { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 12px; }
+.pal-philosophy { font-size: 12px; line-height: 1.7; max-width: 620px; }
+
+.swatches { display: flex; gap: 0; margin-bottom: 32px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06); }
+.sw { flex: 1; padding: 14px 10px; display: flex; flex-direction: column; gap: 4px; min-height: 80px; }
+.sw-name { font-size: 8px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+.sw-hex { font-size: 8px; font-weight: 600; opacity: 0.7; font-family: 'SF Mono', monospace; }
+.sw-use { font-size: 7px; opacity: 0.55; line-height: 1.4; margin-top: auto; }
+
+.showcase-row { display: flex; gap: 28px; flex-wrap: wrap; align-items: flex-start; }
+.showcase-col { display: flex; flex-direction: column; gap: 10px; }
+.showcase-label { font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.3); }
+
+/* Phone shell — reused across all palettes, but inner styles are scoped */
+.phone-shell {
+  width: 252px; height: 540px; border-radius: 42px; overflow: hidden;
+  display: flex; flex-direction: column; position: relative; flex-shrink: 0;
+  box-shadow: 0 30px 60px -20px rgba(0,0,0,0.7);
+}
+
+/* Card shell — reused */
+.card-shell { width: 252px; border-radius: 16px; overflow: hidden; }
+
+.lang-notes { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; max-width: 520px; }
+.lang-note { display: flex; align-items: flex-start; gap: 8px; font-size: 10px; line-height: 1.6; color: rgba(255,255,255,0.4); }
+.lang-note .k { font-weight: 800; color: rgba(255,255,255,0.6); flex-shrink: 0; min-width: 70px; }
+
+/* ── Status bar + nav (shared, neutral) ── */
+.sb-n { display: flex; justify-content: space-between; align-items: center; padding: 11px 20px 0; font-size: 8.5px; font-weight: 700; flex-shrink: 0; z-index: 10; }
+.sb-n-r { display: flex; align-items: center; gap: 3px; }
+.sb-n-r i { width: 9px; height: 9px; }
+
+/* ═══════════════════════════════════════════════════════
+   PALETTE 1 — AURORA (current, refined)
+   ═══════════════════════════════════════════════════════ */
+.pal-aurora { --bg:#0a0a12; --surface:#11111c; --surface-2:#161624; --line:rgba(255,255,255,0.07); --line-2:rgba(255,255,255,0.13); --text:#fff; --mute:rgba(255,255,255,0.6); --dim:rgba(255,255,255,0.34); --faint:rgba(255,255,255,0.19); --violet:#8b5cf6; --magenta:#ec4899; --cyan:#22d3ee; --amber:#fbbf24; --emerald:#34d399; --rose:#f43f5e; --primary:linear-gradient(135deg,#8b5cf6,#ec4899); --primary-solid:#8b5cf6; }
+.pal-aurora .pal-name { background: var(--primary); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.pal-aurora .pal-tag { color: var(--violet); }
+
+/* ═══════════════════════════════════════════════════════
+   PALETTE 2 — FILM LAB (analog archive)
+   ═══════════════════════════════════════════════════════ */
+.pal-film { --bg:#1a1612; --surface:#221d18; --surface-2:#2a2420; --line:rgba(245,236,217,0.08); --line-2:rgba(245,236,217,0.15); --text:#f5ecd9; --mute:rgba(245,236,217,0.6); --dim:rgba(245,236,217,0.35); --faint:rgba(245,236,217,0.2); --orange:#d97706; --forest:#2d5a3d; --gold:#c9a96e; --rust:#b45309; --cream:#f5ecd9; --primary:linear-gradient(135deg,#d97706,#c9a96e); --primary-solid:#d97706; }
+.pal-film .pal-name { color: var(--gold); }
+.pal-film .pal-tag { color: var(--orange); }
+.pal-film .phone-shell { border: 1.5px solid var(--line-2); }
+.pal-film .sb-n, .pal-film .nav-n { color: rgba(245,236,217,0.35); }
+
+/* ═══════════════════════════════════════════════════════
+   PALETTE 3 — MIDNIGHT INK (quiet observatory)
+   ═══════════════════════════════════════════════════════ */
+.pal-ink { --bg:#0a0e1a; --surface:#0f1525; --surface-2:#141d33; --line:rgba(148,163,184,0.08); --line-2:rgba(148,163,184,0.16); --text:#e2e8f0; --mute:#94a3b8; --dim:#64748b; --faint:#475569; --cyan:#06b6d4; --slate:#94a3b8; --primary:linear-gradient(135deg,#06b6d4,#0891b2); --primary-solid:#06b6d4; }
+.pal-ink .pal-name { color: var(--cyan); font-weight: 300; letter-spacing: -0.01em; }
+.pal-ink .pal-tag { color: var(--slate); }
+.pal-ink .phone-shell { border: 1px solid var(--line-2); border-radius: 36px; }
+
+/* ═══════════════════════════════════════════════════════
+   PALETTE 4 — SUNBLEACHED (light daytime journal)
+   ═══════════════════════════════════════════════════════ */
+.pal-sun { --bg:#faf6f0; --surface:#fff; --surface-2:#f5f0e8; --line:rgba(28,25,23,0.08); --line-2:rgba(28,25,23,0.14); --text:#1c1917; --mute:#57534e; --dim:#a8a29e; --faint:#d6d3d1; --coral:#f87171; --sage:#65a30d; --rose:#e879f9; --sky:#38bdf8; --amber:#d97706; --primary:linear-gradient(135deg,#f87171,#fb923c); --primary-solid:#f87171; }
+.pal-sun .pal-name { color: var(--coral); }
+.pal-sun .pal-tag { color: var(--sage); }
+.pal-sun .phone-shell { border: 1.5px solid var(--line-2); box-shadow: 0 20px 50px -15px rgba(28,25,23,0.15); }
+
+/* ═══════════════════════════════════════════════════════
+   PALETTE 5 — NEON DARKROOM (camera cyberpunk)
+   ═══════════════════════════════════════════════════════ */
+.pal-neon { --bg:#000; --surface:#0a0a0a; --surface-2:#141414; --line:rgba(255,255,255,0.06); --line-2:rgba(255,255,255,0.12); --text:#fff; --mute:rgba(255,255,255,0.5); --dim:rgba(255,255,255,0.3); --faint:rgba(255,255,255,0.15); --lime:#a3e635; --pink:#ec4899; --cyan:#22d3ee; --primary:linear-gradient(135deg,#a3e635,#22d3ee); --primary-solid:#a3e635; }
+.pal-neon .pal-name { color: var(--lime); }
+.pal-neon .pal-tag { color: var(--pink); }
+.pal-neon .phone-shell { border: 1px solid rgba(163,230,53,0.15); border-radius: 42px; }
+
+/* ── shared mockup internals (scoped by palette vars) ── */
+.vf-mock { flex: 1; position: relative; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; background: var(--bg); }
+.vf-facebox { position: absolute; width: 72px; height: 72px; border-radius: 8px; top: 36%; left: 50%; transform: translate(-50%, -50%); border: 1.5px solid var(--primary-solid); }
+.vf-facebox::before, .vf-facebox::after, .vf-facebox .c1, .vf-facebox .c2 { content:''; position:absolute; width:10px; height:10px; }
+.vf-facebox::before { top:-1px; left:-1px; border-top:2px solid var(--primary-solid); border-left:2px solid var(--primary-solid); border-radius:2px 0 0 0; }
+.vf-facebox::after { top:-1px; right:-1px; border-top:2px solid var(--primary-solid); border-right:2px solid var(--primary-solid); border-radius:0 2px 0 0; }
+.vf-facebox .c1 { bottom:-1px; left:-1px; border-bottom:2px solid var(--primary-solid); border-left:2px solid var(--primary-solid); border-radius:0 0 0 2px; }
+.vf-facebox .c2 { bottom:-1px; right:-1px; border-bottom:2px solid var(--primary-solid); border-right:2px solid var(--primary-solid); border-radius:0 0 2px 0; }
+.vf-recog-chip {
+  position: absolute; top: calc(36% - 48px); left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 5px; padding: 4px 10px 4px 5px; border-radius: 16px;
+  background: var(--surface); border: 1px solid var(--line-2);
+  font-size: 8px; font-weight: 700; color: var(--text); white-space: nowrap;
+}
+.vf-recog-chip .av { width: 16px; height: 16px; border-radius: 50%; background: var(--primary); display:flex;align-items:center;justify-content:center; font-size: 7px; font-weight: 800; color: #fff; }
+.vf-recog-chip .check { width: 10px; height: 10px; border-radius: 50%; background: var(--primary-solid); display:flex;align-items:center;justify-content:center; }
+.vf-recog-chip .check i { width: 7px; height: 7px; stroke: #fff; }
+.vf-edge { position: absolute; font-size: 7px; font-weight: 700; color: var(--dim); display: flex; align-items: center; gap: 3px; }
+.vf-edge i { width: 11px; height: 11px; stroke: var(--dim); }
+.vf-edge-tl { top: 12px; left: 14px; }
+.vf-edge-tr { top: 12px; right: 14px; }
+.vf-edge-bl { bottom: 12px; left: 14px; }
+
+.shutter-bar { flex-shrink: 0; padding: 12px 20px 16px; display: flex; align-items: center; justify-content: space-around; background: var(--surface); border-top: 1px solid var(--line); }
+.shutter { width: 54px; height: 54px; border-radius: 50%; background: #fff; border: 3px solid rgba(255,255,255,0.2); box-shadow: 0 0 0 3px rgba(255,255,255,0.05); }
+.shutter-edge { width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid var(--line-2); display: flex; align-items: center; justify-content: center; background: var(--surface-2); }
+.shutter-edge i { width: 14px; height: 14px; stroke: var(--mute); }
+.mode-switch { position: absolute; bottom: 76px; left: 50%; transform: translateX(-50%); display: flex; gap: 14px; font-size: 8px; font-weight: 700; color: var(--dim); }
+.mode-switch .on { color: var(--text); }
+
+.nav-n { height: 50px; display: flex; align-items: center; justify-content: space-around; flex-shrink: 0; border-top: 1px solid var(--line); background: var(--surface); }
+.nav-n-i { display: flex; flex-direction: column; align-items: center; gap: 2px; opacity: 0.35; flex: 1; }
+.nav-n-i.on { opacity: 1; }
+.nav-n-i i { width: 17px; height: 17px; }
+.nav-n-i.on i { stroke: var(--primary-solid); }
+.nav-n-i span { font-size: 7px; color: var(--dim); }
+.nav-n-i.on span { color: var(--primary-solid); }
+
+/* card mock internals */
+.mc-mock { background: var(--surface-2); border: 1px solid var(--line); }
+.mc-mock-h { display: flex; align-items: center; gap: 8px; padding: 9px 11px 7px; }
+.mc-mock-av { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--line-2); background: var(--surface); display:flex;align-items:center;justify-content:center; flex-shrink: 0; }
+.mc-mock-av i { width: 13px; height: 13px; stroke: var(--mute); }
+.mc-mock-who { flex: 1; min-width: 0; }
+.mc-mock-name { font-size: 9.5px; font-weight: 700; color: var(--mute); }
+.mc-mock-time { font-size: 7px; color: var(--faint); margin-top: 1px; }
+.mc-mock-body { margin: 0 8px 6px; border: 1px solid var(--line-2); border-radius: 9px; overflow: hidden; }
+.mc-mock-photos { display: flex; height: 70px; }
+.mc-mock-ph { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 20px; border-right: 1px solid rgba(0,0,0,0.3); }
+.mc-mock-ph:last-child { border-right: none; }
+.mc-mock-text { padding: 7px 10px; font-size: 8.5px; color: var(--mute); line-height: 1.45; }
+.mc-mock-chips { display: flex; gap: 3px; padding: 0 10px 8px; flex-wrap: wrap; }
+.mc-mock-chip { font-size: 7px; font-weight: 700; padding: 2px 6px; border-radius: 5px; background: var(--surface); color: var(--dim); border: 1px solid var(--line); }
+.mc-mock-ft { padding: 6px 10px 8px; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 5px; }
+.mc-mock-ft i { width: 9px; height: 9px; stroke: var(--faint); }
+.mc-mock-ft .loc { font-size: 7px; color: var(--faint); display: flex; align-items: center; gap: 2px; }
+.mc-mock-ft .del { margin-left: auto; }
+</style>
+</head>
+<body>
+
+<div class="page-title">hokédex — Palette &amp; Design Language</div>
+<div class="page-sub">5 directions · camera-first angle · private people-media</div>
+<div class="page-thesis">
+  <strong>The camera-app angle:</strong> the camera IS home — not a mode inside home. Capture is one tap, face-tagging is silent, the "roll" replaces the feed, memories develop like film. The app should feel like a camera with a built-in journal, not a journal with a camera button. Every palette below renders the same two screens — the camera-first home, and one moment card — so you can compare the <em>feel</em>, not just the hex values.
+</div>
+
+<!-- ════════════ 1 — AURORA ════════════ -->
+<div class="pal-section pal-aurora">
+  <div class="pal-header">
+    <div class="pal-name">1 · Aurora</div>
+    <div class="pal-tag">Social energy · current, refined</div>
+    <div class="pal-philosophy" style="color:var(--mute)">
+      The current direction, tightened. Aurora gradient (violet→magenta) is the brand. Dark void base with radial glows so it's never flat black. Feels social, energetic, modern — like a nightlife moment. Best if the app leans into the "social energy" of seeing people often.
+    </div>
+  </div>
+
+  <div class="swatches">
+    <div class="sw" style="background:#0a0a12;color:#fff"><div class="sw-name">Void</div><div class="sw-hex">#0a0a12</div><div class="sw-use">Base bg + radial glows</div></div>
+    <div class="sw" style="background:linear-gradient(135deg,#8b5cf6,#ec4899);color:#fff"><div class="sw-name">Aurora</div><div class="sw-hex">#8b5cf6→#ec4899</div><div class="sw-use">Primary · CTAs · active tab</div></div>
+    <div class="sw" style="background:#22d3ee;color:#000"><div class="sw-name">Cyan</div><div class="sw-hex">#22d3ee</div><div class="sw-use">Map · info · notes</div></div>
+    <div class="sw" style="background:#fbbf24;color:#000"><div class="sw-name">Amber</div><div class="sw-hex">#fbbf24</div><div class="sw-use">Planned · countdown · L4</div></div>
+    <div class="sw" style="background:#34d399;color:#000"><div class="sw-name">Emerald</div><div class="sw-hex">#34d399</div><div class="sw-use">Streaks · healthy · "here"</div></div>
+    <div class="sw" style="background:#f43f5e;color:#fff"><div class="sw-name">Rose</div><div class="sw-hex">#f43f5e</div><div class="sw-use">Voice · drift · delete</div></div>
+  </div>
+
+  <div class="showcase-row">
+    <div class="showcase-col">
+      <div class="showcase-label">Camera-first home</div>
+      <div class="phone-shell" style="background:var(--bg);border:1.5px solid var(--line-2)">
+        <div class="sb-n" style="color:rgba(255,255,255,0.35)"><span>9:41</span><div class="sb-n-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="vf-mock" style="background:radial-gradient(circle at 50% 38%,rgba(139,92,246,0.12),transparent 60%),#050509">
+          <div class="vf-edge vf-edge-tl"><i data-lucide="zap"></i>Auto</div>
+          <div class="vf-edge vf-edge-tr"><i data-lucide="map-pin"></i>Hackney</div>
+          <div class="vf-recog-chip"><div class="av">M</div>Maya<div class="check"><i data-lucide="check"></i></div></div>
+          <div class="vf-facebox"><span class="c1"></span><span class="c2"></span></div>
+          <div class="mode-switch"><span>Roll</span><span class="on">Capture</span><span>Voice</span></div>
+        </div>
+        <div class="shutter-bar">
+          <div class="shutter-edge"><i data-lucide="image"></i></div>
+          <div class="shutter"></div>
+          <div class="shutter-edge"><i data-lucide="scan-face"></i></div>
+        </div>
+        <div class="nav-n" style="color:rgba(255,255,255,0.35)">
+          <div class="nav-n-i on"><i data-lucide="camera"></i><span>Camera</span></div>
+          <div class="nav-n-i"><i data-lucide="layers"></i><span>Roll</span></div>
+          <div class="nav-n-i"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="showcase-col">
+      <div class="showcase-label">Moment card · L2</div>
+      <div class="card-shell mc-mock" style="border-color:rgba(139,92,246,0.3)">
+        <div class="mc-mock-h">
+          <div class="mc-mock-av" style="border-color:rgba(139,92,246,0.55);background:rgba(139,92,246,0.08)"><i data-lucide="users" style="stroke:#8b5cf6"></i></div>
+          <div class="mc-mock-who"><div class="mc-mock-name">Lunch with Dev &amp; Sam</div><div class="mc-mock-time">Today · 12:40 PM</div></div>
+        </div>
+        <div class="mc-mock-body" style="border-color:rgba(139,92,246,0.3);background:rgba(139,92,246,0.035)">
+          <div class="mc-mock-photos">
+            <div class="mc-mock-ph" style="background:linear-gradient(135deg,#1a1030,#2a1248)">🍱</div>
+            <div class="mc-mock-ph" style="background:linear-gradient(135deg,#0d1a30,#142448)">🍵</div>
+            <div class="mc-mock-ph" style="background:rgba(0,0,0,0.6);font-size:10px;font-weight:800;color:rgba(255,255,255,0.5)">+1</div>
+          </div>
+          <div class="mc-mock-text">Tried the new ramen place. Dev ruined his shirt.</div>
+        </div>
+        <div class="mc-mock-chips">
+          <span class="mc-mock-chip" style="color:#8b5cf6;border-color:rgba(139,92,246,0.25);background:rgba(139,92,246,0.08)">dev</span>
+          <span class="mc-mock-chip" style="color:#8b5cf6;border-color:rgba(139,92,246,0.25);background:rgba(139,92,246,0.08)">sam</span>
+          <span class="mc-mock-chip">food</span>
+        </div>
+        <div class="mc-mock-ft">
+          <i data-lucide="plus"></i><i data-lucide="tag"></i>
+          <span class="loc"><i data-lucide="map-pin"></i>Koya · Soho</span>
+          <span class="del"><i data-lucide="trash-2" style="stroke:rgba(244,63,94,0.45)"></i></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lang-notes">
+    <div class="lang-note"><span class="k">Typography</span> SF Pro / Inter, 900-weight headers, -0.035em tracking</div>
+    <div class="lang-note"><span class="k">Borders</span> 16px radius, 1px lines, aurora gradient ring on featured cards</div>
+    <div class="lang-note"><span class="k">Motion</span> Scan-line animation on viewfinder, pulsing glow on active elements</div>
+    <div class="lang-note"><span class="k">Camera UX</span> Face box = violet, recognized-person chip floats above face box with ✓ auto-confirm</div>
+  </div>
+</div>
+
+<!-- ════════════ 2 — FILM LAB ════════════ -->
+<div class="pal-section pal-film">
+  <div class="pal-header">
+    <div class="pal-name">2 · Film Lab</div>
+    <div class="pal-tag">Analog archive · contact-sheet aesthetic</div>
+    <div class="pal-philosophy" style="color:var(--mute)">
+      Warm charcoal base, cream text, burnt orange + faded gold. The camera-app angle gets literal: moments are "exposures," the roll is a contact sheet, memories "develop" on a 24h delay (Dispo-style). Serif headers + monospace dates. No gradients — flat warm tones, thin borders, paper-grain texture. Feels like a darkroom journal. Best for the "private archive" soul of the app.
+    </div>
+  </div>
+
+  <div class="swatches">
+    <div class="sw" style="background:#1a1612;color:#f5ecd9"><div class="sw-name">Charcoal</div><div class="sw-hex">#1a1612</div><div class="sw-use">Base — warm dark</div></div>
+    <div class="sw" style="background:#d97706;color:#fff"><div class="sw-name">Burnt orange</div><div class="sw-hex">#d97706</div><div class="sw-use">Primary · capture · face box</div></div>
+    <div class="sw" style="background:#2d5a3d;color:#f5ecd9"><div class="sw-name">Forest</div><div class="sw-hex">#2d5a3d</div><div class="sw-use">Healthy · confirmed · "here"</div></div>
+    <div class="sw" style="background:#c9a96e;color:#1a1612"><div class="sw-name">Faded gold</div><div class="sw-hex">#c9a96e</div><div class="sw-use">Memories · highlights · L4</div></div>
+    <div class="sw" style="background:#b45309;color:#fff"><div class="sw-name">Rust</div><div class="sw-hex">#b45309</div><div class="sw-use">Drift · planned · warnings</div></div>
+    <div class="sw" style="background:#f5ecd9;color:#1a1612"><div class="sw-name">Cream</div><div class="sw-hex">#f5ecd9</div><div class="sw-use">Text · shutter button</div></div>
+  </div>
+
+  <div class="showcase-row">
+    <div class="showcase-col">
+      <div class="showcase-label">Camera-first home</div>
+      <div class="phone-shell" style="background:var(--bg)">
+        <div class="sb-n" style="color:rgba(245,236,217,0.35)"><span>9:41</span><div class="sb-n-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="vf-mock" style="background:#1a1612">
+          <!-- film frame border -->
+          <div style="position:absolute;inset:8px;border:1px solid rgba(245,236,217,0.08);border-radius:4px;pointer-events:none"></div>
+          <div class="vf-edge vf-edge-tl" style="color:rgba(245,236,217,0.3)"><i data-lucide="aperture"></i>f/1.8</div>
+          <div class="vf-edge vf-edge-tr" style="color:rgba(245,236,217,0.3)"><i data-lucide="map-pin"></i>Hackney</div>
+          <div class="vf-edge vf-edge-bl" style="color:rgba(201,169,110,0.5);font-family:monospace">EXP · 1247</div>
+          <div class="vf-recog-chip" style="background:#221d18;border-color:rgba(201,169,110,0.3)"><div class="av" style="background:#c9a96e;color:#1a1612">M</div><span style="color:#f5ecd9">Maya</span><div class="check" style="background:#2d5a3d"><i data-lucide="check"></i></div></div>
+          <div class="vf-facebox" style="border-color:#d97706"><span class="c1" style="border-color:#d97706"></span><span class="c2" style="border-color:#d97706"></span></div>
+          <div class="mode-switch"><span>Roll</span><span class="on" style="color:#c9a96e">Capture</span><span>Voice</span></div>
+        </div>
+        <div class="shutter-bar" style="background:#1a1612;border-color:rgba(245,236,217,0.08)">
+          <div class="shutter-edge" style="background:#2a2420;border-color:rgba(245,236,217,0.1)"><i data-lucide="image" style="stroke:#f5ecd9"></i></div>
+          <div class="shutter" style="background:#f5ecd9;border-color:rgba(245,236,217,0.2)"></div>
+          <div class="shutter-edge" style="background:#2a2420;border-color:rgba(245,236,217,0.1)"><i data-lucide="scan-face" style="stroke:#f5ecd9"></i></div>
+        </div>
+        <div class="nav-n" style="background:#1a1612;color:rgba(245,236,217,0.35);border-color:rgba(245,236,217,0.08)">
+          <div class="nav-n-i on"><i data-lucide="camera" style="stroke:#d97706"></i><span style="color:#d97706">Camera</span></div>
+          <div class="nav-n-i"><i data-lucide="film"></i><span>Roll</span></div>
+          <div class="nav-n-i"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="showcase-col">
+      <div class="showcase-label">Moment card · L2</div>
+      <div class="card-shell mc-mock" style="background:#221d18;border-color:rgba(245,236,217,0.08);border-radius:10px">
+        <div class="mc-mock-h">
+          <div class="mc-mock-av" style="border-color:rgba(217,119,6,0.5);background:rgba(217,119,6,0.08)"><i data-lucide="users" style="stroke:#d97706"></i></div>
+          <div class="mc-mock-who"><div class="mc-mock-name" style="color:#f5ecd9">Lunch with Dev &amp; Sam</div><div class="mc-mock-time" style="font-family:monospace">12:40 · THU 25 JUN</div></div>
+        </div>
+        <div class="mc-mock-body" style="border-color:rgba(217,119,6,0.3);background:rgba(217,119,6,0.04);border-radius:8px">
+          <div class="mc-mock-photos">
+            <div class="mc-mock-ph" style="background:linear-gradient(135deg,#2a1f15,#3a2a18)">🍱</div>
+            <div class="mc-mock-ph" style="background:linear-gradient(135deg,#1a2015,#252a18)">🍵</div>
+            <div class="mc-mock-ph" style="background:rgba(0,0,0,0.5);font-size:10px;font-weight:800;color:rgba(245,236,217,0.5)">+1</div>
+          </div>
+          <div class="mc-mock-text" style="color:rgba(245,236,217,0.6)">Tried the new ramen place. Dev ruined his shirt.</div>
+        </div>
+        <div class="mc-mock-chips">
+          <span class="mc-mock-chip" style="color:#d97706;border-color:rgba(217,119,6,0.25);background:rgba(217,119,6,0.08)">dev</span>
+          <span class="mc-mock-chip" style="color:#d97706;border-color:rgba(217,119,6,0.25);background:rgba(217,119,6,0.08)">sam</span>
+          <span class="mc-mock-chip" style="color:rgba(245,236,217,0.4)">food</span>
+        </div>
+        <div class="mc-mock-ft" style="border-color:rgba(245,236,217,0.08)">
+          <i data-lucide="plus" style="stroke:rgba(245,236,217,0.3)"></i><i data-lucide="tag" style="stroke:rgba(245,236,217,0.3)"></i>
+          <span class="loc" style="color:rgba(245,236,217,0.3)"><i data-lucide="map-pin"></i>Koya · Soho</span>
+          <span class="del"><i data-lucide="trash-2" style="stroke:rgba(180,83,9,0.5)"></i></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lang-notes">
+    <div class="lang-note"><span class="k">Typography</span> Serif headers (Georgia/Iowan), monospace for dates/timestamps, sans body</div>
+    <div class="lang-note"><span class="k">Borders</span> 8–10px radius (sharper than Aurora), 1px warm-tinted lines, no gradients</div>
+    <div class="lang-note"><span class="k">Motion</span> No scan animation. Shutter = haptic + cream flash. Memories "develop" — blurred for 24h, sharp after</div>
+    <div class="lang-note"><span class="k">Camera UX</span> Film-frame border on viewfinder, exposure counter (EXP · 1247), face box = burnt orange, cream shutter button</div>
+    <div class="lang-note"><span class="k">Soul</span> "This is your private darkroom. Every exposure is a moment with someone. Some develop later."</div>
+  </div>
+</div>
+
+<!-- ════════════ 3 — MIDNIGHT INK ════════════ -->
+<div class="pal-section pal-ink">
+  <div class="pal-header">
+    <div class="pal-name">3 · Midnight Ink</div>
+    <div class="pal-tag">Quiet observatory · introspective</div>
+    <div class="pal-philosophy" style="color:var(--mute)">
+      Deep indigo-black, silver text, a single electric cyan accent used sparingly. No gradients, no glows, no scan animations. Sharp 4px corners. Thin 1px lines. Generous whitespace. Feels like a personal logbook or a quiet observatory — the app for someone who wants to notice patterns in their relationships without the app shouting about it. Best for the "drift" / "streak" / introspection soul.
+    </div>
+  </div>
+
+  <div class="swatches">
+    <div class="sw" style="background:#0a0e1a;color:#e2e8f0"><div class="sw-name">Indigo-black</div><div class="sw-hex">#0a0e1a</div><div class="sw-use">Base — deep, cool</div></div>
+    <div class="sw" style="background:#06b6d4;color:#000"><div class="sw-name">Electric cyan</div><div class="sw-hex">#06b6d4</div><div class="sw-use">Sole accent · sparingly</div></div>
+    <div class="sw" style="background:#141d33;color:#e2e8f0"><div class="sw-name">Surface</div><div class="sw-hex">#141d33</div><div class="sw-use">Cards · panels</div></div>
+    <div class="sw" style="background:#94a3b8;color:#000"><div class="sw-name">Slate</div><div class="sw-hex">#94a3b8</div><div class="sw-use">Secondary text · labels</div></div>
+    <div class="sw" style="background:#64748b;color:#fff"><div class="sw-name">Faded slate</div><div class="sw-hex">#64748b</div><div class="sw-use">Drift · muted · timestamps</div></div>
+    <div class="sw" style="background:#e2e8f0;color:#0a0e1a"><div class="sw-name">Silver</div><div class="sw-hex">#e2e8f0</div><div class="sw-use">Primary text</div></div>
+  </div>
+
+  <div class="showcase-row">
+    <div class="showcase-col">
+      <div class="showcase-label">Camera-first home</div>
+      <div class="phone-shell" style="background:var(--bg);border-radius:36px">
+        <div class="sb-n" style="color:#64748b"><span>9:41</span><div class="sb-n-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="vf-mock" style="background:#070b14">
+          <div class="vf-edge vf-edge-tl" style="color:#64748b"><i data-lucide="circle"></i>auto</div>
+          <div class="vf-edge vf-edge-tr" style="color:#64748b"><i data-lucide="map-pin"></i>Hackney</div>
+          <div class="vf-recog-chip" style="background:#0f1525;border-color:rgba(6,182,212,0.2);font-weight:400"><div class="av" style="background:#06b6d4;color:#000;font-size:6px">M</div><span style="color:#e2e8f0">Maya</span><div class="check" style="background:#06b6d4"><i data-lucide="check"></i></div></div>
+          <div class="vf-facebox" style="border-color:rgba(6,182,212,0.5);border-radius:4px"><span class="c1" style="border-color:rgba(6,182,212,0.5)"></span><span class="c2" style="border-color:rgba(6,182,212,0.5)"></span></div>
+          <div class="mode-switch" style="font-weight:400"><span>roll</span><span class="on" style="color:#e2e8f0">capture</span><span>voice</span></div>
+        </div>
+        <div class="shutter-bar" style="background:#0a0e1a;border-color:rgba(148,163,184,0.08)">
+          <div class="shutter-edge" style="background:#141d33;border-color:rgba(148,163,184,0.1);border-radius:4px"><i data-lucide="image" style="stroke:#94a3b8"></i></div>
+          <div class="shutter" style="border:2px solid rgba(6,182,212,0.3);box-shadow:0 0 0 2px rgba(6,182,212,0.1)"></div>
+          <div class="shutter-edge" style="background:#141d33;border-color:rgba(148,163,184,0.1);border-radius:4px"><i data-lucide="scan-face" style="stroke:#94a3b8"></i></div>
+        </div>
+        <div class="nav-n" style="background:#0a0e1a;color:#64748b;border-color:rgba(148,163,184,0.08)">
+          <div class="nav-n-i on"><i data-lucide="camera" style="stroke:#06b6d4"></i><span style="color:#06b6d4;font-weight:400">camera</span></div>
+          <div class="nav-n-i"><i data-lucide="layers"></i><span>roll</span></div>
+          <div class="nav-n-i"><i data-lucide="users"></i><span>people</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="showcase-col">
+      <div class="showcase-label">Moment card · L2</div>
+      <div class="card-shell mc-mock" style="background:#0f1525;border-color:rgba(148,163,184,0.08);border-radius:6px">
+        <div class="mc-mock-h">
+          <div class="mc-mock-av" style="border-color:rgba(6,182,212,0.3);background:#141d33;border-radius:4px"><i data-lucide="users" style="stroke:#94a3b8"></i></div>
+          <div class="mc-mock-who"><div class="mc-mock-name" style="color:#e2e8f0;font-weight:400">Lunch with Dev &amp; Sam</div><div class="mc-mock-time" style="color:#64748b">12:40 · thu 25</div></div>
+        </div>
+        <div class="mc-mock-body" style="border-color:rgba(148,163,184,0.1);background:transparent;border-radius:5px">
+          <div class="mc-mock-photos">
+            <div class="mc-mock-ph" style="background:#141d33">🍱</div>
+            <div class="mc-mock-ph" style="background:#1a2440">🍵</div>
+            <div class="mc-mock-ph" style="background:#0a0e1a;font-size:10px;font-weight:400;color:#64748b">+1</div>
+          </div>
+          <div class="mc-mock-text" style="color:#94a3b8">Tried the new ramen place. Dev ruined his shirt.</div>
+        </div>
+        <div class="mc-mock-chips">
+          <span class="mc-mock-chip" style="color:#06b6d4;border-color:rgba(6,182,212,0.2);background:transparent;border-radius:4px">dev</span>
+          <span class="mc-mock-chip" style="color:#06b6d4;border-color:rgba(6,182,212,0.2);background:transparent;border-radius:4px">sam</span>
+          <span class="mc-mock-chip" style="color:#64748b;border-radius:4px">food</span>
+        </div>
+        <div class="mc-mock-ft" style="border-color:rgba(148,163,184,0.08)">
+          <i data-lucide="plus" style="stroke:#64748b"></i><i data-lucide="tag" style="stroke:#64748b"></i>
+          <span class="loc" style="color:#64748b"><i data-lucide="map-pin"></i>Koya · Soho</span>
+          <span class="del"><i data-lucide="trash-2" style="stroke:#64748b"></i></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lang-notes">
+    <div class="lang-note"><span class="k">Typography</span> Light-weight headers (300/400), monospace labels, lowercase nav labels</div>
+    <div class="lang-note"><span class="k">Borders</span> 4–6px radius (sharp), 1px slate lines, no gradients ever</div>
+    <div class="lang-note"><span class="k">Motion</span> None. No scan, no pulse, no glow. The app is still and quiet. State changes are instant.</div>
+    <div class="lang-note"><span class="k">Camera UX</span> Face box = thin cyan line, no animation. Shutter = cyan-ringed white circle. Subtle, observational.</div>
+    <div class="lang-note"><span class="k">Soul</span> "A quiet log of who you see. The app notices patterns so you don't have to. It never shouts."</div>
+  </div>
+</div>
+
+<!-- ════════════ 4 — SUNBLEACHED ════════════ -->
+<div class="pal-section pal-sun">
+  <div class="pal-header">
+    <div class="pal-name">4 · Sunbleached</div>
+    <div class="pal-tag">Daytime journal · light mode · travel diary</div>
+    <div class="pal-philosophy" style="color:var(--mute)">
+      Warm paper base, charcoal ink text, coral primary, sage + dusty rose accents. Light, airy, daytime. Photos pop against cream. Feels like a travel diary or a Polaroid book. Best if the app is used during the day (lunch, coffee, afternoon walks) and the "journal" soul wins over the "camera" soul. The only light-mode option here.
+    </div>
+  </div>
+
+  <div class="swatches">
+    <div class="sw" style="background:#faf6f0;color:#1c1917"><div class="sw-name">Paper</div><div class="sw-hex">#faf6f0</div><div class="sw-use">Base — warm light</div></div>
+    <div class="sw" style="background:#f87171;color:#fff"><div class="sw-name">Coral</div><div class="sw-hex">#f87171</div><div class="sw-use">Primary · capture · face box</div></div>
+    <div class="sw" style="background:#65a30d;color:#fff"><div class="sw-name">Sage</div><div class="sw-hex">#65a30d</div><div class="sw-use">Healthy · streaks · "here"</div></div>
+    <div class="sw" style="background:#e879f9;color:#fff"><div class="sw-name">Dusty rose</div><div class="sw-hex">#e879f9</div><div class="sw-use">People · highlights · L4</div></div>
+    <div class="sw" style="background:#d97706;color:#fff"><div class="sw-name">Warm amber</div><div class="sw-hex">#d97706</div><div class="sw-use">Planned · drift · warnings</div></div>
+    <div class="sw" style="background:#1c1917;color:#faf6f0"><div class="sw-name">Ink</div><div class="sw-hex">#1c1917</div><div class="sw-use">Text · shutter button</div></div>
+  </div>
+
+  <div class="showcase-row">
+    <div class="showcase-col">
+      <div class="showcase-label">Camera-first home</div>
+      <div class="phone-shell" style="background:var(--bg);border:1.5px solid var(--line-2)">
+        <div class="sb-n" style="color:#a8a29e"><span>9:41</span><div class="sb-n-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="vf-mock" style="background:#f5f0e8">
+          <div class="vf-edge vf-edge-tl" style="color:#a8a29e"><i data-lucide="sun"></i>Bright</div>
+          <div class="vf-edge vf-edge-tr" style="color:#a8a29e"><i data-lucide="map-pin"></i>Hackney</div>
+          <div class="vf-recog-chip" style="background:#fff;border-color:rgba(248,113,113,0.3);box-shadow:0 2px 8px rgba(28,25,23,0.08)"><div class="av" style="background:#f87171">M</div><span style="color:#1c1917">Maya</span><div class="check" style="background:#65a30d"><i data-lucide="check"></i></div></div>
+          <div class="vf-facebox" style="border-color:#f87171"><span class="c1" style="border-color:#f87171"></span><span class="c2" style="border-color:#f87171"></span></div>
+          <div class="mode-switch"><span style="color:#a8a29e">Roll</span><span class="on" style="color:#1c1917">Capture</span><span style="color:#a8a29e">Voice</span></div>
+        </div>
+        <div class="shutter-bar" style="background:#fff;border-color:rgba(28,25,23,0.08)">
+          <div class="shutter-edge" style="background:#f5f0e8;border-color:rgba(28,25,23,0.1)"><i data-lucide="image" style="stroke:#57534e"></i></div>
+          <div class="shutter" style="background:#1c1917;border-color:rgba(28,25,23,0.1)"></div>
+          <div class="shutter-edge" style="background:#f5f0e8;border-color:rgba(28,25,23,0.1)"><i data-lucide="scan-face" style="stroke:#57534e"></i></div>
+        </div>
+        <div class="nav-n" style="background:#fff;color:#a8a29e;border-color:rgba(28,25,23,0.08)">
+          <div class="nav-n-i on"><i data-lucide="camera" style="stroke:#f87171"></i><span style="color:#f87171">Camera</span></div>
+          <div class="nav-n-i"><i data-lucide="layers"></i><span>Roll</span></div>
+          <div class="nav-n-i"><i data-lucide="users"></i><span>People</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="showcase-col">
+      <div class="showcase-label">Moment card · L2</div>
+      <div class="card-shell mc-mock" style="background:#fff;border-color:rgba(28,25,23,0.08);border-radius:20px;box-shadow:0 4px 16px -4px rgba(28,25,23,0.08)">
+        <div class="mc-mock-h">
+          <div class="mc-mock-av" style="border-color:rgba(248,113,113,0.4);background:rgba(248,113,113,0.06)"><i data-lucide="users" style="stroke:#f87171"></i></div>
+          <div class="mc-mock-who"><div class="mc-mock-name" style="color:#1c1917">Lunch with Dev &amp; Sam</div><div class="mc-mock-time" style="color:#a8a29e">Today · 12:40 PM</div></div>
+        </div>
+        <div class="mc-mock-body" style="border-color:rgba(248,113,113,0.2);background:rgba(248,113,113,0.03);border-radius:14px">
+          <div class="mc-mock-photos" style="border-radius:14px 14px 0 0;overflow:hidden">
+            <div class="mc-mock-ph" style="background:linear-gradient(135deg,#fef3c7,#fde68a)">🍱</div>
+            <div class="mc-mock-ph" style="background:linear-gradient(135deg,#ddd6fe,#c4b5fd)">🍵</div>
+            <div class="mc-mock-ph" style="background:#f5f0e8;font-size:10px;font-weight:800;color:#a8a29e">+1</div>
+          </div>
+          <div class="mc-mock-text" style="color:#57534e">Tried the new ramen place. Dev ruined his shirt.</div>
+        </div>
+        <div class="mc-mock-chips">
+          <span class="mc-mock-chip" style="color:#f87171;border-color:rgba(248,113,113,0.2);background:rgba(248,113,113,0.06);border-radius:8px">dev</span>
+          <span class="mc-mock-chip" style="color:#f87171;border-color:rgba(248,113,113,0.2);background:rgba(248,113,113,0.06);border-radius:8px">sam</span>
+          <span class="mc-mock-chip" style="color:#a8a29e;border-radius:8px">food</span>
+        </div>
+        <div class="mc-mock-ft" style="border-color:rgba(28,25,23,0.06)">
+          <i data-lucide="plus" style="stroke:#a8a29e"></i><i data-lucide="tag" style="stroke:#a8a29e"></i>
+          <span class="loc" style="color:#a8a29e"><i data-lucide="map-pin"></i>Koya · Soho</span>
+          <span class="del"><i data-lucide="trash-2" style="stroke:#d97706"></i></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lang-notes">
+    <div class="lang-note"><span class="k">Typography</span> Rounded sans (SF Pro Rounded / Nunito), 800-weight headers, soft and friendly</div>
+    <div class="lang-note"><span class="k">Borders</span> 20px radius (softest), 1px ink-tinted lines, soft drop shadows instead of borders for elevation</div>
+    <div class="lang-note"><span class="k">Motion</span> Gentle. Bouncy spring transitions. Shutter = black circle + haptic + brief white flash.</div>
+    <div class="lang-note"><span class="k">Camera UX</span> Face box = coral, cream viewfinder chrome. Feels like an Instax/Polaroid camera — bright, friendly, daytime.</div>
+    <div class="lang-note"><span class="k">Soul</span> "Your photo diary. Cream pages, coral ink. Write down who you saw today."</div>
+  </div>
+</div>
+
+<!-- ════════════ 5 — NEON DARKROOM ════════════ -->
+<div class="pal-section pal-neon">
+  <div class="pal-header">
+    <div class="pal-name">5 · Neon Darkroom</div>
+    <div class="pal-tag">Camera cyberpunk · OLED pure black · HUD</div>
+    <div class="pal-philosophy" style="color:var(--mute)">
+      Pure black (#000) for OLED. Electric lime + hot pink + cyan neon accents with glow effects. Monospace UI labels. Sharp corners. Minimal chrome — maximum viewfinder. Feels like a camera HUD / cyberpunk interface. Best if the camera-app angle goes full "tool" — the app is a camera instrument, the journal is secondary. High contrast, high energy, zero warmth.
+    </div>
+  </div>
+
+  <div class="swatches">
+    <div class="sw" style="background:#000;color:#fff"><div class="sw-name">Pure black</div><div class="sw-hex">#000000</div><div class="sw-use">Base — OLED-friendly</div></div>
+    <div class="sw" style="background:#a3e635;color:#000"><div class="sw-name">Electric lime</div><div class="sw-hex">#a3e635</div><div class="sw-use">Primary · face box · active</div></div>
+    <div class="sw" style="background:#ec4899;color:#fff"><div class="sw-name">Hot pink</div><div class="sw-hex">#ec4899</div><div class="sw-use">Voice · people · highlights</div></div>
+    <div class="sw" style="background:#22d3ee;color:#000"><div class="sw-name">Cyan</div><div class="sw-hex">#22d3ee</div><div class="sw-use">Map · info · scan</div></div>
+    <div class="sw" style="background:#141414;color:#fff"><div class="sw-name">Carbon</div><div class="sw-hex">#141414</div><div class="sw-use">Surface · panels</div></div>
+    <div class="sw" style="background:#fff;color:#000"><div class="sw-name">White</div><div class="sw-hex">#ffffff</div><div class="sw-use">Shutter · text</div></div>
+  </div>
+
+  <div class="showcase-row">
+    <div class="showcase-col">
+      <div class="showcase-label">Camera-first home</div>
+      <div class="phone-shell" style="background:#000;border:1px solid rgba(163,230,53,0.15)">
+        <div class="sb-n" style="color:rgba(255,255,255,0.3)"><span>9:41</span><div class="sb-n-r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></div></div>
+        <div class="vf-mock" style="background:#000">
+          <!-- HUD crosshair -->
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100px;height:1px;background:rgba(163,230,53,0.1)"></div>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:1px;height:100px;background:rgba(163,230,53,0.1)"></div>
+          <div class="vf-edge vf-edge-tl" style="color:#a3e635;font-family:monospace;letter-spacing:0.05em"><i data-lucide="zap" style="stroke:#a3e635"></i>AUTO</div>
+          <div class="vf-edge vf-edge-tr" style="color:rgba(255,255,255,0.3);font-family:monospace">51.5N · 0.1W</div>
+          <div class="vf-recog-chip" style="background:#0a0a0a;border-color:rgba(163,230,53,0.4);box-shadow:0 0 12px rgba(163,230,53,0.3);font-family:monospace;letter-spacing:0.04em"><div class="av" style="background:#a3e635;color:#000">M</div><span style="color:#a3e635">MAYA · 94%</span></div>
+          <div class="vf-facebox" style="border-color:#a3e635;box-shadow:0 0 16px rgba(163,230,53,0.4)"><span class="c1" style="border-color:#a3e635"></span><span class="c2" style="border-color:#a3e635"></span></div>
+          <div class="mode-switch" style="font-family:monospace;letter-spacing:0.04em"><span>ROLL</span><span class="on" style="color:#a3e635">CAPTURE</span><span>VOICE</span></div>
+        </div>
+        <div class="shutter-bar" style="background:#000;border-color:rgba(255,255,255,0.06)">
+          <div class="shutter-edge" style="background:#141414;border-color:rgba(163,230,53,0.15)"><i data-lucide="image" style="stroke:rgba(255,255,255,0.4)"></i></div>
+          <div class="shutter" style="border:2px solid #a3e635;box-shadow:0 0 20px rgba(163,230,53,0.4),0 0 0 3px rgba(163,230,53,0.1)"></div>
+          <div class="shutter-edge" style="background:#141414;border-color:rgba(163,230,53,0.15)"><i data-lucide="scan-face" style="stroke:#a3e635"></i></div>
+        </div>
+        <div class="nav-n" style="background:#000;color:rgba(255,255,255,0.3);border-color:rgba(255,255,255,0.06)">
+          <div class="nav-n-i on"><i data-lucide="camera" style="stroke:#a3e635;filter:drop-shadow(0 0 4px rgba(163,230,53,0.6))"></i><span style="color:#a3e635;font-family:monospace">CAM</span></div>
+          <div class="nav-n-i"><i data-lucide="layers"></i><span style="font-family:monospace">ROLL</span></div>
+          <div class="nav-n-i"><i data-lucide="users"></i><span style="font-family:monospace">PEOPLE</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="showcase-col">
+      <div class="showcase-label">Moment card · L2</div>
+      <div class="card-shell mc-mock" style="background:#0a0a0a;border-color:rgba(163,230,53,0.12);border-radius:6px">
+        <div class="mc-mock-h">
+          <div class="mc-mock-av" style="border-color:rgba(163,230,53,0.4);background:rgba(163,230,53,0.05)"><i data-lucide="users" style="stroke:#a3e635"></i></div>
+          <div class="mc-mock-who"><div class="mc-mock-name" style="color:#fff">Lunch with Dev &amp; Sam</div><div class="mc-mock-time" style="color:rgba(255,255,255,0.2);font-family:monospace">12:40 · 25.06</div></div>
+        </div>
+        <div class="mc-mock-body" style="border-color:rgba(163,230,53,0.2);background:rgba(163,230,53,0.02);border-radius:5px">
+          <div class="mc-mock-photos">
+            <div class="mc-mock-ph" style="background:#141414">🍱</div>
+            <div class="mc-mock-ph" style="background:#1a1a1a">🍵</div>
+            <div class="mc-mock-ph" style="background:#000;font-size:10px;font-weight:800;color:rgba(255,255,255,0.3);font-family:monospace">+1</div>
+          </div>
+          <div class="mc-mock-text" style="color:rgba(255,255,255,0.5)">Tried the new ramen place. Dev ruined his shirt.</div>
+        </div>
+        <div class="mc-mock-chips">
+          <span class="mc-mock-chip" style="color:#a3e635;border-color:rgba(163,230,53,0.2);background:rgba(163,230,53,0.05);border-radius:4px;font-family:monospace">dev</span>
+          <span class="mc-mock-chip" style="color:#a3e635;border-color:rgba(163,230,53,0.2);background:rgba(163,230,53,0.05);border-radius:4px;font-family:monospace">sam</span>
+          <span class="mc-mock-chip" style="color:rgba(255,255,255,0.3);border-radius:4px;font-family:monospace">food</span>
+        </div>
+        <div class="mc-mock-ft" style="border-color:rgba(255,255,255,0.06)">
+          <i data-lucide="plus" style="stroke:rgba(255,255,255,0.3)"></i><i data-lucide="tag" style="stroke:rgba(255,255,255,0.3)"></i>
+          <span class="loc" style="color:rgba(255,255,255,0.2);font-family:monospace"><i data-lucide="map-pin"></i>Koya · Soho</span>
+          <span class="del"><i data-lucide="trash-2" style="stroke:#ec4899"></i></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lang-notes">
+    <div class="lang-note"><span class="k">Typography</span> Monospace everything for UI labels (JetBrains Mono / SF Mono), sans only for body text</div>
+    <div class="lang-note"><span class="k">Borders</span> 4–6px radius (sharp), 1px neon-tinted lines, glow shadows (0 0 12px accent)</div>
+    <div class="lang-note"><span class="k">Motion</span> HUD-style. Scan = cyan line. Shutter = lime flash + haptic. Face box pulses lime when locked.</div>
+    <div class="lang-note"><span class="k">Camera UX</span> Crosshair overlay, GPS coordinates in monospace, face box = lime with glow, recognition chip shows confidence %. Pure instrument.</div>
+    <div class="lang-note"><span class="k">Soul</span> "A camera instrument. It sees who's there, logs the moment, gets out of the way. Zero sentimentality."</div>
+  </div>
+</div>
+
+<!-- ════════════ COMPARISON SUMMARY ════════════ -->
+<div class="pal-section">
+  <div class="pal-header">
+    <div class="pal-name" style="color:rgba(255,255,255,0.6)">How to choose</div>
+    <div class="pal-philosophy" style="color:rgba(255,255,255,0.4)">
+      The camera-app angle works in all five, but the <em>soul</em> is different. Pick based on what feeling you want when the user opens the app 12 times a day.
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px">
+    <div style="padding:18px;border:1px solid rgba(255,255,255,0.06);border-radius:12px;background:rgba(255,255,255,0.02)">
+      <div style="font-size:13px;font-weight:800;margin-bottom:6px;background:linear-gradient(135deg,#8b5cf6,#ec4899);-webkit-background-clip:text;background-clip:text;color:transparent">Aurora</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.4);line-height:1.6">Pick if the app feels <strong>social, energetic, nightlife</strong>. "I see people often and I want the app to feel alive." Gradient brand, glowing accents, modern.</div>
+    </div>
+    <div style="padding:18px;border:1px solid rgba(201,169,110,0.12);border-radius:12px;background:rgba(201,169,110,0.02)">
+      <div style="font-size:13px;font-weight:800;margin-bottom:6px;color:#c9a96e">Film Lab</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.4);line-height:1.6">Pick if the app feels like a <strong>private archive / darkroom</strong>. "Moments are exposures. Some develop later." Analog, warm, archival. Dispo-style delayed memories.</div>
+    </div>
+    <div style="padding:18px;border:1px solid rgba(6,182,212,0.1);border-radius:12px;background:rgba(6,182,212,0.02)">
+      <div style="font-size:13px;font-weight:800;margin-bottom:6px;color:#06b6d4;font-weight:300">Midnight Ink</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.4);line-height:1.6">Pick if the app feels <strong>introspective, quiet</strong>. "I want to notice drift without the app nagging me." Single accent, no gradients, no animation. A logbook.</div>
+    </div>
+    <div style="padding:18px;border:1px solid rgba(248,113,113,0.12);border-radius:12px;background:rgba(248,113,113,0.02)">
+      <div style="font-size:13px;font-weight:800;margin-bottom:6px;color:#f87171">Sunbleached</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.4);line-height:1.6">Pick if the app is a <strong>daytime diary</strong>. "I log lunches and coffees, not nights out." Light mode, cream paper, coral ink, Polaroid feel. Friendliest.</div>
+    </div>
+    <div style="padding:18px;border:1px solid rgba(163,230,53,0.1);border-radius:12px;background:rgba(163,230,53,0.02)">
+      <div style="font-size:13px;font-weight:800;margin-bottom:6px;color:#a3e635">Neon Darkroom</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.4);line-height:1.6">Pick if the app is a <strong>camera instrument first</strong>. "Just capture, tag, and get out of my way." Pure black OLED, lime HUD, monospace, zero sentiment. Most "camera-app" of the five.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;padding:20px 24px;border:1px solid rgba(255,255,255,0.06);border-radius:12px;background:rgba(255,255,255,0.02);font-size:11px;color:rgba(255,255,255,0.35);line-height:1.7;max-width:680px">
+    <strong style="color:rgba(255,255,255,0.55)">My recommendation for the camera-app angle:</strong> Film Lab. The "exposures develop on a delay" metaphor is the strongest engagement hook — it gives people a reason to come back 24h later (your memory is ready). It leans into the private-archive soul from MOMENTS_PLAN.md (no sharing, personal graph, recaps). The analog aesthetic also differentiates from every other dark-mode social app. Aurora is the safe bet if you want modern/familiar. Neon Darkroom if you want to go full camera-tool and shed the journal skin entirely.
+  </div>
+</div>
+
+</body>
+<script>lucide.createIcons();</script>
+</html>

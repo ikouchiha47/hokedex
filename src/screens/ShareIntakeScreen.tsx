@@ -1,15 +1,3 @@
-/**
- * ShareIntakeScreen — handles the shared image flow after the Android Share Sheet launches the app.
- *
- * Receives the shared image path via navigation route params ({ imageUri }).
- * On mount: immediately runs face detection on the shared image.
- *
- * R-6.4: SUCCESS      → navigate to SearchResult with the image pre-loaded
- * R-6.5: NO_SUBJECT   → show retry (crop) or save as reference options
- * R-6.6: MULTI_SUBJECT → show face picker grid, then proceed to search with selected crop
- * R-6.7: LOW_CONFIDENCE → show accuracy warning, offer proceed or discard
- */
-
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
@@ -19,193 +7,163 @@ import {
   ScrollView,
   ActivityIndicator,
   StyleSheet,
-  Dimensions,
-  Alert,
-  NativeModules,
+  ToastAndroid,
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import ImageCropPicker from 'react-native-image-crop-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Fonts } from '../theme/fonts';
 import { clearSharedImage } from '../services/share';
 import { useApp } from '../AppContext';
 import type { RootStackParamList } from '../navigation/RootNavigator';
-import type { BoundingBox, DetectionResult } from '../types/ml';
+import { ModelDownloadService, isModelUnavailableError } from '../services/ModelDownloadService';
+import { MomentCaptureService } from '../services/MomentCaptureService';
+import { PlaceResolverRegistry } from '../services/place-resolver/PlaceResolverRegistry';
+import { RuleRegistry } from '../services/rules/RuleRegistry';
+import { resolveCaptureMetadata } from '../services/captureMetadataService';
+import { NativeModules } from 'react-native';
 
 const { HokedexML } = NativeModules;
-
-const { width: SCREEN_W } = Dimensions.get('screen');
-// 3-column grid: total padding 32 (16×2) + 2 gaps of 8 = 48 taken; remaining divided by 3
-const FACE_CELL_SIZE = Math.floor((SCREEN_W - 48) / 3);
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type RouteT = RouteProp<RootStackParamList, 'ShareIntake'>;
 
-type IntakePhase =
+type Phase =
+  | { phase: 'checking' }
+  | { phase: 'model_unavailable' }
   | { phase: 'detecting' }
-  | { phase: 'no_subject' }
-  | { phase: 'multi_subject'; crops: BoundingBox[] }
-  | { phase: 'low_confidence'; confidence: number }
-  | { phase: 'navigating' }
-  | { phase: 'error'; message: string };
+  | { phase: 'ready' }
+  | { phase: 'saving' };
+
+const downloadService = new ModelDownloadService();
 
 export function ShareIntakeScreen() {
-  const { category } = useApp();
+  const { db, category } = useApp();
   const navigation = useNavigation<Nav>();
   const route = useRoute<RouteT>();
   const insets = useSafeAreaInsets();
+  const imageUri = route.params.imageUri;
 
-  const [state, setState] = useState<IntakePhase>({ phase: 'detecting' });
-  const [activeUri, setActiveUri] = useState(route.params.imageUri);
+  const [state, setState] = useState<Phase>({ phase: 'checking' });
 
-  const runDetection = useCallback(async (uri: string) => {
+  const captureService = new MomentCaptureService(db, new PlaceResolverRegistry(), new RuleRegistry());
+
+  const previewUri = imageUri.startsWith('file://') ? imageUri : `file://${imageUri}`;
+
+  const checkAndDetect = useCallback(async () => {
+    setState({ phase: 'checking' });
+    const ready = await downloadService.checkReady();
+    if (!ready) {
+      setState({ phase: 'model_unavailable' });
+      return;
+    }
     setState({ phase: 'detecting' });
     try {
-      const detection: DetectionResult = await HokedexML.detect(uri, category.id);
-
-      if (detection.type === 'NO_SUBJECT') {
-        setState({ phase: 'no_subject' });
-        return;
-      }
-
-      if (detection.type === 'MULTI_SUBJECT') {
-        setState({ phase: 'multi_subject', crops: detection.crops });
-        return;
-      }
-
-      if (detection.type === 'LOW_CONFIDENCE') {
-        setState({ phase: 'low_confidence', confidence: detection.confidence });
-        return;
-      }
-
-      // SUCCESS
-      await doNavigateToSearch(uri);
+      await HokedexML.detect(imageUri, category.id);
     } catch (e) {
-      setState({ phase: 'error', message: e instanceof Error ? e.message : String(e) });
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category.id]);
-
-  useEffect(() => {
-    runDetection(activeUri);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  async function doNavigateToSearch(uri: string) {
-    setState({ phase: 'navigating' });
-    await clearSharedImage();
-    navigation.replace('SearchResult', { preloadedImageUri: uri });
-  }
-
-  async function handleRetryWithCrop() {
-    try {
-      const cropped = await ImageCropPicker.openCropper({
-        path: activeUri,
-        mediaType: 'photo',
-        freeStyleCropEnabled: true,
-        cropperToolbarColor: '#1a1a1a',
-        cropperStatusBarLight: false,
-        cropperActiveWidgetColor: '#7c3aed',
-        cropperToolbarWidgetColor: '#ffffff',
-      });
-      setActiveUri(cropped.path);
-      runDetection(cropped.path);
-    } catch (e: any) {
-      if (e?.code !== 'E_PICKER_CANCELLED') {
-        Alert.alert('Error', String(e?.message ?? e));
+      if (isModelUnavailableError(e)) {
+        setState({ phase: 'model_unavailable' });
+        return;
       }
+      // Detection errors don't block the UI — we still show the actions
     }
-  }
+    setState({ phase: 'ready' });
+  }, [imageUri, category.id]);
 
-  async function handleSaveAsReference() {
-    await clearSharedImage();
-    navigation.replace('NewEntry', { prefillImageUri: activeUri });
-  }
+  // Re-check every time screen comes into focus (e.g. back from Settings after download)
+  useFocusEffect(
+    useCallback(() => {
+      checkAndDetect();
+    }, [checkAndDetect]),
+  );
 
-  // crop param is available for future use (e.g., pre-seeding the crop rect).
-  // For now we open a free-style cropper so the user can confirm the face region.
-  async function handleSelectCrop(_crop: BoundingBox) {
+  async function handleSaveAsMoment() {
+    setState({ phase: 'saving' });
     try {
-      const cropped = await ImageCropPicker.openCropper({
-        path: activeUri,
-        mediaType: 'photo',
-        freeStyleCropEnabled: true,
-        cropperToolbarColor: '#1a1a1a',
-        cropperStatusBarLight: false,
-        cropperActiveWidgetColor: '#7c3aed',
-        cropperToolbarWidgetColor: '#ffffff',
+      const meta = await resolveCaptureMetadata();
+      await captureService.capture({
+        note: null,
+        occurredAt: Date.now(),
+        entryIds: [],
+        newPeople: [],
+        source: 'gallery',
+        type: 'photo',
+        photoUri: imageUri,
+        latitude: meta.latitude,
+        longitude: meta.longitude,
+        placeName: meta.placeName,
+        weatherTemp: meta.weatherTemp,
+        weatherCondition: meta.weatherCondition,
       });
-      setActiveUri(cropped.path);
-      runDetection(cropped.path);
-    } catch (e: any) {
-      if (e?.code !== 'E_PICKER_CANCELLED') {
-        Alert.alert('Error', String(e?.message ?? e));
-      }
+      await clearSharedImage();
+      ToastAndroid.show('Saved as moment', ToastAndroid.SHORT);
+      navigation.navigate('Tabs', { screen: 'Moments' } as any);
+    } catch (e) {
+      console.warn('[ShareIntake] save failed:', e);
+      ToastAndroid.show('Save failed', ToastAndroid.SHORT);
+      setState({ phase: 'ready' });
     }
   }
 
-  async function handleProceedDespiteLowConfidence() {
-    await doNavigateToSearch(activeUri);
+  function handleAddContact() {
+    navigation.replace('SearchResult', { preloadedImageUri: imageUri });
+  }
+
+  function handleDownload() {
+    navigation.navigate('Settings', {});
   }
 
   async function handleDiscard() {
     await clearSharedImage();
-    navigation.replace('CollectionList');
+    navigation.goBack();
   }
 
-  const previewUri = activeUri.startsWith('file://') ? activeUri : `file://${activeUri}`;
+  const isBusy =
+    state.phase === 'checking' ||
+    state.phase === 'detecting' ||
+    state.phase === 'saving';
 
   return (
-    <View style={[styles.root]}>
-      {/* Header */}
+    <View style={styles.root}>
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <Pressable onPress={handleDiscard} style={styles.backBtn} accessibilityLabel="Dismiss">
+        <Pressable onPress={handleDiscard} style={styles.backBtn}>
           <MaterialIcons name="close" size={24} color="#fff" />
         </Pressable>
-        <Text style={styles.title}>Shared photo</Text>
+        <Text style={styles.title}>Photo</Text>
         <View style={{ width: 40 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-        {/* Shared image preview */}
         <Image source={{ uri: previewUri }} style={styles.preview} resizeMode="cover" />
 
-        {/* DETECTING */}
-        {state.phase === 'detecting' && (
+        {isBusy && (
           <View style={styles.centreCard}>
             <ActivityIndicator color="#7c3aed" size="large" />
-            <Text style={styles.statusText}>Detecting faces…</Text>
+            <Text style={styles.statusText}>
+              {state.phase === 'saving' ? 'Saving…' : 'Checking…'}
+            </Text>
           </View>
         )}
 
-        {/* NAVIGATING (brief flash) */}
-        {state.phase === 'navigating' && (
-          <View style={styles.centreCard}>
-            <ActivityIndicator color="#7c3aed" size="large" />
-            <Text style={styles.statusText}>Opening results…</Text>
-          </View>
-        )}
-
-        {/* NO_SUBJECT */}
-        {state.phase === 'no_subject' && (
+        {state.phase === 'model_unavailable' && (
           <View style={styles.card}>
             <View style={styles.cardHeader}>
-              <MaterialIcons name="face-retouching-off" size={28} color="#888" />
-              <Text style={styles.cardTitle}>No face detected</Text>
+              <MaterialIcons name="cloud-download" size={28} color="#7c3aed" />
+              <Text style={styles.cardTitle}>Face model not downloaded</Text>
             </View>
             <Text style={styles.cardBody}>
-              The photo doesn't contain a recognisable face. Crop to a face and retry, or save it as a reference photo without search.
+              Download the face detection model to identify and tag people. You can save this photo as a moment now and annotate later.
             </Text>
             <View style={styles.actions}>
-              <Pressable style={styles.btnPrimary} onPress={handleRetryWithCrop}>
-                <MaterialIcons name="crop" size={16} color="#fff" />
-                <Text style={styles.btnPrimaryText}>Crop &amp; retry</Text>
+              <Pressable style={styles.btnPrimary} onPress={handleSaveAsMoment}>
+                <MaterialIcons name="bookmark-add" size={16} color="#fff" />
+                <Text style={styles.btnPrimaryText}>Save as moment</Text>
               </Pressable>
-              <Pressable style={styles.btnSecondary} onPress={handleSaveAsReference}>
-                <Text style={styles.btnSecondaryText}>Save as reference photo</Text>
+              <Pressable style={styles.btnSecondary} onPress={handleDownload}>
+                <MaterialIcons name="download" size={16} color="#aaa" />
+                <Text style={styles.btnSecondaryText}>Download model → Settings</Text>
               </Pressable>
               <Pressable style={styles.btnGhost} onPress={handleDiscard}>
                 <Text style={styles.btnGhostText}>Discard</Text>
@@ -214,72 +172,16 @@ export function ShareIntakeScreen() {
           </View>
         )}
 
-        {/* MULTI_SUBJECT */}
-        {state.phase === 'multi_subject' && (
+        {state.phase === 'ready' && (
           <View style={styles.card}>
-            <View style={styles.cardHeader}>
-              <MaterialIcons name="group" size={28} color="#7c3aed" />
-              <Text style={styles.cardTitle}>Multiple faces</Text>
-            </View>
-            <Text style={styles.cardBody}>Tap the face you want to search for.</Text>
-            <View style={styles.cropGrid}>
-              {state.crops.map((crop, i) => (
-                <Pressable
-                  key={i}
-                  style={styles.cropCell}
-                  onPress={() => handleSelectCrop(crop)}
-                  accessibilityLabel={`Face ${i + 1}`}
-                >
-                  {/* Show full image — user can identify face by position */}
-                  <Image source={{ uri: previewUri }} style={styles.cropThumb} resizeMode="cover" />
-                  <View style={styles.cropOverlay}>
-                    <Text style={styles.cropLabel}>Face {i + 1}</Text>
-                  </View>
-                </Pressable>
-              ))}
-            </View>
-            <Pressable style={[styles.btnGhost, { marginTop: 4 }]} onPress={handleDiscard}>
-              <Text style={styles.btnGhostText}>Discard</Text>
-            </Pressable>
-          </View>
-        )}
-
-        {/* LOW_CONFIDENCE */}
-        {state.phase === 'low_confidence' && (
-          <View style={styles.card}>
-            <View style={styles.cardHeader}>
-              <MaterialIcons name="warning-amber" size={28} color="#eab308" />
-              <Text style={styles.cardTitle}>Low accuracy</Text>
-            </View>
-            <Text style={styles.cardBody}>
-              A face was detected with low confidence ({Math.round(state.confidence * 100)}%). Search results may be unreliable.
-            </Text>
             <View style={styles.actions}>
-              <Pressable style={styles.btnPrimary} onPress={handleProceedDespiteLowConfidence}>
-                <Text style={styles.btnPrimaryText}>Proceed anyway</Text>
+              <Pressable style={styles.btnPrimary} onPress={handleSaveAsMoment}>
+                <MaterialIcons name="bookmark-add" size={16} color="#fff" />
+                <Text style={styles.btnPrimaryText}>Save as moment</Text>
               </Pressable>
-              <Pressable style={styles.btnSecondary} onPress={handleRetryWithCrop}>
-                <MaterialIcons name="crop" size={16} color="#aaa" />
-                <Text style={styles.btnSecondaryText}>Crop &amp; retry</Text>
-              </Pressable>
-              <Pressable style={styles.btnGhost} onPress={handleDiscard}>
-                <Text style={styles.btnGhostText}>Discard</Text>
-              </Pressable>
-            </View>
-          </View>
-        )}
-
-        {/* ERROR */}
-        {state.phase === 'error' && (
-          <View style={styles.card}>
-            <View style={styles.cardHeader}>
-              <MaterialIcons name="error-outline" size={28} color="#dc2626" />
-              <Text style={[styles.cardTitle, { color: '#dc2626' }]}>Detection failed</Text>
-            </View>
-            <Text style={styles.cardBody}>{state.message}</Text>
-            <View style={styles.actions}>
-              <Pressable style={styles.btnPrimary} onPress={() => runDetection(activeUri)}>
-                <Text style={styles.btnPrimaryText}>Retry</Text>
+              <Pressable style={styles.btnSecondary} onPress={handleAddContact}>
+                <MaterialIcons name="person-search" size={16} color="#aaa" />
+                <Text style={styles.btnSecondaryText}>Add contact</Text>
               </Pressable>
               <Pressable style={styles.btnGhost} onPress={handleDiscard}>
                 <Text style={styles.btnGhostText}>Discard</Text>
@@ -357,32 +259,4 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   btnGhostText: { fontSize: 13, fontFamily: Fonts.inter.regular, color: '#444' },
-  cropGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  cropCell: {
-    width: FACE_CELL_SIZE,
-    height: FACE_CELL_SIZE,
-    borderRadius: 8,
-    overflow: 'hidden',
-    backgroundColor: '#222',
-    borderWidth: 2,
-    borderColor: '#2a2a2a',
-  },
-  cropThumb: {
-    width: FACE_CELL_SIZE,
-    height: FACE_CELL_SIZE,
-  },
-  cropOverlay: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'rgba(0,0,0,0.65)',
-    paddingVertical: 3,
-    alignItems: 'center',
-  },
-  cropLabel: { fontSize: 10, fontFamily: Fonts.inter.medium, color: '#ccc' },
 });

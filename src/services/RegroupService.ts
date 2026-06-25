@@ -38,15 +38,18 @@ export async function regroup(db: DB): Promise<void> {
 
   setStatus('running');
 
-  while (true) {
-    await doRegroup(db);
+  try {
+    while (true) {
+      await doRegroup(db);
 
-    if (_currentStatus === 'queued') {
-      setStatus('running');
-    } else {
-      setStatus('idle');
-      break;
+      if (_currentStatus === 'queued') {
+        setStatus('running');
+      } else {
+        break;
+      }
     }
+  } finally {
+    setStatus('idle');
   }
 }
 
@@ -98,8 +101,8 @@ function findMatchingGroup(
   groups: MomentGroup[],
   memberMap: Map<string, string[]>,
 ): MomentGroup | null {
-  const rangeStart = gap.endedAt - GAP_THRESHOLD_MS;
-  const rangeEnd = gap.endedAt + GAP_THRESHOLD_MS;
+  const rangeStart = gap.startedAt - GAP_THRESHOLD_MS;
+  const rangeEnd = gap.startedAt + GAP_THRESHOLD_MS;
 
   for (const g of groups) {
     if (g.started_at >= rangeStart && g.started_at <= rangeEnd) {

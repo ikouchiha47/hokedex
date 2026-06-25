@@ -18,7 +18,7 @@ Gradle caches the Metro JS bundle aggressively. Always pre-bundle manually:
 cd android && ./gradlew assembleRelease --no-build-cache
 
 # 2. Install
-adb install -r app/build/outputs/apk/release/app-release.apk
+adb install -r app/build/outputs/apk/release/hokedex.apk
 
 # 3. Force-restart (install -r does NOT restart a running app)
 adb shell "am force-stop com.hokedex"
@@ -27,7 +27,7 @@ adb shell "am start -n com.hokedex/.MainActivity"
 
 One-liner (build + install + restart):
 ```bash
-cd android && ./gradlew assembleRelease --no-build-cache && adb install -r app/build/outputs/apk/release/app-release.apk && adb shell "am force-stop com.hokedex" && adb shell "am start -n com.hokedex/.MainActivity"
+cd android && ./gradlew assembleRelease --no-build-cache && adb install -r app/build/outputs/apk/release/hokedex.apk && adb shell "am force-stop com.hokedex" && adb shell "am start -n com.hokedex/.MainActivity"
 ```
 
 If you skip `--no-build-cache`, Gradle uses a cached bundle and your JS changes won't appear.
@@ -274,6 +274,51 @@ Serial:   hub fixes + interface lock + stubs   (cheap — no implementation)
 Parallel: each track implements its leaf files  (all the real work)
 Serial:   one wire-up step if needed           (trivial — both implementations exist)
 ```
+
+## Memory Engine
+
+This project uses the `huh` episodic memory CLI (`~/.local/bin/huh`) via the `/memory` skill. Follow these rules every session — no exceptions.
+
+### Before reading any source file
+
+Run `huh search-path <path> --limit 3` first. If a current index entry exists, use it instead of reading the file. Only read the file if:
+- No index entry exists, OR
+- The entry is tagged `stale` (file was modified after indexing)
+
+### After writing or editing source files
+
+Re-index every file you touched before the session ends:
+```bash
+huh index --json <path>   # get symbols
+huh save-index --path <path> --level file --content "<summary>"
+```
+
+The correct flag is `--content`, not `--summary`. Using `--summary` will fail.
+
+### At session end (files changed)
+
+If any `.ts`, `.tsx`, `.kt`, or `.sql` files were modified during the session, save a checkpoint:
+```bash
+huh checkpoint --note "brief description of what changed"
+```
+
+### Searching memory
+
+Always search memory before exploring the codebase for context:
+```bash
+huh search "<topic>" --limit 10
+huh search-path src/services --limit 5   # check if a dir is indexed
+```
+
+### Index levels
+
+| Level | Use for |
+|-------|---------|
+| `file` | Single source file |
+| `dir` | A directory (`src/db`, `src/services`) |
+| `module` | Cross-dir subsystem (e.g. "face processing pipeline") |
+| `feature` | End-to-end product capability |
+| `project` | Whole repo — update when architecture changes |
 
 ## Migrations
 

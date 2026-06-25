@@ -1,7 +1,7 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
 
 export type TabParamList = {
-  Camera: undefined;
+  Home: undefined;
   Moments: undefined;
   People: undefined;
   Maps: undefined;

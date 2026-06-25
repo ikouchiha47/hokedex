@@ -49,3 +49,7 @@ export function markJobDone(tx: import('../tx').Tx, id: string): void {
 export function markJobFailed(tx: import('../tx').Tx, id: string): void {
   tx.executeSync(Q.MARK_JOB_FAILED, [Date.now(), id]);
 }
+
+export async function resetStalledJobs(db: DB): Promise<void> {
+  await db.execute(Q.RESET_STALLED_JOBS);
+}

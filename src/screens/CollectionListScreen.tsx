@@ -11,8 +11,6 @@ import {
   useWindowDimensions,
   StyleSheet,
   StatusBar,
-  NativeModules,
-  NativeEventEmitter,
   Linking,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -30,6 +28,7 @@ import { Fonts } from '../theme/fonts';
 import { NotificationBanner, type BannerNotification } from '../components/NotificationBanner';
 import { checkForUpdate } from '../services/updateCheck';
 import { apkUrlForVersion } from '../config';
+import { ModelDownloadService } from '../services/ModelDownloadService';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -157,8 +156,6 @@ function SmashablePhoto({ entryId, photoPath, name, diameter, accentColor, onPre
   );
 }
 
-const { HokedexML } = NativeModules;
-
 export function CollectionListScreen({ onReset }: { onReset?: () => void } = {}) {
   const { db, collectionRoot, category } = useApp();
   const navigation = useNavigation<Nav>();
@@ -179,24 +176,20 @@ export function CollectionListScreen({ onReset }: { onReset?: () => void } = {})
   const [banner, setBanner] = useState<BannerNotification | null>(null);
 
   useEffect(() => {
-    HokedexML.checkModelsReady().then((ready: boolean) => {
+    const svc = new ModelDownloadService();
+    svc.checkReady().then(ready => {
       if (!ready) {
         setBanner({ type: 'download', message: 'Downloading face models…', progress: 0 });
-        const emitter = new NativeEventEmitter(HokedexML);
-        const progressSub = emitter.addListener('hokedex:modelProgress', ({ percent }: { percent: number }) => {
-          setBanner({ type: 'download', message: 'Downloading face models…', progress: percent });
+        const cancel = svc.download({
+          onProgress: percent =>
+            setBanner({ type: 'download', message: 'Downloading face models…', progress: percent }),
+          onDone: () => {
+            setBanner({ type: 'download', message: 'Downloading face models…', progress: 100 });
+            setTimeout(() => setBanner(null), 800);
+          },
+          onError: () => setBanner(null),
         });
-        const doneSub = emitter.addListener('hokedex:modelReady', () => {
-          setBanner({ type: 'download', message: 'Downloading face models…', progress: 100 });
-          setTimeout(() => setBanner(null), 800);
-          progressSub.remove();
-          doneSub.remove();
-        });
-        HokedexML.downloadModels().catch(() => {
-          progressSub.remove();
-          doneSub.remove();
-          setBanner(null);
-        });
+        return cancel;
       } else {
         checkForUpdate()
           .then(info => {
